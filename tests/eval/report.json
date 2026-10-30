@@ -1,0 +1,5455 @@
+{
+  "reportVersion": "v1",
+  "evaluationStage": "development-current-branch",
+  "releaseReady": false,
+  "datasetHash": "a8d9cec3ee985cf901f4369c75e45081aebb1a39fdec424ecf4ca1b7f1684565",
+  "engineBuildSha": "0aa1914763f0996c206f913fe72cbdd7310d480d",
+  "engineVersion": "0.1.0",
+  "policyRevision": 1,
+  "randomSeed": 17017,
+  "generatedFamilyCaveat": "Template-family samples are correlated; Wilson bounds use row counts and must not be interpreted as independent evidence. No row-level bootstrap is reported; a family-cluster bootstrap would be required for family-level uncertainty.",
+  "uncertaintyCaveat": "Synthetic results are not production accuracy. Wilson bounds describe only this sampled distribution under independence assumptions; template clones violate independence.",
+  "wallClockMs": 133,
+  "development": {
+    "n": 120,
+    "truthCounts": {
+      "SENSITIVE": 60,
+      "BENIGN": 35,
+      "AMBIGUOUS": 25
+    },
+    "metrics": {
+      "prompt": {
+        "tp": 60,
+        "fp": 3,
+        "tn": 32,
+        "fn": 0,
+        "precision": {
+          "value": 0.9523809523809523,
+          "numerator": 60,
+          "denominator": 63,
+          "display": "95.24% (60/63)"
+        },
+        "recall": {
+          "value": 1,
+          "numerator": 60,
+          "denominator": 60,
+          "display": "100.00% (60/60)"
+        },
+        "f1": {
+          "value": 0.975609756097561,
+          "numerator": 120,
+          "denominator": 123,
+          "display": "97.56%"
+        },
+        "falsePositiveRate": {
+          "value": 0.08571428571428572,
+          "numerator": 3,
+          "denominator": 35,
+          "display": "8.57% (3/35)"
+        }
+      },
+      "benign": {
+        "evaluated": 35,
+        "falseBlockRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 35,
+          "display": "0.00% (0/35)"
+        },
+        "benignPreventedRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 35,
+          "display": "0.00% (0/35)"
+        },
+        "falseBlockWilson95Upper": 0.09890099232440402
+      },
+      "ambiguous": {
+        "excludedFromBinaryMetrics": 25,
+        "detected": 0,
+        "escalated": 0
+      },
+      "entities": {
+        "expected": 60,
+        "matched": 60,
+        "predicted": 63,
+        "precision": {
+          "value": 0.9523809523809523,
+          "numerator": 60,
+          "denominator": 63,
+          "display": "95.24% (60/63)"
+        },
+        "recall": {
+          "value": 1,
+          "numerator": 60,
+          "denominator": 60,
+          "display": "100.00% (60/60)"
+        }
+      },
+      "perCategory": {
+        "BULK_CONTACT_LIST": {
+          "expected": 0,
+          "matched": 0,
+          "predicted": 3,
+          "recall": {
+            "value": null,
+            "numerator": 0,
+            "denominator": 0,
+            "display": "N/A (0/0)"
+          },
+          "precision": {
+            "value": 0,
+            "numerator": 0,
+            "denominator": 3,
+            "display": "0.00% (0/3)"
+          }
+        },
+        "PII_EMAIL": {
+          "expected": 60,
+          "matched": 60,
+          "predicted": 60,
+          "recall": {
+            "value": 1,
+            "numerator": 60,
+            "denominator": 60,
+            "display": "100.00% (60/60)"
+          },
+          "precision": {
+            "value": 1,
+            "numerator": 60,
+            "denominator": 60,
+            "display": "100.00% (60/60)"
+          }
+        }
+      },
+      "policy": {
+        "eligible": 95,
+        "exactActionMatches": 92,
+        "correctness": {
+          "value": 0.968421052631579,
+          "numerator": 92,
+          "denominator": 95,
+          "display": "96.84% (92/95)"
+        }
+      },
+      "redaction": {
+        "entitiesRequired": 60,
+        "residualEntities": 0,
+        "residualRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 60,
+          "display": "0.00% (0/60)"
+        },
+        "unsafeRedactionReleases": 0
+      },
+      "engineFailures": 0
+    },
+    "templateFamilies": {
+      "ambiguous_name_context": {
+        "n": 10,
+        "metrics": {
+          "prompt": {
+            "tp": 0,
+            "fp": 0,
+            "tn": 0,
+            "fn": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "f1": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falsePositiveRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "benign": {
+            "evaluated": 0,
+            "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "benignPreventedRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseBlockWilson95Upper": null
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 10,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 0,
+            "matched": 0,
+            "predicted": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "perCategory": {},
+          "policy": {
+            "eligible": 0,
+            "exactActionMatches": 0,
+            "correctness": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 0,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "ambiguous_partial_identifier": {
+        "n": 10,
+        "metrics": {
+          "prompt": {
+            "tp": 0,
+            "fp": 0,
+            "tn": 0,
+            "fn": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "f1": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falsePositiveRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "benign": {
+            "evaluated": 0,
+            "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "benignPreventedRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseBlockWilson95Upper": null
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 10,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 0,
+            "matched": 0,
+            "predicted": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "perCategory": {},
+          "policy": {
+            "eligible": 0,
+            "exactActionMatches": 0,
+            "correctness": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 0,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "code shape": {
+        "n": 3,
+        "metrics": {
+          "prompt": {
+            "tp": 0,
+            "fp": 0,
+            "tn": 3,
+            "fn": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "f1": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falsePositiveRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 3,
+              "display": "0.00% (0/3)"
+            }
+          },
+          "benign": {
+            "evaluated": 3,
+            "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 3,
+              "display": "0.00% (0/3)"
+            },
+            "benignPreventedRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 3,
+              "display": "0.00% (0/3)"
+            },
+            "falseBlockWilson95Upper": 0.5614970317550455
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 0,
+            "matched": 0,
+            "predicted": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "perCategory": {},
+          "policy": {
+            "eligible": 3,
+            "exactActionMatches": 3,
+            "correctness": {
+              "value": 1,
+              "numerator": 3,
+              "denominator": 3,
+              "display": "100.00% (3/3)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 0,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "code_context": {
+        "n": 9,
+        "metrics": {
+          "prompt": {
+            "tp": 9,
+            "fp": 0,
+            "tn": 0,
+            "fn": 0,
+            "precision": {
+              "value": 1,
+              "numerator": 9,
+              "denominator": 9,
+              "display": "100.00% (9/9)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 9,
+              "denominator": 9,
+              "display": "100.00% (9/9)"
+            },
+            "f1": {
+              "value": 1,
+              "numerator": 18,
+              "denominator": 18,
+              "display": "100.00%"
+            },
+            "falsePositiveRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "benign": {
+            "evaluated": 0,
+            "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "benignPreventedRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseBlockWilson95Upper": null
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 9,
+            "matched": 9,
+            "predicted": 9,
+            "precision": {
+              "value": 1,
+              "numerator": 9,
+              "denominator": 9,
+              "display": "100.00% (9/9)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 9,
+              "denominator": 9,
+              "display": "100.00% (9/9)"
+            }
+          },
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 9,
+              "matched": 9,
+              "predicted": 9,
+              "recall": {
+                "value": 1,
+                "numerator": 9,
+                "denominator": 9,
+                "display": "100.00% (9/9)"
+              },
+              "precision": {
+                "value": 1,
+                "numerator": 9,
+                "denominator": 9,
+                "display": "100.00% (9/9)"
+              }
+            }
+          },
+          "policy": {
+            "eligible": 9,
+            "exactActionMatches": 9,
+            "correctness": {
+              "value": 1,
+              "numerator": 9,
+              "denominator": 9,
+              "display": "100.00% (9/9)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 9,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 9,
+              "display": "0.00% (0/9)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "credential hard negative": {
+        "n": 3,
+        "metrics": {
+          "prompt": {
+            "tp": 0,
+            "fp": 0,
+            "tn": 3,
+            "fn": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "f1": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falsePositiveRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 3,
+              "display": "0.00% (0/3)"
+            }
+          },
+          "benign": {
+            "evaluated": 3,
+            "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 3,
+              "display": "0.00% (0/3)"
+            },
+            "benignPreventedRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 3,
+              "display": "0.00% (0/3)"
+            },
+            "falseBlockWilson95Upper": 0.5614970317550455
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 0,
+            "matched": 0,
+            "predicted": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "perCategory": {},
+          "policy": {
+            "eligible": 3,
+            "exactActionMatches": 3,
+            "correctness": {
+              "value": 1,
+              "numerator": 3,
+              "denominator": 3,
+              "display": "100.00% (3/3)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 0,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "credential vocabulary hard negative": {
+        "n": 2,
+        "metrics": {
+          "prompt": {
+            "tp": 0,
+            "fp": 0,
+            "tn": 2,
+            "fn": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "f1": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falsePositiveRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 2,
+              "display": "0.00% (0/2)"
+            }
+          },
+          "benign": {
+            "evaluated": 2,
+            "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 2,
+              "display": "0.00% (0/2)"
+            },
+            "benignPreventedRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 2,
+              "display": "0.00% (0/2)"
+            },
+            "falseBlockWilson95Upper": 0.6576197724933469
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 0,
+            "matched": 0,
+            "predicted": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "perCategory": {},
+          "policy": {
+            "eligible": 2,
+            "exactActionMatches": 2,
+            "correctness": {
+              "value": 1,
+              "numerator": 2,
+              "denominator": 2,
+              "display": "100.00% (2/2)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 0,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "email_plain": {
+        "n": 9,
+        "metrics": {
+          "prompt": {
+            "tp": 9,
+            "fp": 0,
+            "tn": 0,
+            "fn": 0,
+            "precision": {
+              "value": 1,
+              "numerator": 9,
+              "denominator": 9,
+              "display": "100.00% (9/9)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 9,
+              "denominator": 9,
+              "display": "100.00% (9/9)"
+            },
+            "f1": {
+              "value": 1,
+              "numerator": 18,
+              "denominator": 18,
+              "display": "100.00%"
+            },
+            "falsePositiveRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "benign": {
+            "evaluated": 0,
+            "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "benignPreventedRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseBlockWilson95Upper": null
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 9,
+            "matched": 9,
+            "predicted": 9,
+            "precision": {
+              "value": 1,
+              "numerator": 9,
+              "denominator": 9,
+              "display": "100.00% (9/9)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 9,
+              "denominator": 9,
+              "display": "100.00% (9/9)"
+            }
+          },
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 9,
+              "matched": 9,
+              "predicted": 9,
+              "recall": {
+                "value": 1,
+                "numerator": 9,
+                "denominator": 9,
+                "display": "100.00% (9/9)"
+              },
+              "precision": {
+                "value": 1,
+                "numerator": 9,
+                "denominator": 9,
+                "display": "100.00% (9/9)"
+              }
+            }
+          },
+          "policy": {
+            "eligible": 9,
+            "exactActionMatches": 9,
+            "correctness": {
+              "value": 1,
+              "numerator": 9,
+              "denominator": 9,
+              "display": "100.00% (9/9)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 9,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 9,
+              "display": "0.00% (0/9)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "entity placeholder": {
+        "n": 2,
+        "metrics": {
+          "prompt": {
+            "tp": 0,
+            "fp": 0,
+            "tn": 2,
+            "fn": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "f1": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falsePositiveRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 2,
+              "display": "0.00% (0/2)"
+            }
+          },
+          "benign": {
+            "evaluated": 2,
+            "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 2,
+              "display": "0.00% (0/2)"
+            },
+            "benignPreventedRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 2,
+              "display": "0.00% (0/2)"
+            },
+            "falseBlockWilson95Upper": 0.6576197724933469
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 0,
+            "matched": 0,
+            "predicted": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "perCategory": {},
+          "policy": {
+            "eligible": 2,
+            "exactActionMatches": 2,
+            "correctness": {
+              "value": 1,
+              "numerator": 2,
+              "denominator": 2,
+              "display": "100.00% (2/2)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 0,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "hand_extra_ambiguous": {
+        "n": 5,
+        "metrics": {
+          "prompt": {
+            "tp": 0,
+            "fp": 0,
+            "tn": 0,
+            "fn": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "f1": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falsePositiveRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "benign": {
+            "evaluated": 0,
+            "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "benignPreventedRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseBlockWilson95Upper": null
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 5,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 0,
+            "matched": 0,
+            "predicted": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "perCategory": {},
+          "policy": {
+            "eligible": 0,
+            "exactActionMatches": 0,
+            "correctness": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 0,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "hand_extra_code shape": {
+        "n": 1,
+        "metrics": {
+          "prompt": {
+            "tp": 0,
+            "fp": 0,
+            "tn": 1,
+            "fn": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "f1": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falsePositiveRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            }
+          },
+          "benign": {
+            "evaluated": 1,
+            "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "benignPreventedRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "falseBlockWilson95Upper": 0.7934506856227626
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 0,
+            "matched": 0,
+            "predicted": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "perCategory": {},
+          "policy": {
+            "eligible": 1,
+            "exactActionMatches": 1,
+            "correctness": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 0,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "hand_extra_credential hard negative": {
+        "n": 1,
+        "metrics": {
+          "prompt": {
+            "tp": 0,
+            "fp": 0,
+            "tn": 1,
+            "fn": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "f1": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falsePositiveRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            }
+          },
+          "benign": {
+            "evaluated": 1,
+            "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "benignPreventedRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "falseBlockWilson95Upper": 0.7934506856227626
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 0,
+            "matched": 0,
+            "predicted": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "perCategory": {},
+          "policy": {
+            "eligible": 1,
+            "exactActionMatches": 1,
+            "correctness": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 0,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "hand_extra_credential vocabulary hard negative": {
+        "n": 1,
+        "metrics": {
+          "prompt": {
+            "tp": 0,
+            "fp": 0,
+            "tn": 1,
+            "fn": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "f1": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falsePositiveRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            }
+          },
+          "benign": {
+            "evaluated": 1,
+            "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "benignPreventedRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "falseBlockWilson95Upper": 0.7934506856227626
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 0,
+            "matched": 0,
+            "predicted": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "perCategory": {},
+          "policy": {
+            "eligible": 1,
+            "exactActionMatches": 1,
+            "correctness": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 0,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "hand_extra_entity placeholder": {
+        "n": 1,
+        "metrics": {
+          "prompt": {
+            "tp": 0,
+            "fp": 0,
+            "tn": 1,
+            "fn": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "f1": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falsePositiveRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            }
+          },
+          "benign": {
+            "evaluated": 1,
+            "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "benignPreventedRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "falseBlockWilson95Upper": 0.7934506856227626
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 0,
+            "matched": 0,
+            "predicted": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "perCategory": {},
+          "policy": {
+            "eligible": 1,
+            "exactActionMatches": 1,
+            "correctness": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 0,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "hand_extra_mixed language benign": {
+        "n": 1,
+        "metrics": {
+          "prompt": {
+            "tp": 0,
+            "fp": 0,
+            "tn": 1,
+            "fn": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "f1": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falsePositiveRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            }
+          },
+          "benign": {
+            "evaluated": 1,
+            "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "benignPreventedRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "falseBlockWilson95Upper": 0.7934506856227626
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 0,
+            "matched": 0,
+            "predicted": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "perCategory": {},
+          "policy": {
+            "eligible": 1,
+            "exactActionMatches": 1,
+            "correctness": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 0,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "hand_extra_multiline csv hard negative": {
+        "n": 1,
+        "metrics": {
+          "prompt": {
+            "tp": 0,
+            "fp": 1,
+            "tn": 0,
+            "fn": 0,
+            "precision": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "f1": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00%"
+            },
+            "falsePositiveRate": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            }
+          },
+          "benign": {
+            "evaluated": 1,
+            "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "benignPreventedRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "falseBlockWilson95Upper": 0.7934506856227626
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 0,
+            "matched": 0,
+            "predicted": 1,
+            "precision": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "perCategory": {
+            "BULK_CONTACT_LIST": {
+              "expected": 0,
+              "matched": 0,
+              "predicted": 1,
+              "recall": {
+                "value": null,
+                "numerator": 0,
+                "denominator": 0,
+                "display": "N/A (0/0)"
+              },
+              "precision": {
+                "value": 0,
+                "numerator": 0,
+                "denominator": 1,
+                "display": "0.00% (0/1)"
+              }
+            }
+          },
+          "policy": {
+            "eligible": 1,
+            "exactActionMatches": 0,
+            "correctness": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 0,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "hand_extra_numeric hard negative": {
+        "n": 1,
+        "metrics": {
+          "prompt": {
+            "tp": 0,
+            "fp": 0,
+            "tn": 1,
+            "fn": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "f1": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falsePositiveRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            }
+          },
+          "benign": {
+            "evaluated": 1,
+            "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "benignPreventedRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "falseBlockWilson95Upper": 0.7934506856227626
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 0,
+            "matched": 0,
+            "predicted": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "perCategory": {},
+          "policy": {
+            "eligible": 1,
+            "exactActionMatches": 1,
+            "correctness": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 0,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "hand_extra_ordinary prose": {
+        "n": 1,
+        "metrics": {
+          "prompt": {
+            "tp": 0,
+            "fp": 0,
+            "tn": 1,
+            "fn": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "f1": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falsePositiveRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            }
+          },
+          "benign": {
+            "evaluated": 1,
+            "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "benignPreventedRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "falseBlockWilson95Upper": 0.7934506856227626
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 0,
+            "matched": 0,
+            "predicted": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "perCategory": {},
+          "policy": {
+            "eligible": 1,
+            "exactActionMatches": 1,
+            "correctness": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 0,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "hand_extra_ordinary request": {
+        "n": 1,
+        "metrics": {
+          "prompt": {
+            "tp": 0,
+            "fp": 0,
+            "tn": 1,
+            "fn": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "f1": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falsePositiveRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            }
+          },
+          "benign": {
+            "evaluated": 1,
+            "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "benignPreventedRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "falseBlockWilson95Upper": 0.7934506856227626
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 0,
+            "matched": 0,
+            "predicted": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "perCategory": {},
+          "policy": {
+            "eligible": 1,
+            "exactActionMatches": 1,
+            "correctness": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 0,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "hand_extra_unicode benign": {
+        "n": 1,
+        "metrics": {
+          "prompt": {
+            "tp": 0,
+            "fp": 0,
+            "tn": 1,
+            "fn": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "f1": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falsePositiveRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            }
+          },
+          "benign": {
+            "evaluated": 1,
+            "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "benignPreventedRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "falseBlockWilson95Upper": 0.7934506856227626
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 0,
+            "matched": 0,
+            "predicted": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "perCategory": {},
+          "policy": {
+            "eligible": 1,
+            "exactActionMatches": 1,
+            "correctness": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 0,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "hand_mixed_code": {
+        "n": 5,
+        "metrics": {
+          "prompt": {
+            "tp": 5,
+            "fp": 0,
+            "tn": 0,
+            "fn": 0,
+            "precision": {
+              "value": 1,
+              "numerator": 5,
+              "denominator": 5,
+              "display": "100.00% (5/5)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 5,
+              "denominator": 5,
+              "display": "100.00% (5/5)"
+            },
+            "f1": {
+              "value": 1,
+              "numerator": 10,
+              "denominator": 10,
+              "display": "100.00%"
+            },
+            "falsePositiveRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "benign": {
+            "evaluated": 0,
+            "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "benignPreventedRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseBlockWilson95Upper": null
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 5,
+            "matched": 5,
+            "predicted": 5,
+            "precision": {
+              "value": 1,
+              "numerator": 5,
+              "denominator": 5,
+              "display": "100.00% (5/5)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 5,
+              "denominator": 5,
+              "display": "100.00% (5/5)"
+            }
+          },
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 5,
+              "matched": 5,
+              "predicted": 5,
+              "recall": {
+                "value": 1,
+                "numerator": 5,
+                "denominator": 5,
+                "display": "100.00% (5/5)"
+              },
+              "precision": {
+                "value": 1,
+                "numerator": 5,
+                "denominator": 5,
+                "display": "100.00% (5/5)"
+              }
+            }
+          },
+          "policy": {
+            "eligible": 5,
+            "exactActionMatches": 5,
+            "correctness": {
+              "value": 1,
+              "numerator": 5,
+              "denominator": 5,
+              "display": "100.00% (5/5)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 5,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 5,
+              "display": "0.00% (0/5)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "hand_mixed_csv": {
+        "n": 5,
+        "metrics": {
+          "prompt": {
+            "tp": 5,
+            "fp": 0,
+            "tn": 0,
+            "fn": 0,
+            "precision": {
+              "value": 1,
+              "numerator": 5,
+              "denominator": 5,
+              "display": "100.00% (5/5)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 5,
+              "denominator": 5,
+              "display": "100.00% (5/5)"
+            },
+            "f1": {
+              "value": 1,
+              "numerator": 10,
+              "denominator": 10,
+              "display": "100.00%"
+            },
+            "falsePositiveRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "benign": {
+            "evaluated": 0,
+            "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "benignPreventedRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseBlockWilson95Upper": null
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 5,
+            "matched": 5,
+            "predicted": 5,
+            "precision": {
+              "value": 1,
+              "numerator": 5,
+              "denominator": 5,
+              "display": "100.00% (5/5)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 5,
+              "denominator": 5,
+              "display": "100.00% (5/5)"
+            }
+          },
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 5,
+              "matched": 5,
+              "predicted": 5,
+              "recall": {
+                "value": 1,
+                "numerator": 5,
+                "denominator": 5,
+                "display": "100.00% (5/5)"
+              },
+              "precision": {
+                "value": 1,
+                "numerator": 5,
+                "denominator": 5,
+                "display": "100.00% (5/5)"
+              }
+            }
+          },
+          "policy": {
+            "eligible": 5,
+            "exactActionMatches": 5,
+            "correctness": {
+              "value": 1,
+              "numerator": 5,
+              "denominator": 5,
+              "display": "100.00% (5/5)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 5,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 5,
+              "display": "0.00% (0/5)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "hand_mixed_multilingual": {
+        "n": 5,
+        "metrics": {
+          "prompt": {
+            "tp": 5,
+            "fp": 0,
+            "tn": 0,
+            "fn": 0,
+            "precision": {
+              "value": 1,
+              "numerator": 5,
+              "denominator": 5,
+              "display": "100.00% (5/5)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 5,
+              "denominator": 5,
+              "display": "100.00% (5/5)"
+            },
+            "f1": {
+              "value": 1,
+              "numerator": 10,
+              "denominator": 10,
+              "display": "100.00%"
+            },
+            "falsePositiveRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "benign": {
+            "evaluated": 0,
+            "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "benignPreventedRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseBlockWilson95Upper": null
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 5,
+            "matched": 5,
+            "predicted": 5,
+            "precision": {
+              "value": 1,
+              "numerator": 5,
+              "denominator": 5,
+              "display": "100.00% (5/5)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 5,
+              "denominator": 5,
+              "display": "100.00% (5/5)"
+            }
+          },
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 5,
+              "matched": 5,
+              "predicted": 5,
+              "recall": {
+                "value": 1,
+                "numerator": 5,
+                "denominator": 5,
+                "display": "100.00% (5/5)"
+              },
+              "precision": {
+                "value": 1,
+                "numerator": 5,
+                "denominator": 5,
+                "display": "100.00% (5/5)"
+              }
+            }
+          },
+          "policy": {
+            "eligible": 5,
+            "exactActionMatches": 5,
+            "correctness": {
+              "value": 1,
+              "numerator": 5,
+              "denominator": 5,
+              "display": "100.00% (5/5)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 5,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 5,
+              "display": "0.00% (0/5)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "mixed language benign": {
+        "n": 2,
+        "metrics": {
+          "prompt": {
+            "tp": 0,
+            "fp": 0,
+            "tn": 2,
+            "fn": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "f1": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falsePositiveRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 2,
+              "display": "0.00% (0/2)"
+            }
+          },
+          "benign": {
+            "evaluated": 2,
+            "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 2,
+              "display": "0.00% (0/2)"
+            },
+            "benignPreventedRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 2,
+              "display": "0.00% (0/2)"
+            },
+            "falseBlockWilson95Upper": 0.6576197724933469
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 0,
+            "matched": 0,
+            "predicted": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "perCategory": {},
+          "policy": {
+            "eligible": 2,
+            "exactActionMatches": 2,
+            "correctness": {
+              "value": 1,
+              "numerator": 2,
+              "denominator": 2,
+              "display": "100.00% (2/2)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 0,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "mixed_multilingual": {
+        "n": 9,
+        "metrics": {
+          "prompt": {
+            "tp": 9,
+            "fp": 0,
+            "tn": 0,
+            "fn": 0,
+            "precision": {
+              "value": 1,
+              "numerator": 9,
+              "denominator": 9,
+              "display": "100.00% (9/9)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 9,
+              "denominator": 9,
+              "display": "100.00% (9/9)"
+            },
+            "f1": {
+              "value": 1,
+              "numerator": 18,
+              "denominator": 18,
+              "display": "100.00%"
+            },
+            "falsePositiveRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "benign": {
+            "evaluated": 0,
+            "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "benignPreventedRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseBlockWilson95Upper": null
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 9,
+            "matched": 9,
+            "predicted": 9,
+            "precision": {
+              "value": 1,
+              "numerator": 9,
+              "denominator": 9,
+              "display": "100.00% (9/9)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 9,
+              "denominator": 9,
+              "display": "100.00% (9/9)"
+            }
+          },
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 9,
+              "matched": 9,
+              "predicted": 9,
+              "recall": {
+                "value": 1,
+                "numerator": 9,
+                "denominator": 9,
+                "display": "100.00% (9/9)"
+              },
+              "precision": {
+                "value": 1,
+                "numerator": 9,
+                "denominator": 9,
+                "display": "100.00% (9/9)"
+              }
+            }
+          },
+          "policy": {
+            "eligible": 9,
+            "exactActionMatches": 9,
+            "correctness": {
+              "value": 1,
+              "numerator": 9,
+              "denominator": 9,
+              "display": "100.00% (9/9)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 9,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 9,
+              "display": "0.00% (0/9)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "multiline csv hard negative": {
+        "n": 2,
+        "metrics": {
+          "prompt": {
+            "tp": 0,
+            "fp": 2,
+            "tn": 0,
+            "fn": 0,
+            "precision": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 2,
+              "display": "0.00% (0/2)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "f1": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 2,
+              "display": "0.00%"
+            },
+            "falsePositiveRate": {
+              "value": 1,
+              "numerator": 2,
+              "denominator": 2,
+              "display": "100.00% (2/2)"
+            }
+          },
+          "benign": {
+            "evaluated": 2,
+            "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 2,
+              "display": "0.00% (0/2)"
+            },
+            "benignPreventedRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 2,
+              "display": "0.00% (0/2)"
+            },
+            "falseBlockWilson95Upper": 0.6576197724933469
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 0,
+            "matched": 0,
+            "predicted": 2,
+            "precision": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 2,
+              "display": "0.00% (0/2)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "perCategory": {
+            "BULK_CONTACT_LIST": {
+              "expected": 0,
+              "matched": 0,
+              "predicted": 2,
+              "recall": {
+                "value": null,
+                "numerator": 0,
+                "denominator": 0,
+                "display": "N/A (0/0)"
+              },
+              "precision": {
+                "value": 0,
+                "numerator": 0,
+                "denominator": 2,
+                "display": "0.00% (0/2)"
+              }
+            }
+          },
+          "policy": {
+            "eligible": 2,
+            "exactActionMatches": 0,
+            "correctness": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 2,
+              "display": "0.00% (0/2)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 0,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "multiline_csv_context": {
+        "n": 9,
+        "metrics": {
+          "prompt": {
+            "tp": 9,
+            "fp": 0,
+            "tn": 0,
+            "fn": 0,
+            "precision": {
+              "value": 1,
+              "numerator": 9,
+              "denominator": 9,
+              "display": "100.00% (9/9)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 9,
+              "denominator": 9,
+              "display": "100.00% (9/9)"
+            },
+            "f1": {
+              "value": 1,
+              "numerator": 18,
+              "denominator": 18,
+              "display": "100.00%"
+            },
+            "falsePositiveRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "benign": {
+            "evaluated": 0,
+            "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "benignPreventedRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseBlockWilson95Upper": null
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 9,
+            "matched": 9,
+            "predicted": 9,
+            "precision": {
+              "value": 1,
+              "numerator": 9,
+              "denominator": 9,
+              "display": "100.00% (9/9)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 9,
+              "denominator": 9,
+              "display": "100.00% (9/9)"
+            }
+          },
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 9,
+              "matched": 9,
+              "predicted": 9,
+              "recall": {
+                "value": 1,
+                "numerator": 9,
+                "denominator": 9,
+                "display": "100.00% (9/9)"
+              },
+              "precision": {
+                "value": 1,
+                "numerator": 9,
+                "denominator": 9,
+                "display": "100.00% (9/9)"
+              }
+            }
+          },
+          "policy": {
+            "eligible": 9,
+            "exactActionMatches": 9,
+            "correctness": {
+              "value": 1,
+              "numerator": 9,
+              "denominator": 9,
+              "display": "100.00% (9/9)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 9,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 9,
+              "display": "0.00% (0/9)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "numeric hard negative": {
+        "n": 3,
+        "metrics": {
+          "prompt": {
+            "tp": 0,
+            "fp": 0,
+            "tn": 3,
+            "fn": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "f1": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falsePositiveRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 3,
+              "display": "0.00% (0/3)"
+            }
+          },
+          "benign": {
+            "evaluated": 3,
+            "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 3,
+              "display": "0.00% (0/3)"
+            },
+            "benignPreventedRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 3,
+              "display": "0.00% (0/3)"
+            },
+            "falseBlockWilson95Upper": 0.5614970317550455
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 0,
+            "matched": 0,
+            "predicted": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "perCategory": {},
+          "policy": {
+            "eligible": 3,
+            "exactActionMatches": 3,
+            "correctness": {
+              "value": 1,
+              "numerator": 3,
+              "denominator": 3,
+              "display": "100.00% (3/3)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 0,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "ordinary prose": {
+        "n": 3,
+        "metrics": {
+          "prompt": {
+            "tp": 0,
+            "fp": 0,
+            "tn": 3,
+            "fn": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "f1": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falsePositiveRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 3,
+              "display": "0.00% (0/3)"
+            }
+          },
+          "benign": {
+            "evaluated": 3,
+            "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 3,
+              "display": "0.00% (0/3)"
+            },
+            "benignPreventedRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 3,
+              "display": "0.00% (0/3)"
+            },
+            "falseBlockWilson95Upper": 0.5614970317550455
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 0,
+            "matched": 0,
+            "predicted": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "perCategory": {},
+          "policy": {
+            "eligible": 3,
+            "exactActionMatches": 3,
+            "correctness": {
+              "value": 1,
+              "numerator": 3,
+              "denominator": 3,
+              "display": "100.00% (3/3)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 0,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "ordinary request": {
+        "n": 2,
+        "metrics": {
+          "prompt": {
+            "tp": 0,
+            "fp": 0,
+            "tn": 2,
+            "fn": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "f1": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falsePositiveRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 2,
+              "display": "0.00% (0/2)"
+            }
+          },
+          "benign": {
+            "evaluated": 2,
+            "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 2,
+              "display": "0.00% (0/2)"
+            },
+            "benignPreventedRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 2,
+              "display": "0.00% (0/2)"
+            },
+            "falseBlockWilson95Upper": 0.6576197724933469
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 0,
+            "matched": 0,
+            "predicted": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "perCategory": {},
+          "policy": {
+            "eligible": 2,
+            "exactActionMatches": 2,
+            "correctness": {
+              "value": 1,
+              "numerator": 2,
+              "denominator": 2,
+              "display": "100.00% (2/2)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 0,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "unicode benign": {
+        "n": 3,
+        "metrics": {
+          "prompt": {
+            "tp": 0,
+            "fp": 0,
+            "tn": 3,
+            "fn": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "f1": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falsePositiveRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 3,
+              "display": "0.00% (0/3)"
+            }
+          },
+          "benign": {
+            "evaluated": 3,
+            "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 3,
+              "display": "0.00% (0/3)"
+            },
+            "benignPreventedRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 3,
+              "display": "0.00% (0/3)"
+            },
+            "falseBlockWilson95Upper": 0.5614970317550455
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 0,
+            "matched": 0,
+            "predicted": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "perCategory": {},
+          "policy": {
+            "eligible": 3,
+            "exactActionMatches": 3,
+            "correctness": {
+              "value": 1,
+              "numerator": 3,
+              "denominator": 3,
+              "display": "100.00% (3/3)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 0,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "unicode_context": {
+        "n": 9,
+        "metrics": {
+          "prompt": {
+            "tp": 9,
+            "fp": 0,
+            "tn": 0,
+            "fn": 0,
+            "precision": {
+              "value": 1,
+              "numerator": 9,
+              "denominator": 9,
+              "display": "100.00% (9/9)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 9,
+              "denominator": 9,
+              "display": "100.00% (9/9)"
+            },
+            "f1": {
+              "value": 1,
+              "numerator": 18,
+              "denominator": 18,
+              "display": "100.00%"
+            },
+            "falsePositiveRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "benign": {
+            "evaluated": 0,
+            "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "benignPreventedRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseBlockWilson95Upper": null
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 9,
+            "matched": 9,
+            "predicted": 9,
+            "precision": {
+              "value": 1,
+              "numerator": 9,
+              "denominator": 9,
+              "display": "100.00% (9/9)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 9,
+              "denominator": 9,
+              "display": "100.00% (9/9)"
+            }
+          },
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 9,
+              "matched": 9,
+              "predicted": 9,
+              "recall": {
+                "value": 1,
+                "numerator": 9,
+                "denominator": 9,
+                "display": "100.00% (9/9)"
+              },
+              "precision": {
+                "value": 1,
+                "numerator": 9,
+                "denominator": 9,
+                "display": "100.00% (9/9)"
+              }
+            }
+          },
+          "policy": {
+            "eligible": 9,
+            "exactActionMatches": 9,
+            "correctness": {
+              "value": 1,
+              "numerator": 9,
+              "denominator": 9,
+              "display": "100.00% (9/9)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 9,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 9,
+              "display": "0.00% (0/9)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      }
+    }
+  },
+  "generated": {
+    "n": 1000,
+    "truthCounts": {
+      "SENSITIVE": 800,
+      "BENIGN": 200,
+      "AMBIGUOUS": 0
+    },
+    "metrics": {
+      "prompt": {
+        "tp": 800,
+        "fp": 20,
+        "tn": 180,
+        "fn": 0,
+        "precision": {
+          "value": 0.975609756097561,
+          "numerator": 800,
+          "denominator": 820,
+          "display": "97.56% (800/820)"
+        },
+        "recall": {
+          "value": 1,
+          "numerator": 800,
+          "denominator": 800,
+          "display": "100.00% (800/800)"
+        },
+        "f1": {
+          "value": 0.9876543209876543,
+          "numerator": 1600,
+          "denominator": 1620,
+          "display": "98.77%"
+        },
+        "falsePositiveRate": {
+          "value": 0.1,
+          "numerator": 20,
+          "denominator": 200,
+          "display": "10.00% (20/200)"
+        }
+      },
+      "benign": {
+        "evaluated": 200,
+        "falseBlockRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 200,
+          "display": "0.00% (0/200)"
+        },
+        "benignPreventedRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 200,
+          "display": "0.00% (0/200)"
+        },
+        "falseBlockWilson95Upper": 0.018845326377266575
+      },
+      "ambiguous": {
+        "excludedFromBinaryMetrics": 0,
+        "detected": 0,
+        "escalated": 0
+      },
+      "entities": {
+        "expected": 1000,
+        "matched": 1000,
+        "predicted": 1128,
+        "precision": {
+          "value": 0.8865248226950354,
+          "numerator": 1000,
+          "denominator": 1128,
+          "display": "88.65% (1000/1128)"
+        },
+        "recall": {
+          "value": 1,
+          "numerator": 1000,
+          "denominator": 1000,
+          "display": "100.00% (1000/1000)"
+        }
+      },
+      "perCategory": {
+        "BULK_CONTACT_LIST": {
+          "expected": 0,
+          "matched": 0,
+          "predicted": 120,
+          "recall": {
+            "value": null,
+            "numerator": 0,
+            "denominator": 0,
+            "display": "N/A (0/0)"
+          },
+          "precision": {
+            "value": 0,
+            "numerator": 0,
+            "denominator": 120,
+            "display": "0.00% (0/120)"
+          }
+        },
+        "PII_AADHAAR": {
+          "expected": 0,
+          "matched": 0,
+          "predicted": 8,
+          "recall": {
+            "value": null,
+            "numerator": 0,
+            "denominator": 0,
+            "display": "N/A (0/0)"
+          },
+          "precision": {
+            "value": 0,
+            "numerator": 0,
+            "denominator": 8,
+            "display": "0.00% (0/8)"
+          }
+        },
+        "PII_EMAIL": {
+          "expected": 800,
+          "matched": 800,
+          "predicted": 800,
+          "recall": {
+            "value": 1,
+            "numerator": 800,
+            "denominator": 800,
+            "display": "100.00% (800/800)"
+          },
+          "precision": {
+            "value": 1,
+            "numerator": 800,
+            "denominator": 800,
+            "display": "100.00% (800/800)"
+          }
+        },
+        "PII_PHONE": {
+          "expected": 100,
+          "matched": 100,
+          "predicted": 100,
+          "recall": {
+            "value": 1,
+            "numerator": 100,
+            "denominator": 100,
+            "display": "100.00% (100/100)"
+          },
+          "precision": {
+            "value": 1,
+            "numerator": 100,
+            "denominator": 100,
+            "display": "100.00% (100/100)"
+          }
+        },
+        "SECRET_TOKEN": {
+          "expected": 100,
+          "matched": 100,
+          "predicted": 100,
+          "recall": {
+            "value": 1,
+            "numerator": 100,
+            "denominator": 100,
+            "display": "100.00% (100/100)"
+          },
+          "precision": {
+            "value": 1,
+            "numerator": 100,
+            "denominator": 100,
+            "display": "100.00% (100/100)"
+          }
+        }
+      },
+      "policy": {
+        "eligible": 1000,
+        "exactActionMatches": 980,
+        "correctness": {
+          "value": 0.98,
+          "numerator": 980,
+          "denominator": 1000,
+          "display": "98.00% (980/1000)"
+        }
+      },
+      "redaction": {
+        "entitiesRequired": 1000,
+        "residualEntities": 0,
+        "residualRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 1000,
+          "display": "0.00% (0/1000)"
+        },
+        "unsafeRedactionReleases": 0
+      },
+      "engineFailures": 0
+    },
+    "templateFamilies": {
+      "benign_code shape": {
+        "n": 20,
+        "metrics": {
+          "prompt": {
+            "tp": 0,
+            "fp": 0,
+            "tn": 20,
+            "fn": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "f1": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falsePositiveRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            }
+          },
+          "benign": {
+            "evaluated": 20,
+            "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            },
+            "benignPreventedRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            },
+            "falseBlockWilson95Upper": 0.16112515805281938
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 0,
+            "matched": 0,
+            "predicted": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "perCategory": {},
+          "policy": {
+            "eligible": 20,
+            "exactActionMatches": 20,
+            "correctness": {
+              "value": 1,
+              "numerator": 20,
+              "denominator": 20,
+              "display": "100.00% (20/20)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 0,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "benign_credential hard negative": {
+        "n": 20,
+        "metrics": {
+          "prompt": {
+            "tp": 0,
+            "fp": 0,
+            "tn": 20,
+            "fn": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "f1": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falsePositiveRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            }
+          },
+          "benign": {
+            "evaluated": 20,
+            "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            },
+            "benignPreventedRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            },
+            "falseBlockWilson95Upper": 0.16112515805281938
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 0,
+            "matched": 0,
+            "predicted": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "perCategory": {},
+          "policy": {
+            "eligible": 20,
+            "exactActionMatches": 20,
+            "correctness": {
+              "value": 1,
+              "numerator": 20,
+              "denominator": 20,
+              "display": "100.00% (20/20)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 0,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "benign_credential vocabulary hard negative": {
+        "n": 20,
+        "metrics": {
+          "prompt": {
+            "tp": 0,
+            "fp": 0,
+            "tn": 20,
+            "fn": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "f1": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falsePositiveRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            }
+          },
+          "benign": {
+            "evaluated": 20,
+            "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            },
+            "benignPreventedRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            },
+            "falseBlockWilson95Upper": 0.16112515805281938
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 0,
+            "matched": 0,
+            "predicted": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "perCategory": {},
+          "policy": {
+            "eligible": 20,
+            "exactActionMatches": 20,
+            "correctness": {
+              "value": 1,
+              "numerator": 20,
+              "denominator": 20,
+              "display": "100.00% (20/20)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 0,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "benign_entity placeholder": {
+        "n": 20,
+        "metrics": {
+          "prompt": {
+            "tp": 0,
+            "fp": 0,
+            "tn": 20,
+            "fn": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "f1": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falsePositiveRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            }
+          },
+          "benign": {
+            "evaluated": 20,
+            "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            },
+            "benignPreventedRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            },
+            "falseBlockWilson95Upper": 0.16112515805281938
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 0,
+            "matched": 0,
+            "predicted": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "perCategory": {},
+          "policy": {
+            "eligible": 20,
+            "exactActionMatches": 20,
+            "correctness": {
+              "value": 1,
+              "numerator": 20,
+              "denominator": 20,
+              "display": "100.00% (20/20)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 0,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "benign_mixed language benign": {
+        "n": 20,
+        "metrics": {
+          "prompt": {
+            "tp": 0,
+            "fp": 0,
+            "tn": 20,
+            "fn": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "f1": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falsePositiveRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            }
+          },
+          "benign": {
+            "evaluated": 20,
+            "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            },
+            "benignPreventedRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            },
+            "falseBlockWilson95Upper": 0.16112515805281938
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 0,
+            "matched": 0,
+            "predicted": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "perCategory": {},
+          "policy": {
+            "eligible": 20,
+            "exactActionMatches": 20,
+            "correctness": {
+              "value": 1,
+              "numerator": 20,
+              "denominator": 20,
+              "display": "100.00% (20/20)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 0,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "benign_multiline csv hard negative": {
+        "n": 20,
+        "metrics": {
+          "prompt": {
+            "tp": 0,
+            "fp": 20,
+            "tn": 0,
+            "fn": 0,
+            "precision": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "f1": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00%"
+            },
+            "falsePositiveRate": {
+              "value": 1,
+              "numerator": 20,
+              "denominator": 20,
+              "display": "100.00% (20/20)"
+            }
+          },
+          "benign": {
+            "evaluated": 20,
+            "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            },
+            "benignPreventedRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            },
+            "falseBlockWilson95Upper": 0.16112515805281938
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 0,
+            "matched": 0,
+            "predicted": 20,
+            "precision": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "perCategory": {
+            "BULK_CONTACT_LIST": {
+              "expected": 0,
+              "matched": 0,
+              "predicted": 20,
+              "recall": {
+                "value": null,
+                "numerator": 0,
+                "denominator": 0,
+                "display": "N/A (0/0)"
+              },
+              "precision": {
+                "value": 0,
+                "numerator": 0,
+                "denominator": 20,
+                "display": "0.00% (0/20)"
+              }
+            }
+          },
+          "policy": {
+            "eligible": 20,
+            "exactActionMatches": 0,
+            "correctness": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 0,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "benign_numeric hard negative": {
+        "n": 20,
+        "metrics": {
+          "prompt": {
+            "tp": 0,
+            "fp": 0,
+            "tn": 20,
+            "fn": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "f1": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falsePositiveRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            }
+          },
+          "benign": {
+            "evaluated": 20,
+            "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            },
+            "benignPreventedRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            },
+            "falseBlockWilson95Upper": 0.16112515805281938
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 0,
+            "matched": 0,
+            "predicted": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "perCategory": {},
+          "policy": {
+            "eligible": 20,
+            "exactActionMatches": 20,
+            "correctness": {
+              "value": 1,
+              "numerator": 20,
+              "denominator": 20,
+              "display": "100.00% (20/20)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 0,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "benign_ordinary prose": {
+        "n": 20,
+        "metrics": {
+          "prompt": {
+            "tp": 0,
+            "fp": 0,
+            "tn": 20,
+            "fn": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "f1": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falsePositiveRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            }
+          },
+          "benign": {
+            "evaluated": 20,
+            "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            },
+            "benignPreventedRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            },
+            "falseBlockWilson95Upper": 0.16112515805281938
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 0,
+            "matched": 0,
+            "predicted": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "perCategory": {},
+          "policy": {
+            "eligible": 20,
+            "exactActionMatches": 20,
+            "correctness": {
+              "value": 1,
+              "numerator": 20,
+              "denominator": 20,
+              "display": "100.00% (20/20)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 0,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "benign_ordinary request": {
+        "n": 20,
+        "metrics": {
+          "prompt": {
+            "tp": 0,
+            "fp": 0,
+            "tn": 20,
+            "fn": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "f1": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falsePositiveRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            }
+          },
+          "benign": {
+            "evaluated": 20,
+            "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            },
+            "benignPreventedRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            },
+            "falseBlockWilson95Upper": 0.16112515805281938
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 0,
+            "matched": 0,
+            "predicted": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "perCategory": {},
+          "policy": {
+            "eligible": 20,
+            "exactActionMatches": 20,
+            "correctness": {
+              "value": 1,
+              "numerator": 20,
+              "denominator": 20,
+              "display": "100.00% (20/20)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 0,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "benign_unicode benign": {
+        "n": 20,
+        "metrics": {
+          "prompt": {
+            "tp": 0,
+            "fp": 0,
+            "tn": 20,
+            "fn": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "f1": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falsePositiveRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            }
+          },
+          "benign": {
+            "evaluated": 20,
+            "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            },
+            "benignPreventedRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            },
+            "falseBlockWilson95Upper": 0.16112515805281938
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 0,
+            "matched": 0,
+            "predicted": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "perCategory": {},
+          "policy": {
+            "eligible": 20,
+            "exactActionMatches": 20,
+            "correctness": {
+              "value": 1,
+              "numerator": 20,
+              "denominator": 20,
+              "display": "100.00% (20/20)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 0,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "sensitive_0": {
+        "n": 100,
+        "metrics": {
+          "prompt": {
+            "tp": 100,
+            "fp": 0,
+            "tn": 0,
+            "fn": 0,
+            "precision": {
+              "value": 1,
+              "numerator": 100,
+              "denominator": 100,
+              "display": "100.00% (100/100)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 100,
+              "denominator": 100,
+              "display": "100.00% (100/100)"
+            },
+            "f1": {
+              "value": 1,
+              "numerator": 200,
+              "denominator": 200,
+              "display": "100.00%"
+            },
+            "falsePositiveRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "benign": {
+            "evaluated": 0,
+            "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "benignPreventedRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseBlockWilson95Upper": null
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 100,
+            "matched": 100,
+            "predicted": 100,
+            "precision": {
+              "value": 1,
+              "numerator": 100,
+              "denominator": 100,
+              "display": "100.00% (100/100)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 100,
+              "denominator": 100,
+              "display": "100.00% (100/100)"
+            }
+          },
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 100,
+              "matched": 100,
+              "predicted": 100,
+              "recall": {
+                "value": 1,
+                "numerator": 100,
+                "denominator": 100,
+                "display": "100.00% (100/100)"
+              },
+              "precision": {
+                "value": 1,
+                "numerator": 100,
+                "denominator": 100,
+                "display": "100.00% (100/100)"
+              }
+            }
+          },
+          "policy": {
+            "eligible": 100,
+            "exactActionMatches": 100,
+            "correctness": {
+              "value": 1,
+              "numerator": 100,
+              "denominator": 100,
+              "display": "100.00% (100/100)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 100,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 100,
+              "display": "0.00% (0/100)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "sensitive_1": {
+        "n": 100,
+        "metrics": {
+          "prompt": {
+            "tp": 100,
+            "fp": 0,
+            "tn": 0,
+            "fn": 0,
+            "precision": {
+              "value": 1,
+              "numerator": 100,
+              "denominator": 100,
+              "display": "100.00% (100/100)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 100,
+              "denominator": 100,
+              "display": "100.00% (100/100)"
+            },
+            "f1": {
+              "value": 1,
+              "numerator": 200,
+              "denominator": 200,
+              "display": "100.00%"
+            },
+            "falsePositiveRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "benign": {
+            "evaluated": 0,
+            "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "benignPreventedRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseBlockWilson95Upper": null
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 100,
+            "matched": 100,
+            "predicted": 200,
+            "precision": {
+              "value": 0.5,
+              "numerator": 100,
+              "denominator": 200,
+              "display": "50.00% (100/200)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 100,
+              "denominator": 100,
+              "display": "100.00% (100/100)"
+            }
+          },
+          "perCategory": {
+            "BULK_CONTACT_LIST": {
+              "expected": 0,
+              "matched": 0,
+              "predicted": 100,
+              "recall": {
+                "value": null,
+                "numerator": 0,
+                "denominator": 0,
+                "display": "N/A (0/0)"
+              },
+              "precision": {
+                "value": 0,
+                "numerator": 0,
+                "denominator": 100,
+                "display": "0.00% (0/100)"
+              }
+            },
+            "PII_EMAIL": {
+              "expected": 100,
+              "matched": 100,
+              "predicted": 100,
+              "recall": {
+                "value": 1,
+                "numerator": 100,
+                "denominator": 100,
+                "display": "100.00% (100/100)"
+              },
+              "precision": {
+                "value": 1,
+                "numerator": 100,
+                "denominator": 100,
+                "display": "100.00% (100/100)"
+              }
+            }
+          },
+          "policy": {
+            "eligible": 100,
+            "exactActionMatches": 100,
+            "correctness": {
+              "value": 1,
+              "numerator": 100,
+              "denominator": 100,
+              "display": "100.00% (100/100)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 100,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 100,
+              "display": "0.00% (0/100)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "sensitive_2": {
+        "n": 100,
+        "metrics": {
+          "prompt": {
+            "tp": 100,
+            "fp": 0,
+            "tn": 0,
+            "fn": 0,
+            "precision": {
+              "value": 1,
+              "numerator": 100,
+              "denominator": 100,
+              "display": "100.00% (100/100)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 100,
+              "denominator": 100,
+              "display": "100.00% (100/100)"
+            },
+            "f1": {
+              "value": 1,
+              "numerator": 200,
+              "denominator": 200,
+              "display": "100.00%"
+            },
+            "falsePositiveRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "benign": {
+            "evaluated": 0,
+            "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "benignPreventedRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseBlockWilson95Upper": null
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 100,
+            "matched": 100,
+            "predicted": 100,
+            "precision": {
+              "value": 1,
+              "numerator": 100,
+              "denominator": 100,
+              "display": "100.00% (100/100)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 100,
+              "denominator": 100,
+              "display": "100.00% (100/100)"
+            }
+          },
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 100,
+              "matched": 100,
+              "predicted": 100,
+              "recall": {
+                "value": 1,
+                "numerator": 100,
+                "denominator": 100,
+                "display": "100.00% (100/100)"
+              },
+              "precision": {
+                "value": 1,
+                "numerator": 100,
+                "denominator": 100,
+                "display": "100.00% (100/100)"
+              }
+            }
+          },
+          "policy": {
+            "eligible": 100,
+            "exactActionMatches": 100,
+            "correctness": {
+              "value": 1,
+              "numerator": 100,
+              "denominator": 100,
+              "display": "100.00% (100/100)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 100,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 100,
+              "display": "0.00% (0/100)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "sensitive_3": {
+        "n": 100,
+        "metrics": {
+          "prompt": {
+            "tp": 100,
+            "fp": 0,
+            "tn": 0,
+            "fn": 0,
+            "precision": {
+              "value": 1,
+              "numerator": 100,
+              "denominator": 100,
+              "display": "100.00% (100/100)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 100,
+              "denominator": 100,
+              "display": "100.00% (100/100)"
+            },
+            "f1": {
+              "value": 1,
+              "numerator": 200,
+              "denominator": 200,
+              "display": "100.00%"
+            },
+            "falsePositiveRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "benign": {
+            "evaluated": 0,
+            "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "benignPreventedRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseBlockWilson95Upper": null
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 100,
+            "matched": 100,
+            "predicted": 100,
+            "precision": {
+              "value": 1,
+              "numerator": 100,
+              "denominator": 100,
+              "display": "100.00% (100/100)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 100,
+              "denominator": 100,
+              "display": "100.00% (100/100)"
+            }
+          },
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 100,
+              "matched": 100,
+              "predicted": 100,
+              "recall": {
+                "value": 1,
+                "numerator": 100,
+                "denominator": 100,
+                "display": "100.00% (100/100)"
+              },
+              "precision": {
+                "value": 1,
+                "numerator": 100,
+                "denominator": 100,
+                "display": "100.00% (100/100)"
+              }
+            }
+          },
+          "policy": {
+            "eligible": 100,
+            "exactActionMatches": 100,
+            "correctness": {
+              "value": 1,
+              "numerator": 100,
+              "denominator": 100,
+              "display": "100.00% (100/100)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 100,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 100,
+              "display": "0.00% (0/100)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "sensitive_4": {
+        "n": 100,
+        "metrics": {
+          "prompt": {
+            "tp": 100,
+            "fp": 0,
+            "tn": 0,
+            "fn": 0,
+            "precision": {
+              "value": 1,
+              "numerator": 100,
+              "denominator": 100,
+              "display": "100.00% (100/100)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 100,
+              "denominator": 100,
+              "display": "100.00% (100/100)"
+            },
+            "f1": {
+              "value": 1,
+              "numerator": 200,
+              "denominator": 200,
+              "display": "100.00%"
+            },
+            "falsePositiveRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "benign": {
+            "evaluated": 0,
+            "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "benignPreventedRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseBlockWilson95Upper": null
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 100,
+            "matched": 100,
+            "predicted": 100,
+            "precision": {
+              "value": 1,
+              "numerator": 100,
+              "denominator": 100,
+              "display": "100.00% (100/100)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 100,
+              "denominator": 100,
+              "display": "100.00% (100/100)"
+            }
+          },
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 100,
+              "matched": 100,
+              "predicted": 100,
+              "recall": {
+                "value": 1,
+                "numerator": 100,
+                "denominator": 100,
+                "display": "100.00% (100/100)"
+              },
+              "precision": {
+                "value": 1,
+                "numerator": 100,
+                "denominator": 100,
+                "display": "100.00% (100/100)"
+              }
+            }
+          },
+          "policy": {
+            "eligible": 100,
+            "exactActionMatches": 100,
+            "correctness": {
+              "value": 1,
+              "numerator": 100,
+              "denominator": 100,
+              "display": "100.00% (100/100)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 100,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 100,
+              "display": "0.00% (0/100)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "sensitive_5": {
+        "n": 100,
+        "metrics": {
+          "prompt": {
+            "tp": 100,
+            "fp": 0,
+            "tn": 0,
+            "fn": 0,
+            "precision": {
+              "value": 1,
+              "numerator": 100,
+              "denominator": 100,
+              "display": "100.00% (100/100)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 100,
+              "denominator": 100,
+              "display": "100.00% (100/100)"
+            },
+            "f1": {
+              "value": 1,
+              "numerator": 200,
+              "denominator": 200,
+              "display": "100.00%"
+            },
+            "falsePositiveRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "benign": {
+            "evaluated": 0,
+            "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "benignPreventedRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseBlockWilson95Upper": null
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 100,
+            "matched": 100,
+            "predicted": 100,
+            "precision": {
+              "value": 1,
+              "numerator": 100,
+              "denominator": 100,
+              "display": "100.00% (100/100)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 100,
+              "denominator": 100,
+              "display": "100.00% (100/100)"
+            }
+          },
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 100,
+              "matched": 100,
+              "predicted": 100,
+              "recall": {
+                "value": 1,
+                "numerator": 100,
+                "denominator": 100,
+                "display": "100.00% (100/100)"
+              },
+              "precision": {
+                "value": 1,
+                "numerator": 100,
+                "denominator": 100,
+                "display": "100.00% (100/100)"
+              }
+            }
+          },
+          "policy": {
+            "eligible": 100,
+            "exactActionMatches": 100,
+            "correctness": {
+              "value": 1,
+              "numerator": 100,
+              "denominator": 100,
+              "display": "100.00% (100/100)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 100,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 100,
+              "display": "0.00% (0/100)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "sensitive_6": {
+        "n": 100,
+        "metrics": {
+          "prompt": {
+            "tp": 100,
+            "fp": 0,
+            "tn": 0,
+            "fn": 0,
+            "precision": {
+              "value": 1,
+              "numerator": 100,
+              "denominator": 100,
+              "display": "100.00% (100/100)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 100,
+              "denominator": 100,
+              "display": "100.00% (100/100)"
+            },
+            "f1": {
+              "value": 1,
+              "numerator": 200,
+              "denominator": 200,
+              "display": "100.00%"
+            },
+            "falsePositiveRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "benign": {
+            "evaluated": 0,
+            "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "benignPreventedRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseBlockWilson95Upper": null
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 200,
+            "matched": 200,
+            "predicted": 200,
+            "precision": {
+              "value": 1,
+              "numerator": 200,
+              "denominator": 200,
+              "display": "100.00% (200/200)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 200,
+              "denominator": 200,
+              "display": "100.00% (200/200)"
+            }
+          },
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 100,
+              "matched": 100,
+              "predicted": 100,
+              "recall": {
+                "value": 1,
+                "numerator": 100,
+                "denominator": 100,
+                "display": "100.00% (100/100)"
+              },
+              "precision": {
+                "value": 1,
+                "numerator": 100,
+                "denominator": 100,
+                "display": "100.00% (100/100)"
+              }
+            },
+            "SECRET_TOKEN": {
+              "expected": 100,
+              "matched": 100,
+              "predicted": 100,
+              "recall": {
+                "value": 1,
+                "numerator": 100,
+                "denominator": 100,
+                "display": "100.00% (100/100)"
+              },
+              "precision": {
+                "value": 1,
+                "numerator": 100,
+                "denominator": 100,
+                "display": "100.00% (100/100)"
+              }
+            }
+          },
+          "policy": {
+            "eligible": 100,
+            "exactActionMatches": 100,
+            "correctness": {
+              "value": 1,
+              "numerator": 100,
+              "denominator": 100,
+              "display": "100.00% (100/100)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 200,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 200,
+              "display": "0.00% (0/200)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "sensitive_7": {
+        "n": 100,
+        "metrics": {
+          "prompt": {
+            "tp": 100,
+            "fp": 0,
+            "tn": 0,
+            "fn": 0,
+            "precision": {
+              "value": 1,
+              "numerator": 100,
+              "denominator": 100,
+              "display": "100.00% (100/100)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 100,
+              "denominator": 100,
+              "display": "100.00% (100/100)"
+            },
+            "f1": {
+              "value": 1,
+              "numerator": 200,
+              "denominator": 200,
+              "display": "100.00%"
+            },
+            "falsePositiveRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "benign": {
+            "evaluated": 0,
+            "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "benignPreventedRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseBlockWilson95Upper": null
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 200,
+            "matched": 200,
+            "predicted": 208,
+            "precision": {
+              "value": 0.9615384615384616,
+              "numerator": 200,
+              "denominator": 208,
+              "display": "96.15% (200/208)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 200,
+              "denominator": 200,
+              "display": "100.00% (200/200)"
+            }
+          },
+          "perCategory": {
+            "PII_AADHAAR": {
+              "expected": 0,
+              "matched": 0,
+              "predicted": 8,
+              "recall": {
+                "value": null,
+                "numerator": 0,
+                "denominator": 0,
+                "display": "N/A (0/0)"
+              },
+              "precision": {
+                "value": 0,
+                "numerator": 0,
+                "denominator": 8,
+                "display": "0.00% (0/8)"
+              }
+            },
+            "PII_EMAIL": {
+              "expected": 100,
+              "matched": 100,
+              "predicted": 100,
+              "recall": {
+                "value": 1,
+                "numerator": 100,
+                "denominator": 100,
+                "display": "100.00% (100/100)"
+              },
+              "precision": {
+                "value": 1,
+                "numerator": 100,
+                "denominator": 100,
+                "display": "100.00% (100/100)"
+              }
+            },
+            "PII_PHONE": {
+              "expected": 100,
+              "matched": 100,
+              "predicted": 100,
+              "recall": {
+                "value": 1,
+                "numerator": 100,
+                "denominator": 100,
+                "display": "100.00% (100/100)"
+              },
+              "precision": {
+                "value": 1,
+                "numerator": 100,
+                "denominator": 100,
+                "display": "100.00% (100/100)"
+              }
+            }
+          },
+          "policy": {
+            "eligible": 100,
+            "exactActionMatches": 100,
+            "correctness": {
+              "value": 1,
+              "numerator": 100,
+              "denominator": 100,
+              "display": "100.00% (100/100)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 200,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 200,
+              "display": "0.00% (0/200)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      }
+    }
+  },
+  "holdout": null
+}
