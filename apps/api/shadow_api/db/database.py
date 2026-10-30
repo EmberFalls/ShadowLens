@@ -11,9 +11,11 @@ from __future__ import annotations
 from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
 import hashlib
+import hmac
 import json
 import os
 import re
+import secrets
 import sqlite3
 from pathlib import Path
 from typing import Any, Iterator, Mapping
@@ -432,4 +434,57 @@ def update_domain_approval(
             (site_id, old_status, approval_status, timestamp),
         )
     return True
+
+
+def hash_bearer_token(token: str) -> str:
+    """Hash a high-entropy bearer token for indexed lookup/comparison."""
+    if not isinstance(token, str) or len(token) < 32:
+        raise ValueError("bearer token must contain at least 32 characters")
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()
+
+
+def verify_bearer_token(token: str, stored_hash: str) -> bool:
+    """Compare a presented token with its stored digest in constant time."""
+    if not isinstance(stored_hash, str) or not re.fullmatch(r"[0-9a-f]{64}", stored_hash):
+        return False
+    try:
+        candidate = hash_bearer_token(token)
+    except ValueError:
+        return False
+    return hmac.compare_digest(candidate, stored_hash)
+
+
+def hash_owner_password(password: str, *, salt: bytes | None = None) -> str:
+    """Hash an owner password using Python's built-in scrypt implementation."""
+    if not isinstance(password, str) or len(password) < 12:
+        raise ValueError("owner password must contain at least 12 characters")
+    salt = salt or secrets.token_bytes(16)
+    digest = hashlib.scrypt(password.encode("utf-8"), salt=salt, n=2**14, r=8, p=1, dklen=32)
+    return f"scrypt$16384$8$1${salt.hex()}${digest.hex()}"
+
+
+def verify_owner_password(password: str, stored_hash: str) -> bool:
+    """Verify an owner password against its stored scrypt hash in constant time."""
+    if not isinstance(stored_hash, str) or not stored_hash.startswith("scrypt$"):
+        return False
+    parts = stored_hash.split("$")
+    if len(parts) != 6:
+        return False
+    _, n_str, r_str, p_str, salt_hex, digest_hex = parts
+    try:
+        n, r, p = int(n_str), int(r_str), int(p_str)
+        salt = bytes.fromhex(salt_hex)
+        expected_digest = bytes.fromhex(digest_hex)
+        candidate = hashlib.scrypt(password.encode("utf-8"), salt=salt, n=n, r=r, p=p, dklen=len(expected_digest))
+    except (ValueError, TypeError):
+        return False
+    return hmac.compare_digest(candidate, expected_digest)
+
+
+def hash_session_id(session_id: str) -> str:
+    """Store only the digest of a random owner session identifier."""
+    if not isinstance(session_id, str) or len(session_id) < 32:
+        raise ValueError("session identifier must contain at least 32 characters")
+    return hashlib.sha256(session_id.encode("utf-8")).hexdigest()
+
 
