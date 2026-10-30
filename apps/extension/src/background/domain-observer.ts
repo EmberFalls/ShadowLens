@@ -17,7 +17,7 @@ export type NavigationCommit = {
 type DomainObserverOptions = {
   enabled: boolean;
   getDeviceId: () => string | null;
-  enqueue: (event: SiteVisitEvent) => void | Promise<unknown>;
+  enqueue: (event: ObservationEvent) => void | Promise<unknown>;
   now?: () => Date;
   makeEventId?: () => string;
   dedupLimit?: number;
@@ -74,7 +74,8 @@ export class DomainObserver {
       reasonCodes: site.supportStatus === "UNSUPPORTED" ? ["UNSUPPORTED_AI_SITE_SEEN"] : [],
     };
     try {
-      await this.options.enqueue(event);
+      const result = await this.options.enqueue(event);
+      if (result && typeof result === "object" && "queued" in result && result.queued === false) return false;
       if (details.documentId && this.enabled) {
         this.observedDocuments.add(details.documentId);
         if (this.observedDocuments.size > this.dedupLimit) this.observedDocuments.delete(this.observedDocuments.values().next().value!);
@@ -88,7 +89,7 @@ export class DomainObserver {
 export function installDomainObserver(input: {
   enabled: boolean; getDeviceId: () => string | null; extensionVersion: string;
   enqueue: (event: ObservationEvent) => void | Promise<unknown>;
-  navigation: { addListener(callback: (details: NavigationCommit) => void, filter?: { url: Array<{ hostEquals: string }> }): void; removeListener(callback: (details: NavigationCommit) => void): void };
+  navigation: { onCommitted: { addListener(callback: (details: NavigationCommit) => void, filter?: { url: Array<{ hostEquals: string }> }): void; removeListener(callback: (details: NavigationCommit) => void): void } };
   alarms: { create(name: string, options: { periodInMinutes: number }): void; clear(name: string): unknown; onAlarm: { addListener(callback: (alarm: { name: string }) => void): void; removeListener(callback: (alarm: { name: string }) => void): void } };
 }): { setEnabled(enabled: boolean): void; dispose(): void } {
   let enabled = input.enabled;
@@ -107,10 +108,10 @@ export function installDomainObserver(input: {
     if (value) { input.alarms.create("shadowlens-heartbeat", { periodInMinutes: 5 }); heartbeat(); }
     else void input.alarms.clear("shadowlens-heartbeat");
   };
-  input.navigation.addListener(onNavigation, { url: [...registrySites.keys()].map(hostEquals => ({ hostEquals })) });
+  input.navigation.onCommitted.addListener(onNavigation, { url: [...registrySites.keys()].map(hostEquals => ({ hostEquals })) });
   input.alarms.onAlarm.addListener(onAlarm);
   setEnabled(enabled);
-  return { setEnabled, dispose() { if (disposed) return; setEnabled(false); disposed = true; input.navigation.removeListener(onNavigation); input.alarms.onAlarm.removeListener(onAlarm); } };
+  return { setEnabled, dispose() { if (disposed) return; setEnabled(false); disposed = true; input.navigation.onCommitted.removeListener(onNavigation); input.alarms.onAlarm.removeListener(onAlarm); } };
 }
 
 export function siteForNavigation(rawUrl: string): { siteId: SiteId; supportStatus: SupportStatus } | null {

@@ -8,24 +8,34 @@ const bootstrap = await readFile(new URL("../dist/content/bootstrap.js", import.
 const statusScript = await readFile(new URL("../dist/content/site-status.js", import.meta.url), "utf8");
 
 function optionsFixture({ throws = false } = {}) {
-  let connect;
-  const input = { value: "" }, status = {}, button = { disabled: false, addEventListener: (_, fn) => { connect = fn; } }, messages = [];
+  let connect, changeObservation;
+  const input = { value: "" }, deviceId = { value: "" }, observation = { checked: false, disabled: false, addEventListener: (event, fn) => { if (event === "change") changeObservation = fn; } }, status = {}, button = { disabled: false, addEventListener: (_, fn) => { connect = fn; } }, messages = [];
   const runtime = { sendMessage: (message, callback) => { if (throws && message.type === "SET_DEVICE_CREDENTIAL") throw new Error("disconnected"); messages.push({ message, callback }); } };
-  const context = vm.createContext({ document: { querySelector: selector => selector === "#credential" ? input : selector === "#status" ? status : button }, chrome: { runtime } });
+  const context = vm.createContext({ document: { querySelector: selector => selector === "#credential" ? input : selector === "#device-id" ? deviceId : selector === "#observe-domains" ? observation : selector === "#status" ? status : button }, chrome: { runtime } });
   vm.runInContext(optionsScript, context);
-  return { input, status, button, messages, runtime, connect: () => connect() };
+  return { input, deviceId, observation, status, button, messages, runtime, connect: () => connect(), changeObservation: () => changeObservation() };
 }
+test("Options loads domain-observation consent and reverts a failed opt-in update", () => {
+  const f = optionsFixture();
+  const load = f.messages.find(item => item.message.type === "GET_DOMAIN_OBSERVATION");
+  load.callback({ enabled: false }); assert.equal(f.observation.checked, false);
+  f.observation.checked = true; f.changeObservation();
+  const update = f.messages.find(item => item.message.type === "SET_DOMAIN_OBSERVATION");
+  assert.equal(update.message.enabled, true); assert.equal(f.observation.disabled, true);
+  update.callback({ ok: false });
+  assert.equal(f.observation.disabled, false); assert.equal(f.observation.checked, false);
+});
 test("Options rejects blank entry, immediately clears credentials, prevents duplicate save and handles failure", () => {
   const f = optionsFixture(); assert.equal(f.messages[0].message.type, "GET_CONNECTION_STATUS");
-  f.input.value = "  "; f.connect(); assert.equal(f.messages.length, 1);
-  f.input.value = "synthetic-device-token"; f.connect(); assert.equal(f.input.value, ""); assert.equal(f.button.disabled, true);
-  f.connect(); assert.equal(f.messages.length, 2);
-  assert.equal(f.messages[1].message.type, "SET_DEVICE_CREDENTIAL");
-  f.runtime.lastError = { message: "disconnected" }; f.messages[1].callback(undefined);
+  f.input.value = "  "; f.connect(); assert.equal(f.messages.length, 2);
+  f.input.value = "synthetic-device-token"; f.deviceId.value = "7a3b0f7a-7781-4ff1-9c67-50cb8569da51"; f.connect(); assert.equal(f.input.value, ""); assert.equal(f.deviceId.value, ""); assert.equal(f.button.disabled, true);
+  f.connect(); assert.equal(f.messages.length, 3);
+  assert.equal(f.messages[2].message.type, "SET_DEVICE_CREDENTIAL"); assert.equal(f.messages[2].message.deviceId, "7a3b0f7a-7781-4ff1-9c67-50cb8569da51");
+  f.runtime.lastError = { message: "disconnected" }; f.messages[2].callback(undefined);
   assert.equal(f.button.disabled, false); assert.match(f.status.textContent, /Could not save/); assert.doesNotMatch(f.status.textContent, /synthetic-device-token/);
 });
 test("Options handles synchronous messaging failure without leaving the credential in the field", () => {
-  const f = optionsFixture({ throws: true }); f.input.value = "synthetic-device-token"; f.connect();
+  const f = optionsFixture({ throws: true }); f.input.value = "synthetic-device-token"; f.deviceId.value = "7a3b0f7a-7781-4ff1-9c67-50cb8569da51"; f.connect();
   assert.equal(f.input.value, ""); assert.equal(f.button.disabled, false); assert.match(f.status.textContent, /Could not save/);
 });
 test("runtime bootstrap rejects altered origins before constructing an adapter", () => {

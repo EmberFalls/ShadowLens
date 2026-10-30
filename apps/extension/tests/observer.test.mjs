@@ -68,7 +68,7 @@ test("browser wiring defaults off, registers known hosts only, and removes liste
   let navigation, alarm, filter;
   const events = [], scheduled = new Map();
   const controller = installDomainObserver({ enabled: false, getDeviceId: () => deviceId, extensionVersion: "0.1.0", enqueue: event => { events.push(event); },
-    navigation: { addListener(fn, value) { navigation = fn; filter = value; }, removeListener(fn) { assert.equal(fn, navigation); navigation = null; } },
+    navigation: { onCommitted: { addListener(fn, value) { navigation = fn; filter = value; }, removeListener(fn) { assert.equal(fn, navigation); navigation = null; } } },
     alarms: { create(name, value) { scheduled.set(name, value); }, clear(name) { scheduled.delete(name); }, onAlarm: { addListener(fn) { alarm = fn; }, removeListener(fn) { assert.equal(fn, alarm); alarm = null; } } },
   });
   assert.deepEqual(filter.url.map(value => value.hostEquals), ["localhost", "chatgpt.com", "gemini.google.com", "claude.ai", "copilot.microsoft.com", "perplexity.ai"]);
@@ -90,6 +90,11 @@ test("concurrent duplicate documents enqueue once and a failed enqueue can be re
   const retry = new DomainObserver({ enabled: true, getDeviceId: () => deviceId, enqueue: () => { if (failed) throw new Error("offline"); } });
   await assert.rejects(retry.onCommitted(commit("https://chatgpt.com/")), /offline/); failed = false;
   assert.equal(await retry.onCommitted(commit("https://chatgpt.com/")), true);
+  let accepted = false;
+  const fullQueue = new DomainObserver({ enabled: true, getDeviceId: () => deviceId, enqueue: () => ({ queued: accepted }) });
+  assert.equal(await fullQueue.onCommitted(commit("https://chatgpt.com/", { documentId: "full" })), false);
+  accepted = true;
+  assert.equal(await fullQueue.onCommitted(commit("https://chatgpt.com/", { documentId: "full" })), true);
 });
 
 test("dedup history is bounded and heartbeat rejects identities and versions outside the contract", async () => {

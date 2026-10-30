@@ -14,6 +14,7 @@ type SessionStore = {
 type LocalStore = StorageArea & { get(keys: string[]): Promise<Record<string, unknown>> };
 const SESSION_CREDENTIAL_KEY = "deviceCredential";
 const LOCAL_DEVICE_ID_KEY = "shadowshieldProvisionedDeviceId";
+const DOMAIN_OBSERVATION_KEY = "shadowshieldDomainObservationEnabled";
 const BACKOFF_ALARM = "shadowlens-event-flush-backoff";
 const SESSION_DEVICE_ID_KEY = "deviceId";
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -24,6 +25,7 @@ const sessionStore = chrome.storage.session as unknown as SessionStore;
 const queue = new PrivacySafeQueue(localStore);
 let credential: DeviceCredential | null = null;
 let deviceId: string | null = null;
+let domainObservationEnabled = false;
 let reconnectRequired = true;
 let connected = false;
 let flushInProgress = false;
@@ -33,6 +35,7 @@ let initialization: Promise<void> | null = null;
 let credentialGeneration = 0;
 
 void chrome.storage.session.setAccessLevel({ accessLevel: "TRUSTED_CONTEXTS" });
+void chrome.storage.local.setAccessLevel({ accessLevel: "TRUSTED_CONTEXTS" });
 
 function parseCredential(message: { token?: unknown; deviceId?: unknown }): { token: string; deviceId: string | null } | null {
   if (typeof message.token !== "string" || message.token.length > 600 || message.token.trim() !== message.token) return null;
@@ -128,12 +131,13 @@ const observer = installDomainObserver({
   getDeviceId: () => deviceId,
   extensionVersion: "0.1.0",
   enqueue: async (event: ObservationEvent) => {
+    if (!domainObservationEnabled) return { queued: false };
     if (!deviceId) return { queued: false };
     const result = await queue.enqueue(event, deviceId);
     if (result.queued) void flushQueue();
     return result;
   },
-  navigation: navEvents,
+  navigation: { onCommitted: navEvents },
   alarms: {
     create: (name, info) => alarms.create(name, info),
     clear: (name) => alarms.clear(name),
@@ -150,12 +154,13 @@ function initialize(): Promise<void> {
     const generationAtStart = credentialGeneration;
     const [session, local] = await Promise.all([
       sessionStore.get([SESSION_CREDENTIAL_KEY, SESSION_DEVICE_ID_KEY]),
-      localStore.get([LOCAL_DEVICE_ID_KEY, RETRY_STORAGE_KEY]),
+      localStore.get([LOCAL_DEVICE_ID_KEY, RETRY_STORAGE_KEY, DOMAIN_OBSERVATION_KEY]),
     ]);
     const savedCredential = session[SESSION_CREDENTIAL_KEY];
     const sessionDeviceId = session[SESSION_DEVICE_ID_KEY];
     const savedId = local[LOCAL_DEVICE_ID_KEY];
     const savedRetry = local[RETRY_STORAGE_KEY] as { attempt?: unknown; retryAt?: unknown } | null;
+    domainObservationEnabled = local[DOMAIN_OBSERVATION_KEY] === true;
     if (savedRetry && typeof savedRetry.attempt === "number" && Number.isSafeInteger(savedRetry.attempt)
       && typeof savedRetry.retryAt === "number" && Number.isFinite(savedRetry.retryAt)) {
       retryAttempt = Math.min(10, Math.max(0, Number(savedRetry.attempt)));
@@ -170,12 +175,12 @@ function initialize(): Promise<void> {
         credential = { token, deviceId };
         reconnectRequired = false;
         await localStore.set({ [LOCAL_DEVICE_ID_KEY]: deviceId });
-        observer.setEnabled(true);
+        observer.setEnabled(local[DOMAIN_OBSERVATION_KEY] === true);
         void flushQueue();
       } else {
         credential = null;
         reconnectRequired = true;
-        observer.setEnabled(Boolean(deviceId));
+        observer.setEnabled(local[DOMAIN_OBSERVATION_KEY] === true);
       }
     }
   })();
@@ -202,7 +207,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (!message || typeof message.type !== "string") return false;
 
   if (message.type === "COVERAGE_UPDATE") {
-    if (sender.tab?.id !== undefined && sender.url?.startsWith("http://localhost:4173/") && isCoverage(message.coverage)) {
+    if (sender.tab?.id !== undefined && isSandboxUrl(sender.url) && isCoverage(message.coverage)) {
       coverageByTab.set(sender.tab.id, message.coverage);
     }
     sendResponse({ ok: true });
@@ -225,6 +230,29 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
 
+  if (message.type === "GET_DOMAIN_OBSERVATION") {
+    if (sender.url !== chrome.runtime.getURL("options/index.html")) { sendResponse({ enabled: false }); return false; }
+    void initialize().then(async () => {
+      const values = await localStore.get([DOMAIN_OBSERVATION_KEY]);
+      domainObservationEnabled = values[DOMAIN_OBSERVATION_KEY] === true;
+      sendResponse({ enabled: values[DOMAIN_OBSERVATION_KEY] === true });
+    }).catch(() => sendResponse({ enabled: false }));
+    return true;
+  }
+
+  if (message.type === "SET_DOMAIN_OBSERVATION") {
+    if (sender.url !== chrome.runtime.getURL("options/index.html") || typeof message.enabled !== "boolean") {
+      sendResponse({ ok: false }); return false;
+    }
+    void initialize().then(async () => {
+      await localStore.set({ [DOMAIN_OBSERVATION_KEY]: message.enabled });
+      domainObservationEnabled = message.enabled;
+      observer.setEnabled(message.enabled && Boolean(deviceId));
+      sendResponse({ ok: true, enabled: message.enabled });
+    }).catch(() => sendResponse({ ok: false }));
+    return true;
+  }
+
   if (message.type === "SET_DEVICE_CREDENTIAL") {
     if (sender.url !== chrome.runtime.getURL("options/index.html")) { sendResponse({ ok: false }); return false; }
     const parsed = parseCredential(message);
@@ -244,7 +272,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       if (parsed.deviceId) await localStore.set({ [LOCAL_DEVICE_ID_KEY]: parsed.deviceId });
       credential = deviceId ? { token: parsed.token, deviceId } : null;
       reconnectRequired = !credential;
-      observer.setEnabled(Boolean(deviceId));
+      const localSettings = await localStore.get([DOMAIN_OBSERVATION_KEY]);
+      observer.setEnabled(localSettings[DOMAIN_OBSERVATION_KEY] === true && Boolean(deviceId));
       retryAttempt = 0;
       retryAt = 0;
       if (localStore && typeof localStore.set === "function") await localStore.set({ [RETRY_STORAGE_KEY]: null });
@@ -255,7 +284,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 
   if (message.type === "ENQUEUE_EVENT") {
-    if (!sender.url?.startsWith("http://localhost:4173/")) { sendResponse({ ok: false, queued: false }); return false; }
+    if (!isSandboxUrl(sender.url)) { sendResponse({ ok: false, queued: false }); return false; }
     void initialize().then(async () => {
       if (!deviceId || !UUID.test(deviceId)) return { queued: false, reason: "RECONNECT_REQUIRED" };
       return queue.enqueue(message.event, deviceId);
@@ -267,7 +296,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 
   if (message.type === "ANALYZE_LOCAL") {
-    if (typeof message.text !== "string") { sendResponse({ ok: false }); return false; }
+    if (!isSandboxUrl(sender.url) || typeof message.text !== "string") { sendResponse({ ok: false, error: "UNTRUSTED_ORIGIN" }); return false; }
     try {
       const analysis = analyze({ text: message.text, policy: DEFAULT_POLICY });
       sendResponse({ ok: true, analysis });
@@ -279,6 +308,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 
   if (message.type === "VERIFY_REDACTION") {
+    if (!isSandboxUrl(sender.url)) { sendResponse({ ok: false }); return false; }
     try {
       if (typeof message.originalText !== "string" || typeof message.approvedText !== "string" || !message.analysis) throw new Error("invalid");
       const verification = verifyRedaction({
@@ -319,4 +349,12 @@ function isCoverage(value: unknown): value is Coverage {
   if (!value || typeof value !== "object") return false;
   const candidate = value as Coverage;
   return ["SANDBOX_GUARDED", "UNPROTECTED", "UNSUPPORTED"].includes(candidate.mode) && typeof candidate.label === "string" && candidate.label.length <= 100;
+}
+
+function isSandboxUrl(raw: unknown): raw is string {
+  if (typeof raw !== "string") return false;
+  try {
+    const url = new URL(raw);
+    return url.protocol === "http:" && url.hostname === "localhost" && url.port === "4173";
+  } catch { return false; }
 }

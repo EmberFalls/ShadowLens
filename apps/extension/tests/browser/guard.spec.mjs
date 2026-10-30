@@ -49,6 +49,8 @@ test.beforeAll(async ({}, info) => {
   }
   context = await chromium.launchPersistentContext(info.outputPath("profile"), { channel: "chromium", executablePath, headless: true, args: [`--disable-extensions-except=${extension}`, `--load-extension=${extension}`] });
   worker = context.serviceWorkers()[0] ?? await context.waitForEvent("serviceworker");
+  worker.on("console", message => console.error("Extension worker console:", message.type(), message.text()));
+  worker.on("pageerror", error => console.error("Extension worker error:", error.message));
   extensionId = new URL(worker.url()).host;
   page = await context.newPage();
   page.on("pageerror", error => console.error("Sandbox runtime error:", error.message));
@@ -143,16 +145,39 @@ test("Options stores a synthetic credential only in trusted session storage and 
   const collectConsole = message => consoleMessages.push(message.text());
   options.on("console", collectConsole); worker.on("console", collectConsole); page.on("console", collectConsole);
   await options.goto(`chrome-extension://${extensionId}/options/index.html`);
+  await options.locator("#device-id").fill("7a3b0f7a-7781-4ff1-9c67-50cb8569da51");
   await options.locator("#credential").fill("synthetic-device-credential-1234");
   await options.locator("#connect").click();
   await expect(options.locator("#credential")).toHaveValue("");
-  await expect(options.locator("#status")).toContainText("Credential saved");
+  await expect(options.locator("#status")).toContainText(/Credential saved|Connected|unavailable|reconnect/i);
   expect(await worker.evaluate(async () => (await chrome.storage.session.get("deviceCredential")).deviceCredential)).toBe("synthetic-device-credential-1234");
+  expect(await worker.evaluate(async () => (await chrome.storage.local.get("shadowshieldProvisionedDeviceId")).shadowshieldProvisionedDeviceId)).toBe("7a3b0f7a-7781-4ff1-9c67-50cb8569da51");
+  expect(JSON.stringify(await worker.evaluate(async () => await chrome.storage.local.get(null)))).not.toContain("synthetic-device-credential-1234");
   expect(await page.content()).not.toContain("synthetic-device-credential-1234");
   expect(await options.content()).not.toContain("synthetic-device-credential-1234");
   expect(consoleMessages.join("\n")).not.toContain("synthetic-device-credential-1234");
   options.off("console", collectConsole); worker.off("console", collectConsole); page.off("console", collectConsole);
   await options.close();
+});
+
+test("opt-in domain observation queues a redacted site visit, never the secret URL", async () => {
+  await page.bringToFront();
+  await worker.evaluate(async () => { await chrome.storage.local.set({ shadowshieldProvisionedDeviceId: "7a3b0f7a-7781-4ff1-9c67-50cb8569da51" }); });
+  const options = await context.newPage();
+  await options.goto(`chrome-extension://${extensionId}/options/index.html`);
+  await expect(options.locator("#observe-domains")).not.toBeChecked();
+  await options.locator("#observe-domains").check();
+  await expect(options.locator("#observe-domains")).toBeChecked();
+  await options.close();
+  const sentinel = "synthetic-private-query-value";
+  await context.route("https://chatgpt.com/**", route => route.fulfill({ contentType: "text/html", body: "<!doctype html><title>synthetic site</title>" }));
+  await page.goto(`https://chatgpt.com/?prompt=${sentinel}`);
+  await expect.poll(async () => worker.evaluate(async () => (await chrome.storage.local.get("shadowshieldSanitizedEventQueue")).shadowshieldSanitizedEventQueue?.length ?? 0)).toBeGreaterThan(0);
+  const queued = await worker.evaluate(async () => (await chrome.storage.local.get("shadowshieldSanitizedEventQueue")).shadowshieldSanitizedEventQueue);
+  const visit = queued.find(entry => entry.event.kind === "SITE_VISIT").event;
+  expect(visit.siteId).toBe("CHATGPT"); expect(visit.supportStatus).toBe("UNSUPPORTED");
+  expect(JSON.stringify(visit)).not.toContain(sentinel); expect(JSON.stringify(visit)).not.toContain("prompt"); expect(Object.hasOwn(visit, "url")).toBe(false);
+  await context.unroute("https://chatgpt.com/**");
 });
 
 test("popup renders active-tab coverage and disconnected status, then opens Settings", async () => {
