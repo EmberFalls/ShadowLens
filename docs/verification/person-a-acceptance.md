@@ -10,7 +10,7 @@ Verified on Windows 11, 2026-10-30. Scope: SH-006, SH-007, SH-008 and the indepe
 | `npm run test:engine` | 40 passed, 0 failed |
 | `npm run test:extension` | 37 passed, 0 failed |
 | `npm run check:extension` | Passed: manifest scope and packaged entry files |
-| `npm run test:extension:browser` | 11 passed, 0 failed, 0 skipped |
+| `npm run test:extension:browser` | 12 passed, 0 failed, 0 skipped |
 
 Browser: Playwright 1.58.2, bundled Chrome for Testing 145.0.7632.6, fresh persistent test profile, real unpacked MV3 extension, real engine and real sandbox receiver. This is automated Chromium acceptance; a manual check in the user's current Chrome has not passed yet. Computer-use Chrome app approval timed out before inspection.
 
@@ -26,7 +26,8 @@ Raw browser output and profiles are under ignored `apps/extension/test-results/`
 | --- | --- | --- |
 | SH-006: MV3, isolated document_start, exact origin and packaged entrypoints | `manifest.test.mjs`, `validate-manifest.mjs`, actual unpacked browser load | Passed in bundled Chromium |
 | SH-006: runtime rejects other origins; API/dashboard not injected | `shell.test.mjs` origin cases; browser API/dashboard page assertions | Passed |
-| SH-006: Options credential is worker-mediated, cleared immediately and session storage restricted to trusted contexts | Options message tests; worker sender/storage tests; browser Options flow and DOM checks | Passed |
+| SH-006: Options credential is worker-mediated, cleared immediately and session storage restricted to trusted contexts | Options message tests; worker sender/storage tests; browser Options flow, DOM and console checks | Passed |
+| SH-006: popup displays active-tab coverage and opens Settings | Browser popup flow verifies guard indicator, disconnected message and actual Options navigation | Passed in bundled Chromium |
 | SH-006: coverage and reconnect state are truthful | Popup/Options display disconnected state; worker returns unconfigured connection; compatibility browser test | Connection implementation still depends on SH-009 |
 | SH-006: manual current Chrome unpacked load/user flow | Not executed: Chrome app access approval timed out | Pending manual verification |
 | SH-007: fixed selectors/types, native textarea setter and bubbling input, exact readback | `adapter.test.mjs`; browser reads actual receiver contents | Passed |

@@ -139,6 +139,9 @@ test("origin scope excludes API/dashboard and altered sandbox hosts", async () =
 });
 test("Options stores a synthetic credential only in trusted session storage and clears the field", async () => {
   const options = await context.newPage();
+  const consoleMessages = [];
+  const collectConsole = message => consoleMessages.push(message.text());
+  options.on("console", collectConsole); worker.on("console", collectConsole); page.on("console", collectConsole);
   await options.goto(`chrome-extension://${extensionId}/options/index.html`);
   await options.locator("#credential").fill("synthetic-device-credential-1234");
   await options.locator("#connect").click();
@@ -147,7 +150,25 @@ test("Options stores a synthetic credential only in trusted session storage and 
   expect(await worker.evaluate(async () => (await chrome.storage.session.get("deviceCredential")).deviceCredential)).toBe("synthetic-device-credential-1234");
   expect(await page.content()).not.toContain("synthetic-device-credential-1234");
   expect(await options.content()).not.toContain("synthetic-device-credential-1234");
+  expect(consoleMessages.join("\n")).not.toContain("synthetic-device-credential-1234");
+  options.off("console", collectConsole); worker.off("console", collectConsole); page.off("console", collectConsole);
   await options.close();
+});
+
+test("popup renders active-tab coverage and disconnected status, then opens Settings", async () => {
+  await page.bringToFront();
+  const popupCreated = context.waitForEvent("page");
+  await worker.evaluate(() => chrome.tabs.create({ url: chrome.runtime.getURL("popup/index.html"), active: false }));
+  const popup = await popupCreated;
+  await expect(popup.locator("#coverage")).toContainText("Guard active");
+  await expect(popup.locator("#connection")).toContainText("not configured");
+  await expect(popup.locator("#indicator")).toHaveClass(/active/);
+  const optionsCreated = context.waitForEvent("page");
+  await popup.locator("#open-options").click();
+  const options = await optionsCreated;
+  await expect(options).toHaveURL(`chrome-extension://${extensionId}/options/index.html`);
+  await expect(options.locator("#status")).toContainText("not configured");
+  await options.close(); await popup.close();
 });
 
 test("lost composer compatibility displays UNPROTECTED and returns when restored", async () => {
