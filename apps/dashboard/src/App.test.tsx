@@ -34,7 +34,7 @@ describe("dashboard mock experience", () => {
   });
 
   it("explains stale devices and preserves NOT_EVALUATED in event rows", async () => {
-    render(<App />);
+    render(<App client={mockClient} mode="MOCK" />);
     expect(await screen.findByText(/Stale means not recently observed/)).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Events" }));
     expect(await screen.findByText("NOT_EVALUATED")).toBeTruthy();
