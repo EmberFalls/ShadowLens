@@ -11,12 +11,15 @@ from __future__ import annotations
 from contextlib import contextmanager
 from datetime import datetime, timezone
 import hashlib
+import json
 import os
 import sqlite3
 from pathlib import Path
-from typing import Iterator
+from typing import Any, Iterator
 
 DEFAULT_BUSY_TIMEOUT_MS = 5_000
+_ROOT = Path(__file__).resolve().parents[4]
+_REGISTRY_PATH = _ROOT / "packages" / "contracts" / "domain-registry.json"
 
 # The migrations are immutable once released. A changed checksum is treated
 # as database corruption/schema drift and must be repaired explicitly.
@@ -193,3 +196,82 @@ def transaction(connection: sqlite3.Connection) -> Iterator[sqlite3.Connection]:
     except Exception:
         connection.rollback()
         raise
+
+
+def _registry_sites(registry_path: str | Path | None = None) -> list[dict[str, Any]]:
+    path = Path(registry_path) if registry_path is not None else _REGISTRY_PATH
+    registry = json.loads(path.read_text(encoding="utf-8"))
+    if registry.get("contractVersion") != "v2" or not isinstance(registry.get("sites"), list):
+        raise ValueError("invalid frozen domain registry")
+    seen: set[str] = set()
+    sites: list[dict[str, Any]] = []
+    for site in registry["sites"]:
+        site_id, hosts = site.get("siteId"), site.get("hosts")
+        if not isinstance(site_id, str) or site_id in seen or not isinstance(hosts, list) or not hosts:
+            raise ValueError("invalid frozen domain registry entry")
+        host = hosts[0]
+        if not isinstance(host, str) or not host or any(c in host for c in "/:@?#"):
+            raise ValueError("invalid canonical host in domain registry")
+        seen.add(site_id)
+        sites.append({"site_id": site_id, "canonical_host": host.lower()})
+    if seen != {"SANDBOX", "CHATGPT", "GEMINI", "CLAUDE", "COPILOT", "PERPLEXITY"}:
+        raise ValueError("domain registry site IDs do not match the v2 contract")
+    return sites
+
+
+def seed_domains(connection: sqlite3.Connection, registry_path: str | Path | None = None) -> int:
+    """Insert frozen sites without resetting owner-managed approval states."""
+    now = normalize_utc_timestamp()
+    inserted = 0
+    with transaction(connection):
+        for site in _registry_sites(registry_path):
+            status = "APPROVED" if site["site_id"] == "SANDBOX" else "UNREVIEWED"
+            cursor = connection.execute(
+                "INSERT INTO domains(site_id, canonical_host, approval_status, updated_at) "
+                "VALUES (?, ?, ?, ?) ON CONFLICT(site_id) DO NOTHING",
+                (site["site_id"], site["canonical_host"], status, now),
+            )
+            inserted += cursor.rowcount
+    return inserted
+
+
+def initialize_database(database: str | Path, *, registry_path: str | Path | None = None) -> None:
+    connection = connect(database)
+    try:
+        migrate(connection)
+        seed_domains(connection, registry_path)
+    finally:
+        connection.close()
+
+
+def update_domain_approval(
+    connection: sqlite3.Connection,
+    site_id: str,
+    approval_status: str,
+    *,
+    changed_at: datetime | str | None = None,
+) -> bool:
+    """Update an informational approval and append its history atomically."""
+    allowed = {"APPROVED", "UNAPPROVED", "UNREVIEWED"}
+    if approval_status not in allowed:
+        raise ValueError("invalid domain approval status")
+    timestamp = normalize_utc_timestamp(changed_at)
+    with transaction(connection):
+        current = connection.execute(
+            "SELECT approval_status FROM domains WHERE site_id = ?", (site_id,)
+        ).fetchone()
+        if current is None:
+            raise ValueError("unknown site ID")
+        old_status = str(current["approval_status"])
+        if old_status == approval_status:
+            return False
+        connection.execute(
+            "UPDATE domains SET approval_status = ?, updated_at = ? WHERE site_id = ?",
+            (approval_status, timestamp, site_id),
+        )
+        connection.execute(
+            "INSERT INTO domain_approval_changes(site_id, old_status, new_status, changed_at) VALUES (?, ?, ?, ?)",
+            (site_id, old_status, approval_status, timestamp),
+        )
+    return True
+
