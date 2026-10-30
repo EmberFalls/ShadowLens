@@ -160,3 +160,45 @@ def parse_event_batch(raw_body: bytes) -> EventBatch:
         raise InvalidEventBatch from None
 
 
+def ingest_event_batch(
+    connection: sqlite3.Connection,
+    *,
+    authenticated_device_id: str,
+    batch: EventBatch,
+    ingested_at: datetime | str | None = None,
+) -> IngestResponse:
+    """Insert all new events in one transaction and leave duplicate rows intact."""
+    if any(str(event.deviceId) != authenticated_device_id for event in batch.events):
+        raise InvalidEventBatch
+
+    server_time = normalize_utc_timestamp(ingested_at)
+    accepted = 0
+    duplicates = 0
+    try:
+        with transaction(connection):
+            for event in batch.events:
+                payload = json.dumps(event.model_dump(mode="json"), sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+                cursor = connection.execute(
+                    "INSERT INTO events(event_id, device_id, kind, site_id, payload_json, ingested_at) "
+                    "VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(event_id) DO NOTHING",
+                    (
+                        str(event.eventId),
+                        authenticated_device_id,
+                        event.kind,
+                        None if isinstance(event, Heartbeat) else event.siteId,
+                        payload,
+                        server_time,
+                    ),
+                )
+                if cursor.rowcount == 0:
+                    duplicates += 1
+                    continue
+                accepted += 1
+                if isinstance(event, Heartbeat):
+                    connection.execute(
+                        "UPDATE devices SET last_heartbeat_at = ? WHERE device_id = ?",
+                        (server_time, authenticated_device_id),
+                    )
+    except sqlite3.Error:
+        raise DatabaseUnavailable from None
+    return IngestResponse(accepted=accepted, duplicates=duplicates)
