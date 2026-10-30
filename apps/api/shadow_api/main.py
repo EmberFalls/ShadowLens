@@ -19,6 +19,7 @@ from .config import Settings
 from .dependencies import SQLiteAuthStore
 from .db.database import initialize_database
 from .routers.auth import router as auth_router
+from .routers.events import router as events_router
 
 LOGGER = logging.getLogger("shadowshield.api")
 API_PREFIX = "/api/v1"
@@ -112,7 +113,15 @@ def create_app(
 
     @app.exception_handler(HTTPException)
     async def http_error(request: Request, exc: HTTPException):
-        codes = {401: ("UNAUTHORIZED", "Authentication required."), 403: ("FORBIDDEN", "Request is not allowed."), 404: ("NOT_FOUND", "Resource not found."), 405: ("METHOD_NOT_ALLOWED", "Method not allowed.")}
+        codes = {
+            401: ("UNAUTHORIZED", "Authentication required."),
+            403: ("FORBIDDEN", "Request is not allowed."),
+            404: ("NOT_FOUND", "Resource not found."),
+            405: ("METHOD_NOT_ALLOWED", "Method not allowed."),
+            413: ("PAYLOAD_TOO_LARGE", "Request body exceeds the allowed size."),
+            422: ("INVALID_REQUEST", "Request is invalid."),
+            503: ("SERVICE_UNAVAILABLE", "Service temporarily unavailable."),
+        }
         code, message = codes.get(exc.status_code, ("REQUEST_REJECTED", "Request could not be accepted."))
         headers = {"X-Request-ID": getattr(request.state, "request_id", "unknown")}
         return JSONResponse(status_code=exc.status_code, content={"error": {"code": code, "message": message, "requestId": headers["X-Request-ID"]}}, headers=headers)
@@ -134,6 +143,7 @@ def create_app(
         return {"status": "ok", "db": "ready", "contractVersion": "v2"}
 
     app.include_router(auth_router, prefix=f"{API_PREFIX}/auth", tags=["auth"])
+    app.include_router(events_router, prefix=API_PREFIX, tags=["events"])
     for router in routers:
         app.include_router(router, prefix=API_PREFIX)
 
