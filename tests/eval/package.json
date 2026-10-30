@@ -1,0 +1,12 @@
+{
+  "name": "@shadowshield/eval",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "eval": "node eval.mjs",
+    "eval:holdout": "node eval.mjs --holdout",
+    "generate": "node prepare-corpus.mjs",
+    "build:local-engine": "tsc -p ../../packages/engine/tsconfig.json --outDir ./engine-build",
+    "test": "node --test eval.test.mjs"
+  }
+}
