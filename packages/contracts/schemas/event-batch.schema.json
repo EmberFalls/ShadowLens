@@ -1,0 +1,9 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://shadowshield.local/contracts/v2/event-batch.schema.json",
+  "title":"Event batch v2",
+  "type":"object",
+  "additionalProperties":false,
+  "required":["contractVersion","events"],
+  "properties":{"contractVersion":{"const":"v2"},"events":{"type":"array","minItems":1,"maxItems":25,"items":{"$ref":"event.schema.json"}}}
+}

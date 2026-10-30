@@ -1,0 +1,1 @@
+{"contractVersion":"v2","revision":1,"defaultFindingAction":"WARN","rules":[{"id":"POLICY.PRIVATE_KEY","category":"SECRET_PRIVATE_KEY","minimumSeverity":"LOW","action":"BLOCK","enabled":true}],"allowWarnOverride":true,"updatedAt":"2026-10-30T00:00:00Z"}

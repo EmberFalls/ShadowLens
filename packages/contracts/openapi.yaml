@@ -1,0 +1,25 @@
+openapi: 3.1.0
+info: { title: ShadowShield local API, version: 1.0.0 }
+servers: [{ url: http://127.0.0.1:8787/api/v1 }]
+paths:
+  /health:
+    get:
+      responses: { '200': { description: Health response } }
+  /events/batch:
+    post:
+      security: [{ DeviceBearer: [] }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: './schemas/event-batch.schema.json' } } } }
+      responses: { '200': { description: Accepted sanitized metadata } }
+  /devices:
+    get:
+      security: [{ OwnerSession: [] }]
+      responses:
+        '200':
+          description: DeviceListV2 with pseudonymous identifiers and observed timestamps
+          content:
+            application/json:
+              schema: { $ref: './schemas/domain.schema.json#/$defs/DeviceListV2' }
+components:
+  securitySchemes:
+    DeviceBearer: { type: http, scheme: bearer }
+    OwnerSession: { type: apiKey, in: cookie, name: shadow_session }

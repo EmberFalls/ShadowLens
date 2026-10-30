@@ -1,0 +1,10 @@
+{
+  "contractVersion": "v2",
+  "eventId": "188e1ff5-c41f-4a14-93a9-411a71b9b07d",
+  "clientObservedAt": "2026-10-30T08:12:00Z",
+  "deviceId": "6bde3d14-92bb-461b-89f9-7bacb7fb846c",
+  "kind": "SITE_VISIT",
+  "siteId": "CHATGPT",
+  "supportStatus": "UNSUPPORTED",
+  "reasonCodes": ["NOT_A_V2_REASON"]
+}

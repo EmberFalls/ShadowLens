@@ -1,0 +1,23 @@
+{
+  "name": "shadowshield",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/contracts",
+    "packages/engine"
+  ],
+  "scripts": {
+    "contracts:check": "node packages/contracts/scripts/generate-types.mjs --check && node packages/contracts/scripts/validate-contracts.mjs && node packages/contracts/scripts/generate-python-types.mjs --check",
+    "contracts:generate": "node packages/contracts/scripts/generate-types.mjs && node packages/contracts/scripts/generate-python-types.mjs",
+    "contracts:python:generate": "node packages/contracts/scripts/generate-python-types.mjs",
+    "contracts:python:check": "node packages/contracts/scripts/generate-python-types.mjs --check",
+    "build:engine": "tsc -p packages/engine/tsconfig.json",
+    "test:engine": "npm run build:engine && node --test packages/engine/tests/*.test.mjs"
+  },
+  "devDependencies": {
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
+    "json-schema-to-typescript": "^15.0.4",
+    "typescript": "^5.7.3"
+  }
+}

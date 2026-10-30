@@ -1,0 +1,12 @@
+{
+  "contractVersion": "v2",
+  "items": [
+    {
+      "deviceId": "61d92fe7-323f-4e37-8016-6691c93f7401",
+      "lastHeartbeatAt": null,
+      "lastEventAt": null,
+      "observation": "STALE",
+      "employeeEmail": "person@example.invalid"
+    }
+  ]
+}

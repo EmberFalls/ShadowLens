@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://shadowshield.local/contracts/v2/domain.schema.json",
+  "title": "Domain and device projection v2",
+  "oneOf": [
+    { "$ref": "#/$defs/DomainSummaryV2" },
+    { "$ref": "#/$defs/DeviceListV2" }
+  ],
+  "$defs": {
+    "site": { "enum": ["SANDBOX", "CHATGPT", "GEMINI", "CLAUDE", "COPILOT", "PERPLEXITY"] },
+    "DomainSummaryV2": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["siteId", "approvalStatus", "supportStatus", "siteVisitsObserved", "guardedAttempts", "lastVisitAt"],
+      "properties": {
+        "siteId": { "$ref": "#/$defs/site" },
+        "approvalStatus": { "enum": ["APPROVED", "UNAPPROVED", "UNREVIEWED"] },
+        "supportStatus": { "enum": ["GUARDED", "BEST_EFFORT", "UNSUPPORTED"] },
+        "siteVisitsObserved": { "type": "integer", "minimum": 0 },
+        "guardedAttempts": { "type": "integer", "minimum": 0 },
+        "lastVisitAt": { "type": ["string", "null"], "format": "date-time", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$" }
+      }
+    },
+    "DeviceSummaryV2": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["deviceId", "lastHeartbeatAt", "lastEventAt", "observation"],
+      "properties": {
+        "deviceId": { "type": "string", "format": "uuid" },
+        "lastHeartbeatAt": { "type": ["string", "null"], "format": "date-time", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$" },
+        "lastEventAt": { "type": ["string", "null"], "format": "date-time", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$" },
+        "observation": { "enum": ["RECENTLY_SEEN", "STALE", "NEVER_SEEN"] }
+      }
+    },
+    "DeviceListV2": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["contractVersion", "items"],
+      "properties": {
+        "contractVersion": { "const": "v2" },
+        "items": { "type": "array", "items": { "$ref": "#/$defs/DeviceSummaryV2" } }
+      }
+    }
+  }
+}

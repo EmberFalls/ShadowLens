@@ -1,0 +1,18 @@
+{
+  "contractVersion": "v2",
+  "eventId": "f684182a-7cb5-4a10-8830-f814d5888a68",
+  "clientObservedAt": "2026-10-30T08:10:00Z",
+  "deviceId": "6bde3d14-92bb-461b-89f9-7bacb7fb846c",
+  "kind": "SUBMISSION",
+  "siteId": "CHATGPT",
+  "coverageMode": "THIRD_PARTY_BEST_EFFORT",
+  "decisionAction": "ALLOW",
+  "disposition": "PAGE_ATTESTED",
+  "aggregateTier": "NONE",
+  "scoreBand": "ZERO",
+  "categoryCounts": {},
+  "policyRevision": 1,
+  "engineVersion": "0.1.0",
+  "lengthBand": "EMPTY",
+  "reasonCodes": ["PAGE_ACK_RECEIVED"]
+}

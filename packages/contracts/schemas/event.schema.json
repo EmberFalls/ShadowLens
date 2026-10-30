@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://shadowshield.local/contracts/v2/event.schema.json",
+  "title": "RiskEventV2",
+  "oneOf": [
+    { "$ref": "#/$defs/submission" },
+    { "$ref": "#/$defs/siteVisit" },
+    { "$ref": "#/$defs/heartbeat" }
+  ],
+  "$defs": {
+    "submission": {
+      "type": "object", "additionalProperties": false,
+      "required": ["contractVersion","eventId","clientObservedAt","deviceId","kind","siteId","coverageMode","decisionAction","disposition","aggregateTier","scoreBand","categoryCounts","policyRevision","engineVersion","lengthBand","reasonCodes"],
+      "properties": {
+        "contractVersion":{"const":"v2"},"eventId":{"type":"string","format":"uuid"},"clientObservedAt":{"type":"string","format":"date-time","pattern":"^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"},"deviceId":{"type":"string","format":"uuid"},"kind":{"const":"SUBMISSION"},
+        "siteId":{"enum":["SANDBOX","CHATGPT","GEMINI","CLAUDE","COPILOT","PERPLEXITY"]},"coverageMode":{"enum":["SANDBOX_GUARDED","THIRD_PARTY_BEST_EFFORT","UNSUPPORTED"]},
+        "decisionAction":{"enum":["ALLOW","WARN","REDACT","BLOCK",null]},"disposition":{"enum":["CANCELLED","BLOCKED","FAILED_SAFE","RELEASED_UNVERIFIED","PAGE_ATTESTED"]},"aggregateTier":{"enum":["NONE","LOW","MEDIUM","HIGH","CRITICAL","NOT_EVALUATED"]},"scoreBand":{"enum":["ZERO","LOW","MEDIUM","HIGH","CRITICAL","NOT_EVALUATED"]},
+        "categoryCounts":{"type":"object","propertyNames":{"enum":["PII_EMAIL","PII_PHONE","PII_PAYMENT_CARD","PII_AADHAAR","PII_INDIA_PAN","PII_GSTIN","PII_IFSC","PII_UPI","SECRET_TOKEN","SECRET_PRIVATE_KEY","CONFIDENTIAL_MARKER","SOURCE_CODE_CONTEXT","CUSTOM_PROTECTED_TERM","BULK_CONTACT_LIST"]},"additionalProperties":{"type":"integer","minimum":0}},"policyRevision":{"type":"integer","minimum":1},"engineVersion":{"type":"string","minLength":1},"lengthBand":{"enum":["EMPTY","1_99","100_999","1000_PLUS"]},"reasonCodes":{"type":"array","maxItems":8,"items":{"enum":["DETECTED_PII","DETECTED_SECRET","DETECTED_CONFIDENTIAL","DETECTED_SOURCE_CODE","DETECTED_BULK","DETECTED_CUSTOM_TERM","POLICY_ALLOW","POLICY_WARN","POLICY_REDACT","POLICY_BLOCK","POLICY_FALLBACK_WARN","USER_CANCELLED","USER_ACKNOWLEDGED","USER_APPROVED_REDACTION","REDACTION_RESIDUAL","RELEASE_WRITE_MISMATCH","EDITOR_CHANGED","SCANNER_TIMEOUT","INPUT_TOO_LONG","INVALID_POLICY","ENGINE_FAILURE","BACKEND_OFFLINE","UNSUPPORTED_AI_SITE_SEEN","UPLOAD_UNINSPECTED","PAGE_ACK_RECEIVED","PAGE_ACK_TIMEOUT"]}}
+      },
+      "allOf": [
+        {"if":{"properties":{"disposition":{"const":"FAILED_SAFE"}},"required":["disposition"]},"then":{"properties":{"decisionAction":{"type":"null"},"aggregateTier":{"const":"NOT_EVALUATED"},"scoreBand":{"const":"NOT_EVALUATED"}}},"else":{"properties":{"decisionAction":{"enum":["ALLOW","WARN","REDACT","BLOCK"]},"aggregateTier":{"enum":["NONE","LOW","MEDIUM","HIGH","CRITICAL"]},"scoreBand":{"enum":["ZERO","LOW","MEDIUM","HIGH","CRITICAL"]}}}},
+        {"if":{"properties":{"disposition":{"const":"BLOCKED"}},"required":["disposition"]},"then":{"properties":{"decisionAction":{"const":"BLOCK"}}}},
+        {"if":{"properties":{"disposition":{"const":"PAGE_ATTESTED"}},"required":["disposition"]},"then":{"properties":{"siteId":{"const":"SANDBOX"},"coverageMode":{"const":"SANDBOX_GUARDED"},"decisionAction":{"enum":["ALLOW","WARN","REDACT"]},"reasonCodes":{"contains":{"const":"PAGE_ACK_RECEIVED"}}}}},
+        {"if":{"properties":{"disposition":{"const":"RELEASED_UNVERIFIED"}},"required":["disposition"]},"then":{"properties":{"decisionAction":{"enum":["ALLOW","WARN","REDACT"]},"reasonCodes":{"not":{"contains":{"const":"PAGE_ACK_RECEIVED"}}}}}}
+      ]
+    },
+    "siteVisit": {
+      "type":"object","additionalProperties":false,
+      "required":["contractVersion","eventId","clientObservedAt","deviceId","kind","siteId","supportStatus","reasonCodes"],
+      "properties":{"contractVersion":{"const":"v2"},"eventId":{"type":"string","format":"uuid"},"clientObservedAt":{"type":"string","format":"date-time","pattern":"^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"},"deviceId":{"type":"string","format":"uuid"},"kind":{"const":"SITE_VISIT"},"siteId":{"enum":["SANDBOX","CHATGPT","GEMINI","CLAUDE","COPILOT","PERPLEXITY"]},"supportStatus":{"enum":["GUARDED","BEST_EFFORT","UNSUPPORTED"]},"reasonCodes":{"type":"array","items":{"enum":["UNSUPPORTED_AI_SITE_SEEN"]}}}
+    },
+    "heartbeat": {
+      "type":"object","additionalProperties":false,
+      "required":["contractVersion","eventId","clientObservedAt","deviceId","kind","extensionVersion"],
+      "properties":{"contractVersion":{"const":"v2"},"eventId":{"type":"string","format":"uuid"},"clientObservedAt":{"type":"string","format":"date-time","pattern":"^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"},"deviceId":{"type":"string","format":"uuid"},"kind":{"const":"DEVICE_HEARTBEAT"},"extensionVersion":{"type":"string","minLength":1}}
+    }
+  }
+}
