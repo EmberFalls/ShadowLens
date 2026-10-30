@@ -1,8 +1,9 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "ES2022",
+    "module": "ESNext",
     "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
     "lib": ["ES2022", "DOM"],
     "strict": true,
     "noEmitOnError": true,
@@ -10,5 +11,5 @@
     "rootDir": "../..",
     "skipLibCheck": true
   },
-  "include": ["src/background/worker.ts", "src/types/chrome.d.ts"]
+  "include": ["src/background/worker.ts", "src/background/domain-observer.ts", "src/types/chrome.d.ts"]
 }

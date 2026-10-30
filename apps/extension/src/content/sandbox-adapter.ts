@@ -11,6 +11,7 @@ namespace ShadowShield.Content {
   }
 
   export class SandboxAdapter implements ComposerAdapter {
+    private static readonly attemptIdPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     readonly siteId = "SANDBOX" as const;
     readonly coverageMode = "SANDBOX_GUARDED" as const;
     private revision = 0;
@@ -50,7 +51,7 @@ namespace ShadowShield.Content {
     restoreDraft(text: string): boolean { return this.setDraft(text); }
 
     release(attemptId: string): void {
-      if (!/^[0-9a-f-]{36}$/i.test(attemptId) || this.released.has(attemptId)) throw new Error("Release is not valid or was already used");
+      if (!SandboxAdapter.attemptIdPattern.test(attemptId) || this.released.has(attemptId)) throw new Error("Release is not valid or was already used");
       const composer = this.composer();
       if (!composer) throw new Error("Sandbox composer disappeared");
       this.released.add(attemptId);

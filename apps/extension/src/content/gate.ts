@@ -12,16 +12,30 @@ namespace ShadowShield.Content {
     private readonly oneShot = new Set<string>();
     private original: { text: string; revision: number } | null = null;
     private activeAdapter: ComposerAdapter | null = null;
+    private pendingAction: Analysis["decision"]["action"] | null = null;
+    private cancelReview: (() => void) | null = null;
 
     constructor(private readonly adapter: ComposerAdapter) {
       window.addEventListener("click", this.onClick, true);
       window.addEventListener("keydown", this.onKeyDown, true);
+      window.addEventListener("input", this.onEdit, true);
+      window.addEventListener("change", this.onEdit, true);
     }
     getCoverage(): "SANDBOX_GUARDED" { return "SANDBOX_GUARDED"; }
-    destroy(): void { window.removeEventListener("click", this.onClick, true); window.removeEventListener("keydown", this.onKeyDown, true); }
+    destroy(): void {
+      this.cancelReview?.();
+      window.removeEventListener("click", this.onClick, true);
+      window.removeEventListener("keydown", this.onKeyDown, true);
+      window.removeEventListener("input", this.onEdit, true);
+      window.removeEventListener("change", this.onEdit, true);
+    }
     cancelPending(reason: "USER_CANCELLED" | "EDITOR_CHANGED"): void {
       if (this.machine.state === "READY") return;
-      this.emitTerminal("CANCELLED", "WARN", [reason]); this.original = null; this.activeAdapter = null; this.machine.reset();
+      this.cancelReview?.();
+      this.cancelReview = null;
+      if (reason === "EDITOR_CHANGED") this.emitTerminal("FAILED_SAFE", null, [reason]);
+      else this.emitTerminal("CANCELLED", this.pendingAction, [reason]);
+      this.original = null; this.activeAdapter = null; this.pendingAction = null; this.machine.reset();
     }
     onSendGesture(event: Event, adapter: ComposerAdapter): void {
       if (!adapter.isSupportedTarget(event.target)) return;
@@ -49,7 +63,7 @@ namespace ShadowShield.Content {
 
     private async handleAnalysis(analysis: Analysis, adapter: ComposerAdapter, snapshot: {text:string;revision:number}): Promise<void> {
       const action = analysis.decision.action;
-      if (action === "BLOCK") { this.emitTerminal("BLOCKED", "BLOCK", analysis.decision.reasonCodes); this.machine.reset(); return; }
+      if (action === "BLOCK") { this.emitTerminal("BLOCKED", "BLOCK", analysis.decision.reasonCodes); this.clearPending(); this.machine.reset(); return; }
       let approvedText = snapshot.text;
       if (action === "REDACT") {
         try { approvedText = analysis.decision.replacementOperations.slice().sort((a,b)=>b.start-a.start).reduce((text,op)=>text.slice(0,op.start)+op.replacement+text.slice(op.end),snapshot.text); }
@@ -57,13 +71,19 @@ namespace ShadowShield.Content {
       }
       if (action !== "ALLOW") {
         try { this.machine.move("REVIEWING"); } catch { this.failSafe("ENGINE_FAILURE"); return; }
-        const review = await showReview(analysis, approvedText);
-        if (!review.approved) { this.emitTerminal("CANCELLED", action, ["USER_CANCELLED"]); this.machine.reset(); return; }
+        this.pendingAction = action;
+        const reviewHandle = showReview(analysis, approvedText);
+        this.cancelReview = reviewHandle.cancel;
+        const review = await reviewHandle.result;
+        this.cancelReview = null;
+        if (!this.inState("REVIEWING")) return;
+        if (!review.approved) { this.emitTerminal("CANCELLED", action, ["USER_CANCELLED"]); this.clearPending(); this.machine.reset(); return; }
         if (!this.unchanged(adapter, snapshot)) { this.failSafe("EDITOR_CHANGED"); return; }
         if (action === "REDACT") {
           this.machine.move("VERIFYING");
           const verified = await this.verify(snapshot.text, approvedText, analysis, review.acknowledgeWarning);
-          if (!verified) { this.failSafe("REDACTION_RESIDUAL"); return; }
+          if (!this.inState("VERIFYING")) return;
+          if (verified !== "SAFE") { this.failSafe(verified === "TIMEOUT" ? "SCANNER_TIMEOUT" : "REDACTION_RESIDUAL"); return; }
         }
       } else if (!this.unchanged(adapter, snapshot)) { this.failSafe("EDITOR_CHANGED"); return; }
       this.release(adapter, approvedText, snapshot, action, analysis.decision.reasonCodes);
@@ -74,8 +94,18 @@ namespace ShadowShield.Content {
       return Boolean(current && current.text === snapshot.text && current.revision === snapshot.revision);
     }
 
-    private verify(originalText: string, approvedText: string, analysis: Analysis, warnAcknowledged: boolean): Promise<boolean> {
-      return new Promise((resolve) => chrome.runtime.sendMessage({ type: "VERIFY_REDACTION", originalText, approvedText, analysis, warnAcknowledged }, (response) => resolve(!chrome.runtime.lastError && response?.ok === true && response.verification?.safe === true)));
+    private inState(state: GateState): boolean { return this.machine.state === state; }
+
+    private verify(originalText: string, approvedText: string, analysis: Analysis, warnAcknowledged: boolean): Promise<"SAFE" | "UNSAFE" | "TIMEOUT"> {
+      return new Promise((resolve) => {
+        let settled = false;
+        const finish = (result: "SAFE" | "UNSAFE" | "TIMEOUT") => { if (settled) return; settled = true; clearTimeout(timer); resolve(result); };
+        const timer = setTimeout(() => finish("TIMEOUT"), 2500);
+        chrome.runtime.sendMessage({ type: "VERIFY_REDACTION", originalText, approvedText, analysis, warnAcknowledged }, (response) => {
+          if (chrome.runtime.lastError || response?.ok !== true) finish("UNSAFE");
+          else finish(response.verification?.safe === true ? "SAFE" : "UNSAFE");
+        });
+      });
     }
 
     private release(adapter: ComposerAdapter, approvedText: string, snapshot: {text:string;revision:number}, action: string, reasons: string[]): void {
@@ -90,11 +120,16 @@ namespace ShadowShield.Content {
       catch { remove(); this.failSafe("RELEASE_WRITE_MISMATCH"); return; }
       setTimeout(() => {
         if (!attested) this.emitTerminal("RELEASED_UNVERIFIED", action, reasons);
-        this.original = null; this.activeAdapter = null; this.machine.reset();
+        this.clearPending(); this.machine.reset();
       }, 350);
     }
 
-    private failSafe(reason: string): void { this.emitTerminal("FAILED_SAFE", null, [reason]); this.original = null; this.activeAdapter = null; this.machine.reset(); }
+    private readonly onEdit = (event: Event) => {
+      if ((this.machine.state === "REVIEWING" || this.machine.state === "VERIFYING") && this.activeAdapter?.isSupportedTarget(event.target)) this.cancelPending("EDITOR_CHANGED");
+    };
+
+    private clearPending(): void { this.original = null; this.activeAdapter = null; this.pendingAction = null; this.cancelReview = null; }
+    private failSafe(reason: string): void { this.emitTerminal("FAILED_SAFE", null, [reason]); this.clearPending(); this.machine.reset(); }
     private emitTerminal(disposition: string, action: string | null, reasonCodes: string[]): void {
       // The service worker supplies pseudonymous device metadata and validates the bounded event.
       chrome.runtime.sendMessage({ type: "TERMINAL_DISPOSITION", disposition, action, reasonCodes: reasonCodes.slice(0, 8), score: null }, () => {});
