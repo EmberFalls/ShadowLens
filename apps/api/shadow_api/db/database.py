@@ -9,17 +9,52 @@ ordering is chronological ordering.
 from __future__ import annotations
 
 from contextlib import contextmanager
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 import hashlib
 import json
 import os
+import re
 import sqlite3
 from pathlib import Path
-from typing import Any, Iterator
+from typing import Any, Iterator, Mapping
+import uuid
 
+DEFAULT_RETENTION_DAYS = 30
 DEFAULT_BUSY_TIMEOUT_MS = 5_000
 _ROOT = Path(__file__).resolve().parents[4]
 _REGISTRY_PATH = _ROOT / "packages" / "contracts" / "domain-registry.json"
+
+_EVENT_FIELDS: dict[str, frozenset[str]] = {
+    "SUBMISSION": frozenset({
+        "contractVersion", "eventId", "clientObservedAt", "deviceId", "kind", "siteId",
+        "coverageMode", "decisionAction", "disposition", "aggregateTier", "scoreBand",
+        "categoryCounts", "policyRevision", "engineVersion", "lengthBand", "reasonCodes",
+    }),
+    "SITE_VISIT": frozenset({
+        "contractVersion", "eventId", "clientObservedAt", "deviceId", "kind", "siteId",
+        "supportStatus", "reasonCodes",
+    }),
+    "DEVICE_HEARTBEAT": frozenset({
+        "contractVersion", "eventId", "clientObservedAt", "deviceId", "kind", "extensionVersion",
+    }),
+}
+_FORBIDDEN_KEY = re.compile(r"(?:prompt|raw.?text|matched.?value|snippet|filename|file.?name|prompt.?hash)", re.I)
+_SITE_IDS = {"SANDBOX", "CHATGPT", "GEMINI", "CLAUDE", "COPILOT", "PERPLEXITY"}
+_REASON_CODES = {
+    "DETECTED_PII", "DETECTED_SECRET", "DETECTED_CONFIDENTIAL", "DETECTED_SOURCE_CODE", "DETECTED_BULK",
+    "DETECTED_CUSTOM_TERM", "POLICY_ALLOW", "POLICY_WARN", "POLICY_REDACT", "POLICY_BLOCK",
+    "POLICY_FALLBACK_WARN", "USER_CANCELLED", "USER_ACKNOWLEDGED", "USER_APPROVED_REDACTION",
+    "REDACTION_RESIDUAL", "RELEASE_WRITE_MISMATCH", "EDITOR_CHANGED", "SCANNER_TIMEOUT",
+    "INPUT_TOO_LONG", "INVALID_POLICY", "ENGINE_FAILURE", "BACKEND_OFFLINE", "UNSUPPORTED_AI_SITE_SEEN",
+    "UPLOAD_UNINSPECTED", "PAGE_ACK_RECEIVED", "PAGE_ACK_TIMEOUT",
+}
+_CATEGORY_CODES = {
+    "PII_EMAIL", "PII_PHONE", "PII_PAYMENT_CARD", "PII_AADHAAR", "PII_INDIA_PAN", "PII_GSTIN",
+    "PII_IFSC", "PII_UPI", "SECRET_TOKEN", "SECRET_PRIVATE_KEY", "CONFIDENTIAL_MARKER",
+    "SOURCE_CODE_CONTEXT", "CUSTOM_PROTECTED_TERM", "BULK_CONTACT_LIST",
+}
+_UUID_RE = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$", re.I)
+_UTC_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$")
 
 # The migrations are immutable once released. A changed checksum is treated
 # as database corruption/schema drift and must be repaired explicitly.
@@ -242,6 +277,129 @@ def initialize_database(database: str | Path, *, registry_path: str | Path | Non
         seed_domains(connection, registry_path)
     finally:
         connection.close()
+
+
+def _check_event_privacy(value: Any) -> None:
+    if isinstance(value, Mapping):
+        for key, child in value.items():
+            if not isinstance(key, str) or _FORBIDDEN_KEY.search(key):
+                raise ValueError("event contains a forbidden content field")
+            _check_event_privacy(child)
+    elif isinstance(value, (list, tuple)):
+        for child in value:
+            _check_event_privacy(child)
+
+
+def _validate_event_values(event: Mapping[str, Any], kind: str) -> None:
+    for field in ("eventId", "deviceId"):
+        value = event.get(field)
+        if not isinstance(value, str) or not _UUID_RE.fullmatch(value):
+            raise ValueError(f"event {field} must be a UUID")
+        uuid.UUID(value)
+    observed = event.get("clientObservedAt")
+    if not isinstance(observed, str) or not _UTC_RE.fullmatch(observed):
+        raise ValueError("clientObservedAt must be a UTC ISO timestamp")
+    normalize_utc_timestamp(observed)
+    if kind == "SITE_VISIT":
+        if event.get("siteId") not in _SITE_IDS or event.get("supportStatus") not in {"GUARDED", "BEST_EFFORT", "UNSUPPORTED"}:
+            raise ValueError("invalid site visit metadata")
+        reasons = event.get("reasonCodes")
+        if not isinstance(reasons, list) or any(reason not in {"UNSUPPORTED_AI_SITE_SEEN"} for reason in reasons):
+            raise ValueError("invalid site visit reason codes")
+    elif kind == "DEVICE_HEARTBEAT":
+        version = event.get("extensionVersion")
+        if not isinstance(version, str) or not re.fullmatch(r"[A-Za-z0-9.+_-]{1,32}", version):
+            raise ValueError("invalid extension version")
+    else:
+        enums = {
+            "siteId": _SITE_IDS,
+            "coverageMode": {"SANDBOX_GUARDED", "THIRD_PARTY_BEST_EFFORT", "UNSUPPORTED"},
+            "decisionAction": {"ALLOW", "WARN", "REDACT", "BLOCK", None},
+            "disposition": {"CANCELLED", "BLOCKED", "FAILED_SAFE", "RELEASED_UNVERIFIED", "PAGE_ATTESTED"},
+            "aggregateTier": {"NONE", "LOW", "MEDIUM", "HIGH", "CRITICAL", "NOT_EVALUATED"},
+            "scoreBand": {"ZERO", "LOW", "MEDIUM", "HIGH", "CRITICAL", "NOT_EVALUATED"},
+            "lengthBand": {"EMPTY", "1_99", "100_999", "1000_PLUS"},
+        }
+        if any(event.get(field) not in allowed for field, allowed in enums.items()):
+            raise ValueError("invalid submission enum value")
+        reasons = event.get("reasonCodes")
+        counts = event.get("categoryCounts")
+        revision = event.get("policyRevision")
+        engine_version = event.get("engineVersion")
+        if not isinstance(reasons, list) or len(reasons) > 8 or any(reason not in _REASON_CODES for reason in reasons):
+            raise ValueError("invalid submission reason codes")
+        if not isinstance(counts, dict) or any(
+            category not in _CATEGORY_CODES or not isinstance(count, int) or isinstance(count, bool) or count < 0
+            for category, count in counts.items()
+        ):
+            raise ValueError("invalid category counts")
+        if not isinstance(revision, int) or isinstance(revision, bool) or revision < 1:
+            raise ValueError("invalid policy revision")
+        if not isinstance(engine_version, str) or not re.fullmatch(r"[A-Za-z0-9.+_-]{1,32}", engine_version):
+            raise ValueError("invalid engine version")
+
+
+def insert_event(connection: sqlite3.Connection, event: Mapping[str, Any], *, ingested_at: datetime | str | None = None) -> bool:
+    """Atomically insert one allowlisted event; return False for a duplicate ID.
+
+    Caller-side schema validation remains authoritative. This persistence seam
+    additionally refuses unknown fields so content cannot accidentally enter
+    the database if a caller skips or weakens that validation.
+    """
+    _check_event_privacy(event)
+    kind = event.get("kind")
+    if kind not in _EVENT_FIELDS:
+        raise ValueError("unsupported event kind")
+    if set(event) != _EVENT_FIELDS[kind]:
+        raise ValueError("event fields do not match the frozen v2 variant")
+    _validate_event_values(event, kind)
+    if event.get("contractVersion") != "v2":
+        raise ValueError("unsupported event contract version")
+    device_id, event_id = event.get("deviceId"), event.get("eventId")
+    site_id = event.get("siteId")
+    if not isinstance(device_id, str) or not isinstance(event_id, str):
+        raise ValueError("event identifiers must be strings")
+    if kind != "DEVICE_HEARTBEAT" and not isinstance(site_id, str):
+        raise ValueError("site event requires a site ID")
+    if kind == "DEVICE_HEARTBEAT" and site_id is not None:
+        raise ValueError("heartbeat cannot have a site ID")
+    ingested = normalize_utc_timestamp(ingested_at)
+    payload = json.dumps(dict(event), sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    with transaction(connection):
+        cursor = connection.execute(
+            "INSERT INTO events(event_id, device_id, kind, site_id, payload_json, ingested_at) "
+            "VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(event_id) DO NOTHING",
+            (event_id, device_id, kind, site_id, payload, ingested),
+        )
+        inserted = cursor.rowcount == 1
+        if not inserted:
+            existing = connection.execute(
+                "SELECT device_id, payload_json FROM events WHERE event_id = ?", (event_id,)
+            ).fetchone()
+            if existing is None or existing["device_id"] != device_id or existing["payload_json"] != payload:
+                raise ValueError("event ID conflicts with a different stored event")
+        if inserted and kind == "DEVICE_HEARTBEAT":
+            connection.execute(
+                "UPDATE devices SET last_heartbeat_at = ? WHERE device_id = ?",
+                (ingested, device_id),
+            )
+    return inserted
+
+
+def prune_events(
+    connection: sqlite3.Connection,
+    *,
+    now: datetime | str | None = None,
+    retention_days: int = DEFAULT_RETENTION_DAYS,
+) -> int:
+    """Delete expired event rows only; return the number removed."""
+    if not isinstance(retention_days, int) or isinstance(retention_days, bool) or retention_days < 1:
+        raise ValueError("retention_days must be a positive integer")
+    cutoff = datetime.fromisoformat(normalize_utc_timestamp(now).replace("Z", "+00:00")) - timedelta(days=retention_days)
+    cutoff_text = normalize_utc_timestamp(cutoff)
+    with transaction(connection):
+        cursor = connection.execute("DELETE FROM events WHERE ingested_at < ?", (cutoff_text,))
+    return cursor.rowcount
 
 
 def update_domain_approval(
