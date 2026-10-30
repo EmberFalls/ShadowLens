@@ -3,6 +3,7 @@ declare namespace chrome {
     const lastError: { message?: string } | undefined;
     function sendMessage(message: unknown, callback: (response: any) => void): void;
     function openOptionsPage(): void;
+    function getURL(path: string): string;
     const onMessage: { addListener(listener: (message: any, sender: any, sendResponse: (response?: any) => void) => void): void };
   }
   namespace storage {

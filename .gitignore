@@ -8,4 +8,7 @@ apps/extension/dist/
 apps/dashboard/dist/
 apps/sandbox/dist/
 __pycache__/
+test-results/
+playwright-report/
+.browser-runtime/
 *.py[cod]

@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc -p tsconfig.json && tsc -p tsconfig.background.json && node scripts/copy-static.mjs",
+    "build": "tsc -p tsconfig.json && tsc -p tsconfig.background.json && node scripts/build-worker.mjs && node scripts/copy-static.mjs",
     "check:manifest": "node scripts/validate-manifest.mjs",
     "test": "node --test tests/*.test.mjs"
   }

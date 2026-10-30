@@ -3,6 +3,8 @@ namespace ShadowShield.Content {
     readonly siteId: "SANDBOX";
     readonly coverageMode: "SANDBOX_GUARDED";
     isSupportedTarget(target: EventTarget | null): boolean;
+    isSendTarget(target: EventTarget | null): boolean;
+    isComposerTarget(target: EventTarget | null): boolean;
     readDraft(): { text: string; revision: number } | null;
     writeDraft(text: string): boolean;
     release(attemptId: string): void;
@@ -27,11 +29,14 @@ namespace ShadowShield.Content {
         const current = this.composer();
         if (current !== this.lastElement) { this.revision++; this.lastElement = current; }
       });
-      this.observer.observe(root.documentElement, { childList: true, subtree: true });
+      this.observer.observe(root.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ["id"] });
       root.addEventListener("shadowshield:receipt", this.onPageReceipt as EventListener, true);
     }
 
     isCompatible(): boolean { return Boolean(this.composer() && this.sendButton()); }
+
+    isSendTarget(target: EventTarget | null): boolean { const button = this.sendButton(); return target instanceof Element && !!button && (button === target || button.contains(target)); }
+    isComposerTarget(target: EventTarget | null): boolean { const composer = this.composer(); return target instanceof Element && !!composer && (composer === target || composer.contains(target)); }
 
     isSupportedTarget(target: EventTarget | null): boolean {
       if (!(target instanceof Element)) return false;
@@ -71,8 +76,8 @@ namespace ShadowShield.Content {
       this.receiptListeners.clear();
     }
 
-    private composer(): HTMLTextAreaElement | null { return this.root.querySelector<HTMLTextAreaElement>("#shadow-composer"); }
-    private sendButton(): HTMLButtonElement | null { return this.root.querySelector<HTMLButtonElement>("#shadow-send"); }
+    private composer(): HTMLTextAreaElement | null { const element = this.root.querySelector("#shadow-composer"); return element instanceof HTMLTextAreaElement ? element : null; }
+    private sendButton(): HTMLButtonElement | null { const element = this.root.querySelector("#shadow-send"); return element instanceof HTMLButtonElement ? element : null; }
     private readonly onEdit = (event: Event) => {
       if (event.target === this.composer()) this.revision++;
     };

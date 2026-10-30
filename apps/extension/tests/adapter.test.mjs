@@ -54,7 +54,7 @@ function adapterFor({ withSelectors = true, initial = "", coerceValue } = {}) {
   root.currentButton = button;
   if (coerceValue && composer) composer.coerceValue = coerceValue;
   FakeMutationObserver.instances.length = 0;
-  const context = vm.createContext({ Element: FakeElement, HTMLTextAreaElement: FakeTextArea, MutationObserver: FakeMutationObserver, Event: FakeEvent, CustomEvent: FakeCustomEvent, document: root, console });
+  const context = vm.createContext({ Element: FakeElement, HTMLTextAreaElement: FakeTextArea, HTMLButtonElement: FakeButton, MutationObserver: FakeMutationObserver, Event: FakeEvent, CustomEvent: FakeCustomEvent, document: root, console });
   vm.runInContext(adapterScript, context, { filename: "sandbox-adapter.js" });
   const adapter = new context.ShadowShield.Content.SandboxAdapter(root);
   return { adapter, root, composer, button, mutationObserver: FakeMutationObserver.instances.at(-1) };

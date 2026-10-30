@@ -1,25 +1,10 @@
 import domainRegistry from "../../../../packages/contracts/domain-registry.json" with { type: "json" };
+import type { SiteVisit, Heartbeat } from "../../../../packages/contracts/src/generated/event.js";
 
 export type SiteId = "SANDBOX" | "CHATGPT" | "GEMINI" | "CLAUDE" | "COPILOT" | "PERPLEXITY";
 export type SupportStatus = "GUARDED" | "BEST_EFFORT" | "UNSUPPORTED";
-export type SiteVisitEvent = {
-  contractVersion: "v2";
-  eventId: string;
-  clientObservedAt: string;
-  deviceId: string;
-  kind: "SITE_VISIT";
-  siteId: SiteId;
-  supportStatus: SupportStatus;
-  reasonCodes: Array<"UNSUPPORTED_AI_SITE_SEEN">;
-};
-export type DeviceHeartbeatEvent = {
-  contractVersion: "v2";
-  eventId: string;
-  clientObservedAt: string;
-  deviceId: string;
-  kind: "DEVICE_HEARTBEAT";
-  extensionVersion: string;
-};
+export type SiteVisitEvent = SiteVisit;
+export type DeviceHeartbeatEvent = Heartbeat;
 export type ObservationEvent = SiteVisitEvent | DeviceHeartbeatEvent;
 export type NavigationCommit = {
   tabId: number;
@@ -49,13 +34,14 @@ for (const site of domainRegistry.sites) {
 export class DomainObserver {
   private enabled: boolean;
   private readonly observedDocuments = new Set<string>();
+  private readonly pendingDocuments = new Set<string>();
   private readonly dedupLimit: number;
   private readonly now: () => Date;
   private readonly makeEventId: () => string;
 
   constructor(private readonly options: DomainObserverOptions) {
     this.enabled = options.enabled;
-    this.dedupLimit = Math.max(1, Math.min(options.dedupLimit ?? 2048, 10_000));
+    this.dedupLimit = Number.isFinite(options.dedupLimit) ? Math.max(1, Math.min(Math.floor(options.dedupLimit!), 10_000)) : 2048;
     this.now = options.now ?? (() => new Date());
     this.makeEventId = options.makeEventId ?? (() => crypto.randomUUID());
   }
@@ -73,12 +59,8 @@ export class DomainObserver {
     if (!deviceId || !UUID_PATTERN.test(deviceId)) return false;
 
     if (details.documentId) {
-      if (this.observedDocuments.has(details.documentId)) return false;
-      this.observedDocuments.add(details.documentId);
-      if (this.observedDocuments.size > this.dedupLimit) {
-        const oldest = this.observedDocuments.values().next().value;
-        if (oldest !== undefined) this.observedDocuments.delete(oldest);
-      }
+      if (this.observedDocuments.has(details.documentId) || this.pendingDocuments.has(details.documentId)) return false;
+      this.pendingDocuments.add(details.documentId);
     }
 
     const event: SiteVisitEvent = {
@@ -91,9 +73,44 @@ export class DomainObserver {
       supportStatus: site.supportStatus,
       reasonCodes: site.supportStatus === "UNSUPPORTED" ? ["UNSUPPORTED_AI_SITE_SEEN"] : [],
     };
-    await this.options.enqueue(event);
+    try {
+      await this.options.enqueue(event);
+      if (details.documentId && this.enabled) {
+        this.observedDocuments.add(details.documentId);
+        if (this.observedDocuments.size > this.dedupLimit) this.observedDocuments.delete(this.observedDocuments.values().next().value!);
+      }
+    } finally { if (details.documentId) this.pendingDocuments.delete(details.documentId); }
     return true;
   }
+}
+
+/** Browser wiring is injected so SH-009 can compose its single sanitized sink. */
+export function installDomainObserver(input: {
+  enabled: boolean; getDeviceId: () => string | null; extensionVersion: string;
+  enqueue: (event: ObservationEvent) => void | Promise<unknown>;
+  navigation: { addListener(callback: (details: NavigationCommit) => void, filter?: { url: Array<{ hostEquals: string }> }): void; removeListener(callback: (details: NavigationCommit) => void): void };
+  alarms: { create(name: string, options: { periodInMinutes: number }): void; clear(name: string): unknown; onAlarm: { addListener(callback: (alarm: { name: string }) => void): void; removeListener(callback: (alarm: { name: string }) => void): void } };
+}): { setEnabled(enabled: boolean): void; dispose(): void } {
+  let enabled = input.enabled;
+  let disposed = false;
+  const observer = new DomainObserver(input);
+  const onNavigation = (details: NavigationCommit) => { if (!disposed) void observer.onCommitted(details).catch(() => {}); };
+  const heartbeat = () => {
+    const deviceId = input.getDeviceId();
+    if (disposed || !enabled || !deviceId) return;
+    try { void Promise.resolve(input.enqueue(createHeartbeatEvent({ deviceId, extensionVersion: input.extensionVersion }))).catch(() => {}); } catch { /* Missing identity does not create inventory. */ }
+  };
+  const onAlarm = (alarm: { name: string }) => { if (alarm.name === "shadowlens-heartbeat") heartbeat(); };
+  const setEnabled = (value: boolean) => {
+    if (disposed) return;
+    enabled = value; observer.setEnabled(value);
+    if (value) { input.alarms.create("shadowlens-heartbeat", { periodInMinutes: 5 }); heartbeat(); }
+    else void input.alarms.clear("shadowlens-heartbeat");
+  };
+  input.navigation.addListener(onNavigation, { url: [...registrySites.keys()].map(hostEquals => ({ hostEquals })) });
+  input.alarms.onAlarm.addListener(onAlarm);
+  setEnabled(enabled);
+  return { setEnabled, dispose() { if (disposed) return; setEnabled(false); disposed = true; input.navigation.removeListener(onNavigation); input.alarms.onAlarm.removeListener(onAlarm); } };
 }
 
 export function siteForNavigation(rawUrl: string): { siteId: SiteId; supportStatus: SupportStatus } | null {

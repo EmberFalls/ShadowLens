@@ -1,7 +1,7 @@
 namespace ShadowShield.Content {
   export type ReviewResult = { approved: true; acknowledgeWarning: boolean } | { approved: false; acknowledgeWarning: false };
   export type ReviewHandle = { result: Promise<ReviewResult>; cancel: () => void };
-  export function showReview(analysis: any, approvedText: string): ReviewHandle {
+  export function showReview(analysis: Analysis, approvedText: string): ReviewHandle {
     let resolveResult: (value: ReviewResult) => void = () => {};
     const result = new Promise<ReviewResult>((resolve) => { resolveResult = resolve; });
     const host = document.createElement("div");

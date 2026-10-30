@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { DomainObserver, createHeartbeatEvent, siteForNavigation } from "../dist/apps/extension/src/background/domain-observer.js";
+import { DomainObserver, createHeartbeatEvent, siteForNavigation, installDomainObserver } from "../dist/apps/extension/src/background/domain-observer.js";
 
 const deviceId = "7a3b0f7a-7781-4ff1-9c67-50cb8569da51";
 const eventId = "e97307de-d5cc-4ced-a0fd-2f22c4e155af";
@@ -62,4 +62,41 @@ test("heartbeat is category-free server-observed metadata and makes no stale ass
   const heartbeat = createHeartbeatEvent({ deviceId, extensionVersion: "0.1.0", now, makeEventId: () => eventId });
   assert.deepEqual(heartbeat, { contractVersion: "v2", eventId, clientObservedAt: now.toISOString(), deviceId, kind: "DEVICE_HEARTBEAT", extensionVersion: "0.1.0" });
   assert.equal(Object.hasOwn(heartbeat, "observation"), false);
+});
+
+test("browser wiring defaults off, registers known hosts only, and removes listeners on disposal", async () => {
+  let navigation, alarm, filter;
+  const events = [], scheduled = new Map();
+  const controller = installDomainObserver({ enabled: false, getDeviceId: () => deviceId, extensionVersion: "0.1.0", enqueue: event => { events.push(event); },
+    navigation: { addListener(fn, value) { navigation = fn; filter = value; }, removeListener(fn) { assert.equal(fn, navigation); navigation = null; } },
+    alarms: { create(name, value) { scheduled.set(name, value); }, clear(name) { scheduled.delete(name); }, onAlarm: { addListener(fn) { alarm = fn; }, removeListener(fn) { assert.equal(fn, alarm); alarm = null; } } },
+  });
+  assert.deepEqual(filter.url.map(value => value.hostEquals), ["localhost", "chatgpt.com", "gemini.google.com", "claude.ai", "copilot.microsoft.com", "perplexity.ai"]);
+  navigation(commit("https://chatgpt.com/")); await Promise.resolve(); assert.equal(events.length, 0); assert.equal(scheduled.size, 0);
+  controller.setEnabled(true); assert.equal(events[0].kind, "DEVICE_HEARTBEAT"); assert.equal(scheduled.get("shadowlens-heartbeat").periodInMinutes, 5);
+  navigation(commit("https://claude.ai/?prompt=private")); await Promise.resolve(); assert.equal(events[1].kind, "SITE_VISIT");
+  alarm({ name: "unrelated" }); assert.equal(events.length, 2);
+  alarm({ name: "shadowlens-heartbeat" }); assert.equal(events[2].kind, "DEVICE_HEARTBEAT");
+  controller.setEnabled(false); alarm({ name: "shadowlens-heartbeat" }); assert.equal(events.length, 3); assert.equal(scheduled.size, 0);
+  controller.dispose(); assert.equal(navigation, null); assert.equal(alarm, null);
+});
+
+test("concurrent duplicate documents enqueue once and a failed enqueue can be retried", async () => {
+  let complete, calls = 0;
+  const observer = new DomainObserver({ enabled: true, getDeviceId: () => deviceId, enqueue: () => { calls++; return new Promise(resolve => { complete = resolve; }); } });
+  const pending = observer.onCommitted(commit("https://chatgpt.com/"));
+  assert.equal(await observer.onCommitted(commit("https://chatgpt.com/")), false); complete(); await pending; assert.equal(calls, 1);
+  let failed = true;
+  const retry = new DomainObserver({ enabled: true, getDeviceId: () => deviceId, enqueue: () => { if (failed) throw new Error("offline"); } });
+  await assert.rejects(retry.onCommitted(commit("https://chatgpt.com/")), /offline/); failed = false;
+  assert.equal(await retry.onCommitted(commit("https://chatgpt.com/")), true);
+});
+
+test("dedup history is bounded and heartbeat rejects identities and versions outside the contract", async () => {
+  const observer = new DomainObserver({ enabled: true, getDeviceId: () => deviceId, enqueue: () => {}, dedupLimit: 1 });
+  await observer.onCommitted(commit("https://chatgpt.com/", { documentId: "one" }));
+  await observer.onCommitted(commit("https://chatgpt.com/", { documentId: "two" }));
+  assert.equal(await observer.onCommitted(commit("https://chatgpt.com/", { documentId: "one" })), true);
+  assert.throws(() => createHeartbeatEvent({ deviceId: "employee-name", extensionVersion: "0.1.0" }));
+  assert.throws(() => createHeartbeatEvent({ deviceId, extensionVersion: "" }));
 });

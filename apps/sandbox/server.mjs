@@ -7,8 +7,8 @@ const root = fileURLToPath(new URL(".", import.meta.url));
 const types = { ".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".json": "application/json; charset=utf-8" };
 createServer(async (request, response) => {
   if (request.method !== "GET") { response.writeHead(405).end(); return; }
-  let path = normalize(decodeURIComponent(new URL(request.url, "http://localhost").pathname)).replace(/^([.][.][/\\])+/, "");
-  if (path === "." || path === "/") path = "/index.html";
+  const pathname = decodeURIComponent(new URL(request.url, "http://localhost").pathname);
+  let path = normalize(pathname === "/" ? "/index.html" : pathname).replace(/^([.][.][/\\])+/, "");
   const file = join(root, path.replace(/^[/\\]+/, ""));
   try {
     if (!file.startsWith(root) || !(await stat(file)).isFile()) throw new Error("missing");

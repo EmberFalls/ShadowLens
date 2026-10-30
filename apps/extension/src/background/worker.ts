@@ -34,6 +34,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 
   if (message.type === "SET_DEVICE_CREDENTIAL") {
+    // Credentials are accepted only from our Options page, never a content script.
+    if (sender.url !== chrome.runtime.getURL("options/index.html")) { sendResponse({ ok: false }); return false; }
     const token = message.token;
     if (typeof token !== "string" || token.length < 16 || token.length > 512 || token.trim() !== token) {
       sendResponse({ ok: false });
