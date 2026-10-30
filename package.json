@@ -11,6 +11,9 @@
     "contracts:generate": "node packages/contracts/scripts/generate-types.mjs && node packages/contracts/scripts/generate-python-types.mjs",
     "contracts:python:generate": "node packages/contracts/scripts/generate-python-types.mjs",
     "contracts:python:check": "node packages/contracts/scripts/generate-python-types.mjs --check",
+    "build:extension": "tsc -p apps/extension/tsconfig.json && tsc -p apps/extension/tsconfig.background.json && node apps/extension/scripts/copy-static.mjs",
+    "check:extension": "node apps/extension/scripts/validate-manifest.mjs",
+    "dev:sandbox": "node apps/sandbox/server.mjs",
     "build:engine": "tsc -p packages/engine/tsconfig.json",
     "test:engine": "npm run build:engine && node --test packages/engine/tests/*.test.mjs"
   },

@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "none",
+    "lib": ["ES2022", "DOM"],
+    "strict": true,
+    "noEmitOnError": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "skipLibCheck": true
+  },
+  "include": ["src/shared/**/*.ts", "src/content/**/*.ts", "src/options/**/*.ts", "src/popup/**/*.ts", "src/types/**/*.d.ts"]
+}

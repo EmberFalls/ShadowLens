@@ -3,5 +3,9 @@ dist/
 packages/*/dist/
 *.tsbuildinfo
 
+# Generated browser bundles and Python interpreter caches.
+apps/extension/dist/
+apps/dashboard/dist/
+apps/sandbox/dist/
 __pycache__/
 *.py[cod]

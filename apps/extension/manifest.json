@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "ShadowLens",
+  "version": "0.1.0",
+  "description": "Local privacy guard for the ShadowLens demonstration sandbox.",
+  "permissions": ["storage", "webNavigation", "alarms"],
+  "host_permissions": ["http://127.0.0.1:8787/*"],
+  "background": {
+    "service_worker": "apps/extension/src/background/worker.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://localhost:4173/*"],
+      "js": ["shared/messages.js", "content/site-status.js", "content/sandbox-adapter.js", "content/gate-state.js", "content/gate.js", "content/review.js", "content/bootstrap.js"],
+      "run_at": "document_start",
+      "world": "ISOLATED"
+    }
+  ],
+  "action": {
+    "default_title": "ShadowLens status",
+    "default_popup": "popup/index.html"
+  },
+  "options_page": "options/index.html"
+}
