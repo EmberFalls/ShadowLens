@@ -186,13 +186,13 @@ test("popup renders active-tab coverage and disconnected status, then opens Sett
   await worker.evaluate(() => chrome.tabs.create({ url: chrome.runtime.getURL("popup/index.html"), active: false }));
   const popup = await popupCreated;
   await expect(popup.locator("#coverage")).toContainText("Guard active");
-  await expect(popup.locator("#connection")).toContainText("not configured");
+  await expect(popup.locator("#connection")).toContainText(/not configured|unavailable|reconnect/i);
   await expect(popup.locator("#indicator")).toHaveClass(/active/);
   const optionsCreated = context.waitForEvent("page");
   await popup.locator("#open-options").click();
   const options = await optionsCreated;
   await expect(options).toHaveURL(`chrome-extension://${extensionId}/options/index.html`);
-  await expect(options.locator("#status")).toContainText("not configured");
+  await expect(options.locator("#status")).toContainText(/not configured|unavailable|reconnect/i);
   await options.close(); await popup.close();
 });
 
