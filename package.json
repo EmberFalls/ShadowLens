@@ -15,6 +15,9 @@
     "check:extension": "node apps/extension/scripts/validate-manifest.mjs",
     "test:extension": "npm run build:extension && node --test apps/extension/tests/*.test.mjs",
     "test:extension:browser": "npm run build:extension && playwright test -c apps/extension/playwright.config.mjs",
+    "build:dashboard": "npm --prefix apps/dashboard run build",
+    "test:dashboard": "npm --prefix apps/dashboard test",
+    "test:e2e": "npm run test:extension:browser && node tests/e2e/run.mjs",
     "dev:sandbox": "node apps/sandbox/server.mjs",
     "build:engine": "tsc -p packages/engine/tsconfig.json",
     "test:engine": "npm run build:engine && node --test packages/engine/tests/*.test.mjs"
