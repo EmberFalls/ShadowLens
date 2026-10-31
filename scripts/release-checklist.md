@@ -32,7 +32,7 @@
 
 | Gate | SHA / tag | Result | Evidence |
 | --- | --- | --- | --- |
-| G3 | `19fb922` | PASS | CI and local Chromium receiver tests; rerun on release SHA |
-| G4 | `19fb922` | PASS | Local API/dashboard E2E; pending rerun with device-health changes on the release SHA |
+| G3 | `e3c6fdbc364515a93548fc62da87b722d85457ff` | PASS | GitHub Actions run 8 and local Chromium receiver tests |
+| G4 | `e3c6fdbc364515a93548fc62da87b722d85457ff` | PASS | 64 API tests plus live API/dashboard E2E; device health, freshness, export and delete paths included |
 | G5 | — | NOT RUN | Independent evaluator evidence required |
 | G6 | — | NOT RUN | Rehearsal and green tag required |
