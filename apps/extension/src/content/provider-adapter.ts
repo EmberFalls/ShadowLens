@@ -3,6 +3,13 @@ namespace ShadowShield.Content {
   type ProviderConfig = { hosts: string[]; composer: string[]; send: string[]; label: string };
   const PROVIDER_OBSERVED_ATTRIBUTES = ["id", "data-testid", "data-placeholder", "aria-label", "aria-disabled", "aria-hidden", "disabled", "hidden", "style", "class", "role", "contenteditable", "type"];
 
+  /** Per-site release kill switch. Set a provider false to ship it as observed/unprotected. */
+  export const PROVIDER_FEATURE_FLAGS: Readonly<Record<Provider, boolean>> = Object.freeze({
+    CHATGPT: true,
+    GEMINI: true,
+    CLAUDE: true,
+  });
+
   /** Provider editors may be rendered inside open web-component shadow roots. */
   function queryAcrossOpenShadowRoots(root: Document | ShadowRoot, selector: string): Element[] {
     const matches = Array.from(root.querySelectorAll(selector));
@@ -94,10 +101,10 @@ namespace ShadowShield.Content {
       this.observer.observe(root.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: PROVIDER_OBSERVED_ATTRIBUTES });
     }
 
-    static siteForLocation(location: Location): Provider | null {
+    static siteForLocation(location: Location, flags: Readonly<Record<Provider, boolean>> = PROVIDER_FEATURE_FLAGS): Provider | null {
       const hostname = location.hostname.toLowerCase();
       for (const [id, config] of Object.entries(PROVIDERS) as Array<[Provider, ProviderConfig]>) {
-        if (config.hosts.includes(hostname)) return id;
+        if (config.hosts.includes(hostname)) return flags[id] === true ? id : null;
       }
       return null;
     }
@@ -329,4 +336,3 @@ namespace ShadowShield.Content {
     }
   }
 }
-

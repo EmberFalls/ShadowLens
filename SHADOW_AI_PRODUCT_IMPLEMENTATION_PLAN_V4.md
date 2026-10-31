@@ -24,6 +24,7 @@
 - The observed Gemini `.text-input-field_textarea-wrapper` editor layout is now covered by the provider adapter. Isolated Chromium fixtures verify redaction before the provider-shaped receiver gets text and fail-closed handling for an unknown editor (2/2 pass); live-provider G7 remains open.
 - A packaged-extension rehearsal now builds the upload ZIP, extracts it into a fresh temporary directory, and loads that extracted artifact into a clean Chromium profile for the synthetic provider fixtures. This is repeatable package-install evidence; tagged rollback and operator deployment rehearsal remain open under G6/G8.
 - The extension worker suite now passes 45/45, including signed key rotation and preservation of the previous trust state after an invalid replacement.
+- Per-provider build-time release flags can disable a provider adapter while leaving the sandbox guard active. The latest extension suite passes 46/46 with a flag regression case; provider disabling still requires shipping the configured extension build or rolling back the release.
 
 ---
 
@@ -296,4 +297,3 @@ Keep the first release narrow: English text in supported composers, local rule-b
 Do not include in the initial release: hidden network decryption, silent prompt collection, employee productivity scoring, sentiment or intent surveillance, model training on prompts, broad AI-site blocking without owner disclosure, file OCR, image/audio transcription, universal browser coverage, or an unreviewed remote policy editor. These can be reconsidered only with a separate need, consent model, threat review and evaluation set.
 
 **Above-and-beyond value comes from trustworthy enforcement and evidence:** local-first inspection, visible user control, exact redaction verification, owner policy simulation, no-content telemetry, transparent per-site coverage, small-business deployment and retention tools, and independently measured false-positive/false-block behavior—not from claiming to support every AI app.
-

@@ -72,7 +72,7 @@ function providerAdapter({ recognizedGeminiTextarea = false } = {}) {
     MutationObserver: FakeMutationObserver, window: { setTimeout: () => 1, clearTimeout() {} }, console,
   });
   vm.runInContext(adapterScript, context, { filename: "provider-adapter.js" });
-  return { adapter: new context.ShadowShield.Content.ProviderAdapter(root, "GEMINI"), send, unknownEditor, notices };
+  return { adapter: new context.ShadowShield.Content.ProviderAdapter(root, "GEMINI"), api: context.ShadowShield.Content, send, unknownEditor, notices };
 }
 
 test("unrecognized provider editor fails closed for Send and Enter shortcuts", () => {
@@ -114,3 +114,11 @@ test("an unrecognized editor in the active Send region stays blocked when anothe
   adapter.disconnect();
 });
 
+test("provider release flags can disable one provider without affecting other providers", () => {
+  const { api } = providerAdapter();
+  const flags = { CHATGPT: true, GEMINI: false, CLAUDE: true };
+  assert.equal(api.ProviderAdapter.siteForLocation({ hostname: "gemini.google.com" }, flags), null);
+  assert.equal(api.ProviderAdapter.siteForLocation({ hostname: "chatgpt.com" }, flags), "CHATGPT");
+  assert.equal(api.ProviderAdapter.siteForLocation({ hostname: "claude.ai" }, flags), "CLAUDE");
+  assert.equal(api.PROVIDER_FEATURE_FLAGS.GEMINI, true);
+});

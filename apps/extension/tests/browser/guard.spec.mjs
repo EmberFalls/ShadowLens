@@ -1,6 +1,6 @@
 import { test, expect, chromium } from "@playwright/test";
 import { resolve, dirname, basename } from "node:path";
-import { cp } from "node:fs/promises";
+import { access, cp } from "node:fs/promises";
 
 let context, page, worker, extensionId;
 const received = () => page.locator("#shadow-received li");
@@ -44,8 +44,14 @@ test.beforeAll(async ({}, info) => {
   if (!executablePath && process.platform === "win32") {
     const source = dirname(chromium.executablePath());
     const target = resolve("apps/extension/.browser-runtime", basename(dirname(source)), basename(source));
-    await cp(source, target, { recursive: true });
-    executablePath = resolve(target, basename(chromium.executablePath()));
+    const stagedExecutable = resolve(target, basename(chromium.executablePath()));
+    try {
+      await access(stagedExecutable);
+      executablePath = stagedExecutable;
+    } catch {
+      await cp(source, target, { recursive: true });
+      executablePath = stagedExecutable;
+    }
   }
   context = await chromium.launchPersistentContext(info.outputPath("profile"), { channel: "chromium", executablePath, headless: true, args: [`--disable-extensions-except=${extension}`, `--load-extension=${extension}`] });
   worker = context.serviceWorkers()[0] ?? await context.waitForEvent("serviceworker");
@@ -382,4 +388,3 @@ test("provider fixture blocks recognized file and voice paths and clears a selec
   expect(transferWasBlocked).toBe(true);
   await context.unroute("https://chatgpt.com/**");
 });
-
