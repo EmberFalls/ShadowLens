@@ -19,6 +19,94 @@ paths:
           content:
             application/json:
               schema: { $ref: './schemas/domain.schema.json#/$defs/DeviceListV2' }
+  /devices/enroll:
+    post:
+      security: [{ OwnerSession: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [label]
+              properties:
+                label: { type: string, minLength: 1, maxLength: 100 }
+      responses:
+        '201': { description: New device ID, one-time bearer credential, and policy signing key ID }
+        '409': { description: Enrollment limit reached or label invalid }
+  /devices/{device_id}/revoke:
+    post:
+      security: [{ OwnerSession: [] }]
+      parameters:
+        - { name: device_id, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200': { description: Device enrollment revoked idempotently; sanitized event history remains }
+        '404': { description: Device not found }
+  /policy:
+    get:
+      security: [{ OwnerSession: [] }]
+      responses: { '200': { description: Current owner policy configuration } }
+    put:
+      security: [{ OwnerSession: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [defaultFindingAction, rules, allowWarnOverride]
+              properties:
+                defaultFindingAction: { enum: [WARN, BLOCK] }
+                rules: { type: array, maxItems: 32, items: { type: object } }
+                allowWarnOverride: { type: boolean }
+      responses:
+        '200': { description: Policy revision saved and audit recorded }
+        '422': { description: Invalid policy or required private-key protection removed }
+  /policy/key:
+    get:
+      security: [{ OwnerSession: [] }]
+      responses: { '200': { description: P-256 policy key fingerprint for out-of-band device trust setup } }
+  /policy/public-key:
+    get:
+      security: [{ DeviceBearer: [] }]
+      responses: { '200': { description: Public key used to verify device policy bundles } }
+  /policy/bundle:
+    get:
+      security: [{ DeviceBearer: [] }]
+      responses: { '200': { description: Signed policy bundle with 30-day expiry } }
+  /privacy/retention:
+    get:
+      security: [{ OwnerSession: [] }]
+      responses:
+        '200': { description: Current persisted event-retention window }
+    put:
+      security: [{ OwnerSession: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [retentionDays]
+              properties:
+                retentionDays: { type: integer, minimum: 1, maximum: 3650 }
+      responses:
+        '200': { description: Retention changed; expired event metadata pruned immediately }
+  /privacy/export:
+    get:
+      security: [{ OwnerSession: [] }]
+      responses:
+        '200':
+          description: Download of sanitized event metadata only
+          content: { application/json: {} }
+  /privacy/events:
+    delete:
+      security: [{ OwnerSession: [] }]
+      responses:
+        '200': { description: Event history deleted; device enrollment and domain preferences retained }
 components:
   securitySchemes:
     DeviceBearer: { type: http, scheme: bearer }

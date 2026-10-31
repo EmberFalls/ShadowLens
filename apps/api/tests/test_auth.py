@@ -4,14 +4,13 @@ import logging
 from pathlib import Path
 
 from fastapi.testclient import TestClient
-from fastapi import Depends
 import httpx
 import pytest
 
 from apps.api.shadow_api.config import Settings
 from apps.api.shadow_api.db.database import connect, hash_owner_password, initialize_database
 from apps.api.shadow_api.main import create_app
-from apps.api.shadow_api.security import OWNER_COOKIE_NAME, require_owner
+from apps.api.shadow_api.security import OWNER_COOKIE_NAME
 
 API_ORIGIN = "http://127.0.0.1:8787"
 OWNER_PASSWORD = "test-owner-password-long-enough"
@@ -159,19 +158,23 @@ def test_auth_session_survives_app_restart_and_is_only_hash_persisted(api_settin
         assert OWNER_PASSWORD.encode() not in data
 
 
-def test_owner_dependency_protects_registered_analytics_route(api_settings: Settings) -> None:
+def test_default_app_registers_owner_routes_and_protects_them(api_settings: Settings) -> None:
     app = create_app(api_settings)
-
-    @app.get("/api/v1/analytics/summary")
-    def analytics(_owner_id: str = Depends(require_owner)):
-        return {"ok": True}
-
     with TestClient(app, base_url=API_ORIGIN) as test_client:
         denied = test_client.get("/api/v1/analytics/summary")
         assert denied.status_code == 401
         assert denied.json()["error"]["code"] == "UNAUTHORIZED"
+        owner_routes = (
+            ("GET", "/api/v1/domains"), ("GET", "/api/v1/devices"),
+            ("GET", "/api/v1/policy"), ("GET", "/api/v1/policy/key"),
+            ("GET", "/api/v1/privacy/retention"), ("GET", "/api/v1/privacy/export"),
+        )
+        for method, path in owner_routes:
+            response = test_client.request(method, path)
+            assert response.status_code == 401, path
+        assert test_client.delete("/api/v1/privacy/events").status_code == 401
         assert login(test_client).status_code == 200
-        assert test_client.get("/api/v1/analytics/summary").json() == {"ok": True}
+        assert test_client.get("/api/v1/analytics/summary").status_code == 200
 
 
 def test_debug_is_disabled_and_internal_error_is_sanitized(api_settings: Settings, caplog) -> None:

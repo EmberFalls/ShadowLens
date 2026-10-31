@@ -20,6 +20,7 @@ function fixture({ text = "Hello", deferred = false, missingReceipt = false, ver
   const composer = {}, button = {};
   const window = { addEventListener: (name, fn) => listeners.set(name, fn), removeEventListener: name => listeners.delete(name) };
   const adapter = {
+    siteId: "SANDBOX", coverageMode: "SANDBOX_GUARDED", coverageLabel: () => "Guard active",
     isSendTarget: target => target === button, isComposerTarget: target => target === composer,
     readDraft: () => ({ text: draft, revision }), writeDraft: value => { draft = value; revision++; return true; },
     release: id => { releases.push(draft); if (!missingReceipt) for (const receipt of receipts) receipt(id); },

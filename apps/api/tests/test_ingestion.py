@@ -136,7 +136,8 @@ def test_oversized_body_returns_413_and_invalid_auth_precedes_body_validation(cl
         content=too_large,
     )
     assert invalid_auth.status_code == 401
-    assert "32" not in invalid_auth.text
+    assert invalid_auth.json()["error"]["code"] == "UNAUTHORIZED"
+    assert "PAYLOAD_TOO_LARGE" not in invalid_auth.text
 
     response = client.post(
         "/api/v1/events/batch",

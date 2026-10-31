@@ -36,6 +36,7 @@ def _domain_projection(connection: sqlite3.Connection, site_id: str) -> dict[str
         "SELECT d.site_id, d.approval_status, "
         "SUM(CASE WHEN e.kind='SITE_VISIT' THEN 1 ELSE 0 END) AS visits, "
         "SUM(CASE WHEN e.kind='SUBMISSION' AND json_extract(e.payload_json, '$.coverageMode')='SANDBOX_GUARDED' THEN 1 ELSE 0 END) AS guarded, "
+        "SUM(CASE WHEN e.kind='SUBMISSION' AND json_extract(e.payload_json, '$.coverageMode')='THIRD_PARTY_BEST_EFFORT' THEN 1 ELSE 0 END) AS best_effort, "
         "MAX(CASE WHEN e.kind='SITE_VISIT' THEN e.ingested_at END) AS last_visit "
         "FROM domains d LEFT JOIN events e ON e.site_id=d.site_id AND e.ingested_at >= ? AND e.ingested_at < ? "
         "WHERE d.site_id=? GROUP BY d.site_id, d.approval_status",
@@ -49,6 +50,7 @@ def _domain_projection(connection: sqlite3.Connection, site_id: str) -> dict[str
         "supportStatus": support[str(row["site_id"])],
         "siteVisitsObserved": int(row["visits"] or 0),
         "guardedAttempts": int(row["guarded"] or 0),
+        "bestEffortAttempts": int(row["best_effort"] or 0),
         "lastVisitAt": row["last_visit"],
     }
 

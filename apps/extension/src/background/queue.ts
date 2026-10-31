@@ -179,4 +179,14 @@ export class PrivacySafeQueue {
   async size(): Promise<number> {
     return this.serialized(async () => (await this.loadQueue()).length);
   }
+
+  async clearForEndpointChange(): Promise<void> {
+    await this.serialized(async () => {
+      await this.storage.set({
+        [QUEUE_STORAGE_KEY]: [],
+        [QUARANTINE_STORAGE_KEY]: [],
+        [RETRY_STORAGE_KEY]: null,
+      });
+    });
+  }
 }

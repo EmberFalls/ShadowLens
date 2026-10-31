@@ -3,42 +3,153 @@
   "$id": "https://shadowshield.local/contracts/v2/domain.schema.json",
   "title": "Domain and device projection v2",
   "oneOf": [
-    { "$ref": "#/$defs/DomainSummaryV2" },
-    { "$ref": "#/$defs/DeviceListV2" }
+    {
+      "$ref": "#/$defs/DomainSummaryV2"
+    },
+    {
+      "$ref": "#/$defs/DeviceListV2"
+    }
   ],
   "$defs": {
-    "site": { "enum": ["SANDBOX", "CHATGPT", "GEMINI", "CLAUDE", "COPILOT", "PERPLEXITY"] },
+    "site": {
+      "enum": [
+        "SANDBOX",
+        "CHATGPT",
+        "GEMINI",
+        "CLAUDE",
+        "COPILOT",
+        "PERPLEXITY"
+      ]
+    },
     "DomainSummaryV2": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["siteId", "approvalStatus", "supportStatus", "siteVisitsObserved", "guardedAttempts", "lastVisitAt"],
+      "required": [
+        "siteId",
+        "approvalStatus",
+        "supportStatus",
+        "siteVisitsObserved",
+        "guardedAttempts",
+        "bestEffortAttempts",
+        "lastVisitAt"
+      ],
       "properties": {
-        "siteId": { "$ref": "#/$defs/site" },
-        "approvalStatus": { "enum": ["APPROVED", "UNAPPROVED", "UNREVIEWED"] },
-        "supportStatus": { "enum": ["GUARDED", "BEST_EFFORT", "UNSUPPORTED"] },
-        "siteVisitsObserved": { "type": "integer", "minimum": 0 },
-        "guardedAttempts": { "type": "integer", "minimum": 0 },
-        "lastVisitAt": { "type": ["string", "null"], "format": "date-time", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$" }
+        "siteId": {
+          "$ref": "#/$defs/site"
+        },
+        "approvalStatus": {
+          "enum": [
+            "APPROVED",
+            "UNAPPROVED",
+            "UNREVIEWED"
+          ]
+        },
+        "supportStatus": {
+          "enum": [
+            "GUARDED",
+            "BEST_EFFORT",
+            "UNSUPPORTED"
+          ]
+        },
+        "siteVisitsObserved": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "guardedAttempts": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "lastVisitAt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+        },
+        "bestEffortAttempts": {
+          "type": "integer",
+          "minimum": 0
+        }
       }
     },
     "DeviceSummaryV2": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["deviceId", "lastHeartbeatAt", "lastEventAt", "observation"],
+      "required": [
+        "deviceId",
+        "lastHeartbeatAt",
+        "lastEventAt",
+        "lastMetadataSyncAt",
+        "extensionVersion",
+        "policyRevision",
+        "engineVersion",
+        "lastScannerResult",
+        "observation",
+        "enrollmentStatus"
+      ],
       "properties": {
-        "deviceId": { "type": "string", "format": "uuid" },
-        "lastHeartbeatAt": { "type": ["string", "null"], "format": "date-time", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$" },
-        "lastEventAt": { "type": ["string", "null"], "format": "date-time", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$" },
-        "observation": { "enum": ["RECENTLY_SEEN", "STALE", "NEVER_SEEN"] }
+        "deviceId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "lastHeartbeatAt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+        },
+        "lastEventAt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+        },
+        "lastMetadataSyncAt": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+        },
+        "extensionVersion": { "type": ["string", "null"], "maxLength": 32 },
+        "policyRevision": { "type": ["integer", "null"], "minimum": 1 },
+        "engineVersion": { "type": ["string", "null"], "maxLength": 32 },
+        "lastScannerResult": { "enum": ["NOT_REPORTED", "SCAN_REPORTED", "FAILED_SAFE"] },
+        "observation": {
+          "enum": [
+            "RECENTLY_SEEN",
+            "STALE",
+            "NEVER_SEEN"
+          ]
+        },
+        "enrollmentStatus": {
+          "enum": [
+            "ACTIVE",
+            "REVOKED"
+          ]
+        }
       }
     },
     "DeviceListV2": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["contractVersion", "items"],
+      "required": [
+        "contractVersion",
+        "items"
+      ],
       "properties": {
-        "contractVersion": { "const": "v2" },
-        "items": { "type": "array", "items": { "$ref": "#/$defs/DeviceSummaryV2" } }
+        "contractVersion": {
+          "const": "v2"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DeviceSummaryV2"
+          }
+        }
       }
     }
   }

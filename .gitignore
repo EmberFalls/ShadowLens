@@ -1,5 +1,9 @@
 node_modules/
 dist/
+.shadowlens/
+.env
+.env.*
+!.env.example
 packages/*/dist/
 *.tsbuildinfo
 
@@ -10,5 +14,7 @@ apps/sandbox/dist/
 __pycache__/
 test-results/
 playwright-report/
+.pytest-workspace-tmp/
+.pytest-tmp/
 .browser-runtime/
 *.py[cod]

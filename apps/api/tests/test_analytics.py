@@ -9,7 +9,7 @@ from fastapi.testclient import TestClient
 import pytest
 
 from apps.api.shadow_api.config import Settings
-from apps.api.shadow_api.db.database import connect, hash_owner_password, initialize_database, normalize_utc_timestamp
+from apps.api.shadow_api.db.database import connect, hash_owner_password, initialize_database, insert_event, normalize_utc_timestamp, prune_events
 from apps.api.shadow_api.main import create_app
 from apps.api.shadow_api.routers.analytics import router as analytics_router
 from apps.api.shadow_api.routers.devices import router as devices_router
@@ -98,6 +98,7 @@ def test_summary_reconciles_known_event_matrix_and_ignores_client_clock(database
             _event("SUBMISSION", "2026-10-31T07:04:00Z", action="BLOCK", disposition="BLOCKED", category_count=4),
             _event("SUBMISSION", "2026-10-31T07:05:00Z", action=None, disposition="FAILED_SAFE", category_count=5),
             _event("SUBMISSION", "2026-10-31T07:06:00Z", action="WARN", disposition="CANCELLED", category_count=6),
+            _event("SUBMISSION", "2026-10-31T07:06:30Z", site_id="CHATGPT", action="REDACT", disposition="RELEASED_UNVERIFIED", coverage="THIRD_PARTY_BEST_EFFORT"),
             _event("DEVICE_HEARTBEAT", "2026-10-31T07:07:00Z"),
         )
         connection.execute("UPDATE devices SET last_heartbeat_at=? WHERE device_id=?", (normalize_utc_timestamp(NOW), DEVICE_ID))
@@ -105,13 +106,14 @@ def test_summary_reconciles_known_event_matrix_and_ignores_client_clock(database
         assert result["siteVisitsObserved"] == 2
         assert result["distinctAiSitesObserved"] == 1
         assert result["guardedAttempts"] == 5
+        assert result["bestEffortAttempts"] == 1
         assert result["policyBlocks"] == 1
         assert result["failedSafe"] == 1
-        assert result["redactionsPlanned"] == 2
+        assert result["redactionsPlanned"] == 3
         assert result["redactionsPageAttested"] == 1
         assert result["warningsIssued"] == 1
         assert result["pageAttestedReleases"] == 1
-        assert result["categories"] == {"PII_EMAIL": 20}
+        assert result["categories"] == {"PII_EMAIL": 21}
         assert result["freshDevices"] == 1
         assert "retained" in result["coverageNote"]
     finally:
@@ -175,16 +177,51 @@ def test_device_status_distinguishes_recent_stale_and_never_seen(database: Path)
                            ("a1d347bf-0a3a-47cf-b87f-184b1c2cb5b0", "b" * 64, normalize_utc_timestamp(NOW), normalize_utc_timestamp("2026-10-31T07:50:00Z")))
         connection.execute("INSERT INTO devices(device_id,token_hash,created_at,last_heartbeat_at) VALUES (?,?,?,?)",
                            ("b1d347bf-0a3a-47cf-b87f-184b1c2cb5b0", "c" * 64, normalize_utc_timestamp(NOW), normalize_utc_timestamp("2026-10-31T07:40:00Z")))
+        submission_only_id = "c1d347bf-0a3a-47cf-b87f-184b1c2cb5b0"
+        connection.execute("INSERT INTO devices(device_id,token_hash,created_at) VALUES (?,?,?)",
+                           (submission_only_id, "d" * 64, normalize_utc_timestamp(NOW)))
+        submission_fixture = json.loads(_event("SUBMISSION", "2026-10-31T07:55:00Z")["payload_json"])
+        submission_fixture["deviceId"] = submission_only_id
+        insert_event(connection, submission_fixture, ingested_at="2026-10-31T07:55:00Z")
         result = list_devices(connection, now=NOW)
         statuses = {item["deviceId"]: item["observation"] for item in result["items"]}
+        enrollments = {item["deviceId"]: item["enrollmentStatus"] for item in result["items"]}
         assert statuses[DEVICE_ID] == "NEVER_SEEN"
         assert statuses["a1d347bf-0a3a-47cf-b87f-184b1c2cb5b0"] == "RECENTLY_SEEN"
         assert statuses["b1d347bf-0a3a-47cf-b87f-184b1c2cb5b0"] == "STALE"
+        assert statuses[submission_only_id] == "RECENTLY_SEEN"
+        assert all(state == "ACTIVE" for state in enrollments.values())
+        summary = build_summary(connection, days=7, now=NOW)
+        assert summary["observedDevices"] == 1
+        assert summary["freshDevices"] == 1
+        assert summary["staleDevices"] == 0
     finally:
         connection.close()
 
 
-def test_owner_authorization_for_analytics_devices_policy_and_policy_is_read_only(client: TestClient) -> None:
+def test_device_projection_reports_only_last_ingested_runtime_metadata(database: Path) -> None:
+    connection = connect(database)
+    try:
+        for kind, timestamp, kwargs in (
+            ("DEVICE_HEARTBEAT", "2026-09-01T07:58:00Z", {}),
+            ("SUBMISSION", "2026-09-01T07:59:00Z", {"disposition": "FAILED_SAFE", "action": None}),
+        ):
+            fixture = _event(kind, timestamp, **kwargs)
+            insert_event(connection, json.loads(fixture["payload_json"]), ingested_at=timestamp)
+        assert prune_events(connection, now=NOW, retention_days=30) == 2
+        result = list_devices(connection, now=NOW)
+        device = next(item for item in result["items"] if item["deviceId"] == DEVICE_ID)
+        assert device["lastMetadataSyncAt"] == "2026-09-01T07:59:00.000000Z"
+        assert device["extensionVersion"] == "1.0.0"
+        assert device["policyRevision"] == 1
+        assert device["engineVersion"] == "1.0.0"
+        assert device["lastScannerResult"] == "FAILED_SAFE"
+
+    finally:
+        connection.close()
+
+
+def test_owner_authorization_for_analytics_devices_and_policy(client: TestClient) -> None:
     for path in ("/api/v1/analytics/summary", "/api/v1/analytics/timeseries", "/api/v1/analytics/events", "/api/v1/devices", "/api/v1/policy"):
         assert client.get(path).status_code == 401
     login = client.post("/api/v1/auth/login", headers={"Origin": API_ORIGIN}, json={"password": OWNER_PASSWORD})
@@ -194,5 +231,18 @@ def test_owner_authorization_for_analytics_devices_policy_and_policy_is_read_onl
     policy = client.get("/api/v1/policy")
     assert policy.status_code == 200
     assert policy.json()["contractVersion"] == "v2"
-    assert client.put("/api/v1/policy", json={}).status_code == 405
+    assert client.put("/api/v1/policy", headers={"Origin": API_ORIGIN}, json={}).status_code == 422
+
+
+def test_owner_can_revoke_device_enrollment_idempotently(client: TestClient) -> None:
+    assert client.post(f"/api/v1/devices/{DEVICE_ID}/revoke").status_code == 401
+    login = client.post("/api/v1/auth/login", headers={"Origin": API_ORIGIN}, json={"password": OWNER_PASSWORD})
+    assert login.status_code == 200
+    revoked = client.post(f"/api/v1/devices/{DEVICE_ID}/revoke", headers={"Origin": API_ORIGIN})
+    assert revoked.status_code == 200
+    assert revoked.json() == {"ok": True}
+    repeated = client.post(f"/api/v1/devices/{DEVICE_ID}/revoke", headers={"Origin": API_ORIGIN})
+    assert repeated.status_code == 200 and repeated.json() == {"ok": True}
+    items = client.get("/api/v1/devices").json()["items"]
+    assert next(item for item in items if item["deviceId"] == DEVICE_ID)["enrollmentStatus"] == "REVOKED"
 

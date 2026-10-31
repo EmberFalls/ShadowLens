@@ -16,8 +16,18 @@ export function effectiveActionForFinding(finding: DetectionForPolicy['findings'
 }
 
 export function validatePolicy(policy: PolicyConfig): void {
-  const configKeys = ['contractVersion', 'revision', 'defaultFindingAction', 'rules', 'allowWarnOverride', 'updatedAt'];
+  const configKeys = ['contractVersion', 'revision', 'defaultFindingAction', 'rules', 'allowWarnOverride', 'updatedAt', 'protectedTerms'];
   if (!policy || typeof policy !== 'object' || Object.keys(policy).some(key => !configKeys.includes(key)) || policy.contractVersion !== 'v2' || !Number.isInteger(policy.revision) || policy.revision < 1 || !['WARN', 'BLOCK'].includes(policy.defaultFindingAction) || !Array.isArray(policy.rules) || policy.rules.length > 32 || typeof policy.updatedAt !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/.test(policy.updatedAt) || !Number.isFinite(Date.parse(policy.updatedAt)) || typeof policy.allowWarnOverride !== 'boolean') throw new AnalysisFailure('INVALID_POLICY');
+  if (policy.protectedTerms !== undefined) {
+    if (!Array.isArray(policy.protectedTerms) || policy.protectedTerms.length > 100) throw new AnalysisFailure('INVALID_POLICY');
+    const protectedTerms = new Set<string>();
+    for (const term of policy.protectedTerms) {
+      if (typeof term !== 'string' || term !== term.trim().normalize('NFC') || term.length < 3 || term.length > 100 || /[\u0000-\u001f\u007f]/u.test(term)) throw new AnalysisFailure('INVALID_POLICY');
+      const normalized = term.toLocaleLowerCase('en-US');
+      if (protectedTerms.has(normalized)) throw new AnalysisFailure('INVALID_POLICY');
+      protectedTerms.add(normalized);
+    }
+  }
   const ids = new Set<string>();
   for (const rule of policy.rules) {
     const ruleKeys = ['id', 'category', 'minimumSeverity', 'action', 'enabled'];

@@ -65,8 +65,10 @@ try {
 
   const observedAt = new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
   const events = [
-    { contractVersion: "v2", eventId: crypto.randomUUID(), clientObservedAt: observedAt, deviceId: credentials.deviceId, kind: "SITE_VISIT", siteId: "CHATGPT", supportStatus: "UNSUPPORTED", reasonCodes: ["UNSUPPORTED_AI_SITE_SEEN"] },
+    { contractVersion: "v2", eventId: crypto.randomUUID(), clientObservedAt: observedAt, deviceId: credentials.deviceId, kind: "SITE_VISIT", siteId: "CHATGPT", supportStatus: "BEST_EFFORT", reasonCodes: [] },
+    { contractVersion: "v2", eventId: crypto.randomUUID(), clientObservedAt: observedAt, deviceId: credentials.deviceId, kind: "SITE_VISIT", siteId: "COPILOT", supportStatus: "UNSUPPORTED", reasonCodes: ["UNSUPPORTED_AI_SITE_SEEN"] },
     { contractVersion: "v2", eventId: crypto.randomUUID(), clientObservedAt: observedAt, deviceId: credentials.deviceId, kind: "SUBMISSION", siteId: "SANDBOX", coverageMode: "SANDBOX_GUARDED", decisionAction: "BLOCK", disposition: "BLOCKED", aggregateTier: "HIGH", scoreBand: "HIGH", categoryCounts: { PII_EMAIL: 1 }, policyRevision: 1, engineVersion: "0.1.0", lengthBand: "1_99", reasonCodes: ["DETECTED_PII", "POLICY_BLOCK"] },
+    { contractVersion: "v2", eventId: crypto.randomUUID(), clientObservedAt: observedAt, deviceId: credentials.deviceId, kind: "SUBMISSION", siteId: "CHATGPT", coverageMode: "THIRD_PARTY_BEST_EFFORT", decisionAction: "REDACT", disposition: "RELEASED_UNVERIFIED", aggregateTier: "HIGH", scoreBand: "HIGH", categoryCounts: { PII_EMAIL: 1 }, policyRevision: 1, engineVersion: "0.1.0", lengthBand: "1_99", reasonCodes: ["DETECTED_PII", "POLICY_REDACT", "PAGE_ACK_TIMEOUT"] },
   ];
   const ingest = await fetch("http://127.0.0.1:8787/api/v1/events/batch", { method: "POST", headers: { Authorization: `Bearer ${credentials.deviceToken}`, "Content-Type": "application/json" }, body: JSON.stringify({ contractVersion: "v2", events }) });
   if (!ingest.ok) throw new Error(`synthetic event seed failed with HTTP ${ingest.status}`);

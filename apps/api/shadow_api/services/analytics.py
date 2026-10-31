@@ -59,17 +59,20 @@ def _payload(row: sqlite3.Row) -> dict[str, Any]:
 def _device_observations(connection: sqlite3.Connection, now: datetime, start: datetime, end: datetime) -> tuple[int, int, int]:
     recent_start = normalize_utc_timestamp(now - timedelta(minutes=15))
     start_text, end_text = normalize_utc_timestamp(start), normalize_utc_timestamp(end)
+    now_text = normalize_utc_timestamp(now)
     rows = connection.execute(
         "SELECT d.device_id, d.last_heartbeat_at, "
-        "MAX(CASE WHEN e.ingested_at >= ? AND e.ingested_at < ? THEN 1 ELSE 0 END) AS observed "
+        "MAX(CASE WHEN e.ingested_at >= ? AND e.ingested_at < ? THEN 1 ELSE 0 END) AS observed, "
+        "MAX(CASE WHEN e.ingested_at >= ? AND e.ingested_at <= ? THEN e.ingested_at END) AS recent_event_at "
         "FROM devices d LEFT JOIN events e ON e.device_id = d.device_id "
         "GROUP BY d.device_id, d.last_heartbeat_at",
-        (start_text, end_text),
+        (start_text, end_text, recent_start, now_text),
     ).fetchall()
     observed = [row for row in rows if bool(row["observed"])]
     fresh = sum(
-        1 for row in observed
-        if row["last_heartbeat_at"] is not None and recent_start <= str(row["last_heartbeat_at"]) <= normalize_utc_timestamp(now)
+        1 for row in observed if (
+            row["last_heartbeat_at"] is not None and recent_start <= str(row["last_heartbeat_at"]) <= now_text
+        ) or row["recent_event_at"] is not None
     )
     return len(observed), fresh, len(observed) - fresh
 
@@ -115,6 +118,7 @@ def build_summary(
         "siteVisitsObserved": len(site_visits),
         "distinctAiSitesObserved": len({str(row["site_id"]) for row in site_visits if row["site_id"] != "SANDBOX"}),
         "guardedAttempts": sum(1 for event, _ in submissions if event.get("coverageMode") == "SANDBOX_GUARDED"),
+        "bestEffortAttempts": sum(1 for event, _ in submissions if event.get("coverageMode") == "THIRD_PARTY_BEST_EFFORT"),
         "policyBlocks": sum(1 for event, _ in submissions if event.get("decisionAction") == "BLOCK" and event.get("disposition") == "BLOCKED"),
         "failedSafe": sum(1 for event, _ in submissions if event.get("disposition") == "FAILED_SAFE"),
         "redactionsPlanned": sum(1 for event, _ in submissions if event.get("decisionAction") == "REDACT"),
@@ -152,7 +156,7 @@ def build_timeseries(
     while current <= last_day:
         buckets[current.isoformat()] = {
             "bucketDateLocal": current.isoformat(), "siteVisitsObserved": 0,
-            "guardedAttempts": 0, "policyBlocks": 0, "failedSafe": 0,
+            "guardedAttempts": 0, "bestEffortAttempts": 0, "policyBlocks": 0, "failedSafe": 0,
             "redactionsPageAttested": 0,
         }
         current += timedelta(days=1)
@@ -163,6 +167,7 @@ def build_timeseries(
         elif row["kind"] == "SUBMISSION":
             event = _payload(row)
             bucket["guardedAttempts"] += int(event.get("coverageMode") == "SANDBOX_GUARDED")
+            bucket["bestEffortAttempts"] += int(event.get("coverageMode") == "THIRD_PARTY_BEST_EFFORT")
             bucket["policyBlocks"] += int(event.get("decisionAction") == "BLOCK" and event.get("disposition") == "BLOCKED")
             bucket["failedSafe"] += int(event.get("disposition") == "FAILED_SAFE")
             bucket["redactionsPageAttested"] += int(event.get("decisionAction") == "REDACT" and event.get("disposition") == "PAGE_ATTESTED")

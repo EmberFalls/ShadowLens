@@ -69,6 +69,40 @@ for (let i=0;i<10;i++) {
   const text=`Uncertain test excerpt ${i}: ${['id ends with 01','token placeholder','approximate phone','incomplete account label','unattributed name'][i%5]}.`;
   candidate.push(row({id:`holdout_${String(i+21).padStart(4,'0')}`,split:'holdout',source:'candidate_pending_review',text,truth:'AMBIGUOUS',expectedAction:'WARN',templateFamily:'holdout_ambiguous_candidate',tags:['candidate','ambiguous'],notes:'Requires independent human replacement/review before holdout scoring.'}));
 }
+for (let i=0;i<6;i++) {
+  const phone = `+91 900000${String(i).padStart(4, '0')}`;
+  const text = `Synthetic support fixture phone: ${phone}.`;
+  const start = text.indexOf(phone);
+  candidate.push(row({id:`holdout_${String(i+31).padStart(4,'0')}`,split:'holdout',source:'candidate_pending_review',text,truth:'SENSITIVE',expectedEntities:[{category:'PII_PHONE',start,end:start+phone.length,value:phone}],expectedAction:'REDACT',templateFamily:'holdout_phone_candidate',tags:['candidate','synthetic_phone'],notes:'Synthetic placeholder; requires independent reviewer validation.'}));
+}
+for (let i=0;i<6;i++) {
+  const token = `sk_test_0123456789abcde${i}`;
+  const text = `Synthetic deployment fixture secret=${token}`;
+  const start = text.indexOf(token);
+  candidate.push(row({id:`holdout_${String(i+37).padStart(4,'0')}`,split:'holdout',source:'candidate_pending_review',text,truth:'SENSITIVE',expectedEntities:[{category:'SECRET_TOKEN',start,end:start+token.length,value:token}],expectedAction:'REDACT',templateFamily:'holdout_token_assignment_candidate',tags:['candidate','synthetic_secret'],notes:'Synthetic placeholder; requires independent reviewer validation.'}));
+}
+function cardWithValidChecksum(index) {
+  const prefix = `400000000000${String(index).padStart(3, '0')}`;
+  let sum = 0;
+  for (let i=prefix.length-1, double=true; i>=0; i--, double=!double) {
+    let digit = Number(prefix[i]);
+    if (double) { digit *= 2; if (digit > 9) digit -= 9; }
+    sum += digit;
+  }
+  return `${prefix}${(10 - sum % 10) % 10}`;
+}
+for (let i=0;i<6;i++) {
+  const card = cardWithValidChecksum(i+1);
+  const text = `Synthetic payment test number: ${card}`;
+  const start = text.indexOf(card);
+  candidate.push(row({id:`holdout_${String(i+43).padStart(4,'0')}`,split:'holdout',source:'candidate_pending_review',text,truth:'SENSITIVE',expectedEntities:[{category:'PII_PAYMENT_CARD',start,end:start+card.length,value:card}],expectedAction:'REDACT',templateFamily:'holdout_payment_test_candidate',tags:['candidate','synthetic_payment_test'],notes:'Synthetic test-only number; requires independent reviewer validation.'}));
+}
+for (let i=0;i<6;i++) {
+  const text = `CONFIDENTIAL synthetic planning fixture ${i}.`;
+  const marker = 'CONFIDENTIAL';
+  const start = text.indexOf(marker);
+  candidate.push(row({id:`holdout_${String(i+49).padStart(4,'0')}`,split:'holdout',source:'candidate_pending_review',text,truth:'SENSITIVE',expectedEntities:[{category:'CONFIDENTIAL_MARKER',start,end:start+marker.length,value:marker}],expectedAction:'WARN',templateFamily:'holdout_confidential_marker_candidate',tags:['candidate','synthetic_marker'],notes:'Synthetic marker fixture; requires independent reviewer validation.'}));
+}
 
 const generated=[];
 const templates=[
@@ -101,6 +135,23 @@ for(let i=0;i<1000;i++) {
     entities.sort((a,b)=>a.start-b.start);
     generated.push(row({id,split:'generated',source:'template_generator',text,truth:'SENSITIVE',composition:i%4===0?'MIXED':'SINGLE',expectedEntities:entities,expectedAction:'REDACT',templateFamily:family,tags:['generated','synthetic_email','seed_17017',...(i%4===0?['mixed_context']:[])],notes:'Deterministic fictional reserved-domain entity; correlated template sample.'}));
   }
+}
+// Deterministic size-boundary stress cases exercise chunk edges and the
+// declared 10,000-character latency target without embedding real data.
+for (const [index, targetLength] of [2047, 2048, 2049, 9999, 10000, 10001].entries()) {
+  const address = `boundary${index}@example.invalid`;
+  const suffix = ` contact ${address}`;
+  const filler = 'Synthetic long-context filler. ';
+  const prefix = filler.repeat(Math.ceil((targetLength - suffix.length) / filler.length)).slice(0, targetLength - suffix.length);
+  const text = prefix + suffix;
+  const start = text.indexOf(address);
+  generated.push(row({
+    id: `generated_${String(1001 + index).padStart(4, '0')}`,
+    split: 'generated', source: 'template_generator', text, truth: 'SENSITIVE',
+    expectedEntities: [{ category: 'PII_EMAIL', start, end: start + address.length, value: address }],
+    expectedAction: 'REDACT', templateFamily: `boundary_length_${targetLength}`,
+    tags: ['generated', 'size_boundary'], notes: `Synthetic exact-length scanner stress fixture (${targetLength} UTF-16 units).`,
+  }));
 }
 const jsonl = rows => rows.map(item=>JSON.stringify(item)).join('\n')+'\n';
 await Promise.all([

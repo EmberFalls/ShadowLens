@@ -17,6 +17,7 @@ Config = TypedDict("Config", {
     "rules": Required[list["ConfigRulesItem"]],
     "allowWarnOverride": Required[bool],
     "updatedAt": Required[str],
+    "protectedTerms": NotRequired[list[str]],
 }, total=False)
 
 Decision = TypedDict("Decision", {

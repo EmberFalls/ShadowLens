@@ -1,6 +1,6 @@
 import { test, expect, chromium } from "@playwright/test";
 import { resolve, dirname, basename } from "node:path";
-import { cp } from "node:fs/promises";
+import { access, cp } from "node:fs/promises";
 
 let context, page, worker, extensionId;
 const received = () => page.locator("#shadow-received li");
@@ -37,15 +37,21 @@ async function trustedReviewClick(selector) {
 }
 
 test.beforeAll(async ({}, info) => {
-  const extension = resolve("apps/extension/dist");
+  const extension = resolve(process.env.SHADOWLENS_EXTENSION_DIR ?? "apps/extension/dist");
   let executablePath = process.env.SHADOWLENS_CHROMIUM_EXECUTABLE;
   // On this Windows sandbox, activation of cached Chrome assemblies fails outside
   // the workspace. Stage an unchanged copy; never alter the signed browser files.
   if (!executablePath && process.platform === "win32") {
     const source = dirname(chromium.executablePath());
     const target = resolve("apps/extension/.browser-runtime", basename(dirname(source)), basename(source));
-    await cp(source, target, { recursive: true });
-    executablePath = resolve(target, basename(chromium.executablePath()));
+    const stagedExecutable = resolve(target, basename(chromium.executablePath()));
+    try {
+      await access(stagedExecutable);
+      executablePath = stagedExecutable;
+    } catch {
+      await cp(source, target, { recursive: true });
+      executablePath = stagedExecutable;
+    }
   }
   context = await chromium.launchPersistentContext(info.outputPath("profile"), { channel: "chromium", executablePath, headless: true, args: [`--disable-extensions-except=${extension}`, `--load-extension=${extension}`] });
   worker = context.serviceWorkers()[0] ?? await context.waitForEvent("serviceworker");
@@ -56,7 +62,8 @@ test.beforeAll(async ({}, info) => {
   page.on("pageerror", error => console.error("Sandbox runtime error:", error.message));
 });
 test.afterAll(async () => { await context?.close(); });
-test.beforeEach(async () => {
+test.beforeEach(async ({}, testInfo) => {
+  if (process.env.SHADOWLENS_PROVIDER_FIXTURES_ONLY === "1" && /Gemini textarea wrapper|Gemini benign send and SPA composer replacement|unknown Gemini editor/.test(testInfo.title)) return;
   await page.goto("http://localhost:4173");
   await expect(page.locator("#coverage")).toContainText("SANDBOX GUARDED");
 });
@@ -147,6 +154,7 @@ test("Options stores a synthetic credential only in trusted session storage and 
   await options.goto(`chrome-extension://${extensionId}/options/index.html`);
   await options.locator("#device-id").fill("7a3b0f7a-7781-4ff1-9c67-50cb8569da51");
   await options.locator("#credential").fill("synthetic-device-credential-1234");
+  await options.locator("#policy-key-id").fill("a".repeat(64));
   await options.locator("#connect").click();
   await expect(options.locator("#credential")).toHaveValue("");
   await expect(options.locator("#status")).toContainText(/Credential saved|Connected|unavailable|reconnect/i);
@@ -175,7 +183,7 @@ test("opt-in domain observation queues a redacted site visit, never the secret U
   await expect.poll(async () => worker.evaluate(async () => (await chrome.storage.local.get("shadowshieldSanitizedEventQueue")).shadowshieldSanitizedEventQueue?.length ?? 0)).toBeGreaterThan(0);
   const queued = await worker.evaluate(async () => (await chrome.storage.local.get("shadowshieldSanitizedEventQueue")).shadowshieldSanitizedEventQueue);
   const visit = queued.find(entry => entry.event.kind === "SITE_VISIT").event;
-  expect(visit.siteId).toBe("CHATGPT"); expect(visit.supportStatus).toBe("UNSUPPORTED");
+  expect(visit.siteId).toBe("CHATGPT"); expect(visit.supportStatus).toBe("BEST_EFFORT");
   expect(JSON.stringify(visit)).not.toContain(sentinel); expect(JSON.stringify(visit)).not.toContain("prompt"); expect(Object.hasOwn(visit, "url")).toBe(false);
   await context.unroute("https://chatgpt.com/**");
 });
@@ -186,13 +194,13 @@ test("popup renders active-tab coverage and disconnected status, then opens Sett
   await worker.evaluate(() => chrome.tabs.create({ url: chrome.runtime.getURL("popup/index.html"), active: false }));
   const popup = await popupCreated;
   await expect(popup.locator("#coverage")).toContainText("Guard active");
-  await expect(popup.locator("#connection")).toContainText(/not configured|unavailable|reconnect/i);
+  await expect(popup.locator("#connection")).toContainText(/connect this browser|unavailable; queued events will retry/i);
   await expect(popup.locator("#indicator")).toHaveClass(/active/);
   const optionsCreated = context.waitForEvent("page");
   await popup.locator("#open-options").click();
   const options = await optionsCreated;
   await expect(options).toHaveURL(`chrome-extension://${extensionId}/options/index.html`);
-  await expect(options.locator("#status")).toContainText(/not configured|unavailable|reconnect/i);
+  await expect(options.locator("#status")).toContainText(/not connected|unavailable; queued events will retry/i);
   await options.close(); await popup.close();
 });
 
@@ -209,3 +217,214 @@ test("synthetic page clicks cannot authorize a send", async () => {
   await expect(received()).toHaveCount(0);
   await expect(page.locator("#shadowshield-review-host")).toHaveCount(0);
 });
+
+test("ChatGPT adapter reviews and redacts prompt text before the provider fixture receives it", async () => {
+  await page.bringToFront();
+  await context.route("https://chatgpt.com/**", route => route.fulfill({ contentType: "text/html", body: `<!doctype html><html><body>
+    <textarea id="prompt-textarea"></textarea><button data-testid="send-button" id="provider-send">Send</button><ol id="provider-received"></ol>
+    <script>document.querySelector('#provider-send').addEventListener('click',()=>{const item=document.createElement('li');item.textContent=document.querySelector('#prompt-textarea').value;document.querySelector('#provider-received').append(item);});</script>
+  </body></html>` }));
+  await page.goto("https://chatgpt.com/");
+  await expect.poll(() => page.locator("html").getAttribute("data-shadowshield-coverage")).toBe("THIRD_PARTY_BEST_EFFORT");
+  await page.locator("#prompt-textarea").fill("Contact person@shop.invalid");
+  await page.locator("#provider-send").click();
+  await expect(page.locator("#shadowshield-review-host")).toHaveCount(1);
+  expect(await reviewValue(".preview")).toBe("Contact [REDACTED_PII]");
+  await trustedReviewClick(".approve");
+  await expect(page.locator("#provider-received li")).toHaveCount(0);
+  await page.locator("#provider-send").click();
+  await expect(page.locator("#provider-received li")).toHaveText(["Contact [REDACTED_PII]"]);
+  expect(await page.locator("#prompt-textarea").inputValue()).toBe("Contact [REDACTED_PII]");
+  await context.unroute("https://chatgpt.com/**");
+});
+
+test("ChatGPT form submit and Enter require the one-use approval and deliver only the redacted text", async () => {
+  await page.bringToFront();
+  await context.route("https://chatgpt.com/**", route => route.fulfill({ contentType: "text/html", body: `<!doctype html><html><body>
+    <form id="provider-form"><textarea id="prompt-textarea"></textarea><button type="submit" data-testid="send-button">Send</button></form><ol id="provider-received"></ol>
+    <script>const form=document.querySelector('#provider-form');const composer=document.querySelector('#prompt-textarea');composer.addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();form.requestSubmit();}});form.addEventListener('submit',event=>{event.preventDefault();const item=document.createElement('li');item.textContent=composer.value;document.querySelector('#provider-received').append(item);});</script>
+  </body></html>` }));
+  await page.goto("https://chatgpt.com/");
+  await expect.poll(() => page.locator("html").getAttribute("data-shadowshield-coverage")).toBe("THIRD_PARTY_BEST_EFFORT");
+  const composer = page.locator("#prompt-textarea");
+  await composer.fill("Contact person@shop.invalid");
+  await composer.press("Enter");
+  await expect(page.locator("#shadowshield-review-host")).toHaveCount(1);
+  expect(await reviewValue(".preview")).toBe("Contact [REDACTED_PII]");
+  await trustedReviewClick(".approve");
+  await expect(composer).toHaveValue("Contact [REDACTED_PII]");
+  await composer.press("Enter");
+  await expect(page.locator("#provider-received li")).toHaveText(["Contact [REDACTED_PII]"]);
+  await context.unroute("https://chatgpt.com/**");
+});
+
+test("editing the draft after review revokes the provider one-use approval", async () => {
+  await page.bringToFront();
+  await context.route("https://claude.ai/**", route => route.fulfill({ contentType: "text/html", body: `<!doctype html><html><body>
+    <div id="composer" contenteditable="true" data-placeholder="Reply"></div><button aria-label="Send message" id="provider-send">Send</button><ol id="provider-received"></ol>
+    <script>document.querySelector('#provider-send').addEventListener('click',()=>{const item=document.createElement('li');item.textContent=document.querySelector('#composer').innerText;document.querySelector('#provider-received').append(item);});</script>
+  </body></html>` }));
+  await page.goto("https://claude.ai/");
+  await expect.poll(() => page.locator("html").getAttribute("data-shadowshield-coverage")).toBe("THIRD_PARTY_BEST_EFFORT");
+  const composer = page.locator("#composer");
+  await composer.fill("Contact person@shop.invalid");
+  await page.locator("#provider-send").click();
+  await expect(page.locator("#shadowshield-review-host")).toHaveCount(1);
+  expect(await reviewValue(".preview")).toBe("Contact [REDACTED_PII]");
+  await trustedReviewClick(".approve");
+  await expect.poll(() => composer.evaluate(element => element.innerText)).toBe("Contact [REDACTED_PII]");
+  await page.waitForTimeout(400);
+  await composer.fill("Changed back to person@shop.invalid");
+  await page.locator("#provider-send").click();
+  await expect(page.locator("#shadowshield-review-host")).toHaveCount(1);
+  await expect(page.locator("#provider-received li")).toHaveCount(0);
+  await trustedReviewClick(".cancel");
+  await context.unroute("https://claude.ai/**");
+});
+
+test("Gemini adapter requires a trusted warning acknowledgement before the second send", async () => {
+  await page.bringToFront();
+  await context.route("https://gemini.google.com/**", route => route.fulfill({ contentType: "text/html", body: `<!doctype html><html><body>
+    <div id="composer" role="textbox" contenteditable="true"></div><button aria-label="Send message" id="provider-send">Send</button><ol id="provider-received"></ol>
+    <script>document.querySelector('#provider-send').addEventListener('click',()=>{const item=document.createElement('li');item.textContent=document.querySelector('#composer').innerText;document.querySelector('#provider-received').append(item);});</script>
+  </body></html>` }));
+  await page.goto("https://gemini.google.com/");
+  await expect.poll(() => page.locator("html").getAttribute("data-shadowshield-coverage")).toBe("THIRD_PARTY_BEST_EFFORT");
+  await page.locator("#composer").fill("CONFIDENTIAL internal roadmap");
+  await page.locator("#provider-send").click();
+  await expect(page.locator("#shadowshield-review-host")).toHaveCount(1);
+  await trustedReviewClick(".approve");
+  await expect(page.locator("#provider-received li")).toHaveCount(0);
+  await trustedReviewClick(".ack");
+  await trustedReviewClick(".approve");
+  await expect(page.locator("#provider-received li")).toHaveCount(0);
+  await page.locator("#provider-send").click();
+  await expect(page.locator("#provider-received li")).toHaveText(["CONFIDENTIAL internal roadmap"]);
+  await context.unroute("https://gemini.google.com/**");
+});
+
+test("Gemini textarea wrapper is recognized and redacted before its send handler receives text", async () => {
+  await page.bringToFront();
+  await context.route("https://gemini.google.com/**", route => route.fulfill({ contentType: "text/html", body: `<!doctype html><html><body>
+    <div class="text-input-field_textarea-wrapper"><textarea placeholder="Enter a prompt for Gemini"></textarea></div>
+    <button id="provider-send" aria-label="Send message">Send</button><ol id="provider-received"></ol>
+    <script>document.querySelector('#provider-send').addEventListener('click',()=>{const item=document.createElement('li');item.textContent=document.querySelector('textarea').value;document.querySelector('#provider-received').append(item);});</script>
+  </body></html>` }));
+  await page.goto("https://gemini.google.com/");
+  await expect.poll(() => page.locator("html").getAttribute("data-shadowshield-coverage")).toBe("THIRD_PARTY_BEST_EFFORT");
+  const composer = page.locator(".text-input-field_textarea-wrapper textarea");
+  await composer.fill("Synthetic contact qa.person@example.com");
+  await page.locator("#provider-send").click();
+  await expect(page.locator("#shadowshield-review-host")).toHaveCount(1);
+  expect(await reviewValue(".preview")).toBe("Synthetic contact [REDACTED_PII]");
+  await trustedReviewClick(".approve");
+  await expect(composer).toHaveValue("Synthetic contact [REDACTED_PII]");
+  await page.locator("#provider-send").click();
+  await expect(page.locator("#provider-received li")).toHaveText(["Synthetic contact [REDACTED_PII]"]);
+  await context.unroute("https://gemini.google.com/**");
+});
+
+test("Gemini benign send and SPA composer replacement preserve the guard", async () => {
+  await page.bringToFront();
+  await context.route("https://gemini.google.com/**", route => route.fulfill({ contentType: "text/html", body: `<!doctype html><html><body>
+    <div class="text-input-field_textarea-wrapper"><textarea placeholder="Enter a prompt for Gemini"></textarea></div>
+    <button id="provider-send" aria-label="Send message">Send</button><ol id="provider-received"></ol>
+    <script>document.querySelector('#provider-send').addEventListener('click',()=>{const item=document.createElement('li');item.textContent=document.querySelector('textarea').value;document.querySelector('#provider-received').append(item);});</script>
+  </body></html>` }));
+  await page.goto("https://gemini.google.com/");
+  await expect.poll(() => page.locator("html").getAttribute("data-shadowshield-coverage")).toBe("THIRD_PARTY_BEST_EFFORT");
+  const initialComposer = page.locator(".text-input-field_textarea-wrapper textarea");
+  const benign = "Summarize this public fictional story.";
+  await initialComposer.fill(benign);
+  await page.locator("#provider-send").click();
+  await expect(page.locator("#provider-received li")).toHaveCount(0);
+  await page.locator("#provider-send").click();
+  await expect(page.locator("#provider-received li")).toHaveText([benign]);
+  await expect(page.locator("#shadowshield-review-host")).toHaveCount(0);
+  await page.waitForTimeout(400);
+
+  await page.locator(".text-input-field_textarea-wrapper").evaluate(wrapper => {
+    history.pushState({}, "", "/app/after-navigation");
+    const replacement = document.createElement("textarea");
+    replacement.placeholder = "Enter a prompt for Gemini";
+    wrapper.replaceChildren(replacement);
+  });
+  const replacement = page.locator(".text-input-field_textarea-wrapper textarea");
+  const sensitive = "Synthetic contact qa.person@example.com";
+  await replacement.fill(sensitive);
+  await page.locator("#provider-send").click();
+  await expect(page.locator("#shadowshield-review-host")).toHaveCount(1);
+  expect(await reviewValue(".preview")).toBe("Synthetic contact [REDACTED_PII]");
+  await trustedReviewClick(".approve");
+  await expect(replacement).toHaveValue("Synthetic contact [REDACTED_PII]");
+  await expect(page.locator("#provider-received li")).toHaveCount(1);
+  await page.locator("#provider-send").click();
+  await expect(page.locator("#provider-received li")).toHaveText([benign, "Synthetic contact [REDACTED_PII]"]);
+  await context.unroute("https://gemini.google.com/**");
+});
+
+test("unknown Gemini editor blocks both Enter and Send instead of passing a draft through", async () => {
+  await page.bringToFront();
+  await context.route("https://gemini.google.com/**", route => route.fulfill({ contentType: "text/html", body: `<!doctype html><html><body>
+    <div class="future-provider-composer-shell"><div id="unknown-editor" contenteditable="true"></div></div>
+    <button id="provider-send" aria-label="Send message">Send</button><ol id="provider-received"></ol>
+    <script>
+      const editor=document.querySelector('#unknown-editor');
+      const send=()=>{const item=document.createElement('li');item.textContent=editor.innerText;document.querySelector('#provider-received').append(item);};
+      document.querySelector('#provider-send').addEventListener('click',send);
+      editor.addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send();}});
+    </script>
+  </body></html>` }));
+  await page.goto("https://gemini.google.com/");
+  await expect.poll(() => page.locator("html").getAttribute("data-shadowshield-coverage")).toBe("UNPROTECTED");
+  await page.locator("#unknown-editor").fill("Synthetic test only: contact qa.person@example.com");
+  await page.locator("#unknown-editor").press("Enter");
+  await expect(page.locator("#provider-received li")).toHaveCount(0);
+  await expect(page.locator("#shadowshield-provider-notice")).toHaveCount(1);
+  await page.locator("#provider-send").click();
+  await expect(page.locator("#provider-received li")).toHaveCount(0);
+  await context.unroute("https://gemini.google.com/**");
+});
+
+test("Claude adapter blocks synthetic private-key content without reaching its receiver", async () => {
+  await page.bringToFront();
+  await context.route("https://claude.ai/**", route => route.fulfill({ contentType: "text/html", body: `<!doctype html><html><body>
+    <div id="composer" contenteditable="true" data-placeholder="Reply"></div><button aria-label="Send message" id="provider-send">Send</button><ol id="provider-received"></ol>
+    <script>document.querySelector('#provider-send').addEventListener('click',()=>{const item=document.createElement('li');item.textContent=document.querySelector('#composer').innerText;document.querySelector('#provider-received').append(item);});</script>
+  </body></html>` }));
+  await page.goto("https://claude.ai/");
+  await expect.poll(() => page.locator("html").getAttribute("data-shadowshield-coverage")).toBe("THIRD_PARTY_BEST_EFFORT");
+  await page.locator("#composer").fill("-----BEGIN PRIVATE KEY-----\nsynthetic-fixture-only\n-----END PRIVATE KEY-----");
+  await page.locator("#provider-send").click();
+  await expect(page.locator("#provider-received li")).toHaveCount(0);
+  await expect(page.locator("#shadowshield-review-host")).toHaveCount(0);
+  await context.unroute("https://claude.ai/**");
+});
+
+test("provider fixture blocks recognized file and voice paths and clears a selected file", async () => {
+  await page.bringToFront();
+  await context.route("https://chatgpt.com/**", route => route.fulfill({ contentType: "text/html", body: `<!doctype html><html><body>
+    <textarea id="prompt-textarea"></textarea><button data-testid="send-button" id="provider-send">Send</button>
+    <button id="upload" aria-label="Upload file">Attach</button><input id="file" type="file" aria-label="Choose file">
+    <button id="voice" aria-label="Record audio">Record</button><script>
+      window.__unsupportedPathReached = 0;
+      for (const id of ['upload','file','voice']) document.getElementById(id).addEventListener('click',()=>window.__unsupportedPathReached++);
+      document.getElementById('file').addEventListener('change',()=>window.__unsupportedPathReached++);
+    </script>
+  </body></html>` }));
+  await page.goto("https://chatgpt.com/");
+  await expect.poll(() => page.locator("html").getAttribute("data-shadowshield-coverage")).toBe("THIRD_PARTY_BEST_EFFORT");
+  await page.locator("#upload").click();
+  await page.locator("#voice").click();
+  await page.locator("#file").setInputFiles({ name: "synthetic.txt", mimeType: "text/plain", buffer: Buffer.from("synthetic fixture only") });
+  expect(await page.locator("#file").evaluate(input => input.files.length)).toBe(0);
+  expect(await page.evaluate(() => window.__unsupportedPathReached)).toBe(0);
+  expect(await page.locator("#shadowshield-provider-notice").count()).toBe(1);
+  const transferWasBlocked = await page.locator("#prompt-textarea").evaluate(composer => {
+    const transfer = new DataTransfer(); transfer.items.add(new File(["synthetic"], "synthetic.txt"));
+    return !composer.dispatchEvent(new ClipboardEvent("paste", { bubbles: true, cancelable: true, clipboardData: transfer }));
+  });
+  expect(transferWasBlocked).toBe(true);
+  await context.unroute("https://chatgpt.com/**");
+});
+

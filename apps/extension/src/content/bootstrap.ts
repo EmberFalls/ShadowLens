@@ -2,13 +2,12 @@ namespace ShadowShield.Content {
   const SANDBOX_ORIGIN = "http://localhost:4173";
 
   export function start(): void {
-    if (window.location.origin !== SANDBOX_ORIGIN) {
-      setCoverage("UNSUPPORTED", "Observed only · unsupported origin");
-      return;
-    }
-    setCoverage("UNPROTECTED", "Sandbox detected · guard initializing");
+    const isSandbox = window.location.origin === SANDBOX_ORIGIN;
+    const providerId = isSandbox ? null : ShadowShield.Content.ProviderAdapter.siteForLocation(window.location);
+    if (!isSandbox && !providerId) { setCoverage("UNSUPPORTED", "Unsupported AI site · observed only"); return; }
+    setCoverage("UNPROTECTED", isSandbox ? "Sandbox guard initializing" : "AI site detected · guard initializing");
     const attach = () => {
-      const adapter = new ShadowShield.Content.SandboxAdapter(document);
+      const adapter = providerId ? new ShadowShield.Content.ProviderAdapter(document, providerId) : new ShadowShield.Content.SandboxAdapter(document);
       const gate = ShadowShield.Content.installGate(adapter);
       let previous: boolean | undefined;
       const update = () => {
@@ -16,14 +15,20 @@ namespace ShadowShield.Content {
         if (compatible === previous) return;
         previous = compatible;
         if (!compatible) gate.cancelPending("EDITOR_CHANGED");
-        setCoverage(compatible ? "SANDBOX_GUARDED" : "UNPROTECTED", compatible ? "Guard active · local sandbox only" : "Sandbox composer unavailable · unprotected");
+        setCoverage(compatible ? adapter.coverageMode : "UNPROTECTED", compatible ? adapter.coverageLabel() : `${adapter.siteId} composer unavailable · unprotected`);
       };
       update();
       const observer = new MutationObserver(update);
-      observer.observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ["id"] });
-      // Keep listeners alive for back/forward-cache restores. The browser disposes
-      // them with the document; pending consent must not survive navigation.
+      observer.observe(document.documentElement, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ["id", "data-testid", "data-placeholder", "aria-label", "aria-disabled", "aria-hidden", "disabled", "hidden", "style", "class", "role", "contenteditable", "type"],
+      });
+      // A page may be restored from the back/forward cache. Revoke approval, but
+      // keep the adapter and gate listeners attached so resumed pages stay guarded.
       window.addEventListener("pagehide", () => gate.cancelPending("EDITOR_CHANGED"));
+      window.addEventListener("pageshow", update);
     };
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", attach, { once: true });
     else attach();

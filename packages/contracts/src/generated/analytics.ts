@@ -1074,6 +1074,7 @@ export interface Summary {
   fromUtc: string;
   toUtc: string;
   coverageNote: string;
+  bestEffortAttempts: number;
 }
 export interface Timeseries {
   contractVersion: 'v2';
@@ -1086,12 +1087,17 @@ export interface Timeseries {
     policyBlocks: Count;
     failedSafe: Count;
     redactionsPageAttested: Count;
+    bestEffortAttempts: number;
   }[];
 }
 export interface EventPage {
   contractVersion: 'v2';
-  items: RiskEventV2[];
+  items: EventRecord[];
   nextCursor: string | null;
+}
+export interface EventRecord {
+  event: RiskEventV2;
+  ingestedAt: string;
 }
 export interface SiteVisit {
   contractVersion: 'v2';

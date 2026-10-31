@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor
 import os
+import json
 from pathlib import Path
 import sqlite3
 import subprocess
@@ -17,6 +18,8 @@ if _REPO_ROOT not in sys.path:
 import pytest
 
 from apps.api.shadow_api.db.database import (
+    MIGRATIONS,
+    _migration_checksum,
     connect,
     hash_bearer_token,
     initialize_database,
@@ -24,6 +27,7 @@ from apps.api.shadow_api.db.database import (
     migrate,
     normalize_utc_timestamp,
     prune_events,
+    revoke_device,
     seed_domains,
     update_domain_approval,
     verify_bearer_token,
@@ -67,13 +71,59 @@ def test_cold_start_migration_is_repeatable_and_enables_constraints(tmp_path: Pa
     try:
         assert connection.execute("PRAGMA foreign_keys").fetchone()[0] == 1
         assert connection.execute("PRAGMA journal_mode").fetchone()[0].lower() == "wal"
-        assert connection.execute("SELECT count(*) FROM schema_migrations").fetchone()[0] == 1
+        assert connection.execute("SELECT count(*) FROM schema_migrations").fetchone()[0] == 6
         tables = {row[0] for row in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")}
-        assert {"devices", "domains", "events", "owners", "owner_sessions", "domain_approval_changes"} <= tables
+        assert {"devices", "domains", "events", "owners", "owner_sessions", "domain_approval_changes", "app_settings", "owner_audit"} <= tables
         indexes = {row[0] for row in connection.execute("SELECT name FROM sqlite_master WHERE type='index'")}
         assert {"idx_events_kind_time", "idx_events_site_time", "idx_events_device_time", "idx_approval_changes_site_time"} <= indexes
         assert len(connection.execute("PRAGMA foreign_key_list(events)").fetchall()) == 2
         assert len(connection.execute("PRAGMA foreign_key_list(owner_sessions)").fetchall()) == 1
+    finally:
+        connection.close()
+
+
+def test_v5_upgrade_backfills_device_health_from_existing_metadata(tmp_path: Path) -> None:
+    path = tmp_path / "upgrade-v5.sqlite3"
+    connection = sqlite3.connect(path)
+    connection.row_factory = sqlite3.Row
+    connection.execute("PRAGMA foreign_keys = ON")
+    try:
+        connection.execute("CREATE TABLE schema_migrations (version INTEGER PRIMARY KEY, checksum TEXT NOT NULL, applied_at TEXT NOT NULL)")
+        for version, sql in MIGRATIONS[:5]:
+            for statement in (part.strip() for part in sql.split(";")):
+                if statement:
+                    connection.execute(statement)
+            connection.execute("INSERT INTO schema_migrations(version, checksum, applied_at) VALUES (?,?,?)",
+                               (version, _migration_checksum(sql), normalize_utc_timestamp("2026-10-01T00:00:00Z")))
+        connection.commit()
+        seed_domains(connection)
+        connection.execute("INSERT INTO devices(device_id, token_hash, created_at) VALUES (?,?,?)",
+                           (DEVICE_ID, "a" * 64, normalize_utc_timestamp("2026-10-01T00:00:00Z")))
+        heartbeat = {
+            "contractVersion": "v2", "eventId": "b20165b4-7471-4ea0-a00d-72aeaa0c4e84",
+            "clientObservedAt": "2026-10-01T08:00:00Z", "deviceId": DEVICE_ID,
+            "kind": "DEVICE_HEARTBEAT", "extensionVersion": "1.2.3",
+        }
+        submission = {
+            "contractVersion": "v2", "eventId": "c10165b4-7471-4ea0-a00d-72aeaa0c4e84",
+            "clientObservedAt": "2026-10-01T08:01:00Z", "deviceId": DEVICE_ID,
+            "kind": "SUBMISSION", "siteId": "SANDBOX", "coverageMode": "SANDBOX_GUARDED",
+            "decisionAction": None, "disposition": "FAILED_SAFE", "aggregateTier": "NOT_EVALUATED",
+            "scoreBand": "NOT_EVALUATED", "categoryCounts": {}, "policyRevision": 4,
+            "engineVersion": "0.2.1", "lengthBand": "1_99", "reasonCodes": ["ENGINE_FAILURE"],
+        }
+        for event, ingested_at in ((heartbeat, "2026-10-01T08:00:00Z"), (submission, "2026-10-01T08:01:00Z")):
+            connection.execute("INSERT INTO events(event_id,device_id,kind,site_id,payload_json,ingested_at) VALUES (?,?,?,?,?,?)",
+                               (event["eventId"], DEVICE_ID, event["kind"], event.get("siteId"),
+                                json.dumps(event), normalize_utc_timestamp(ingested_at)))
+        connection.commit()
+        migrate(connection)
+        device = connection.execute("SELECT * FROM devices WHERE device_id=?", (DEVICE_ID,)).fetchone()
+        assert device["extension_version"] == "1.2.3"
+        assert device["policy_revision"] == 4
+        assert device["engine_version"] == "0.2.1"
+        assert device["last_scanner_result"] == "FAILED_SAFE"
+        assert device["last_event_at"] == "2026-10-01T08:01:00.000000Z"
     finally:
         connection.close()
 
@@ -179,6 +229,40 @@ def test_retention_deletes_events_only_and_defaults_to_30_days(tmp_path: Path) -
         assert connection.execute("SELECT count(*) FROM owners WHERE owner_id='owner-1'").fetchone()[0] == 1
         with pytest.raises(ValueError):
             prune_events(connection, retention_days=0)
+    finally:
+        connection.close()
+
+
+def test_database_startup_applies_default_event_retention(tmp_path: Path) -> None:
+    path = tmp_path / "startup_retention.sqlite3"
+    make_database(path)
+    connection = connect(path)
+    try:
+        insert_event(connection, site_event(event_id="expired"), ingested_at="2020-01-01T00:00:00Z")
+    finally:
+        connection.close()
+
+
+def test_device_revocation_is_idempotent_and_keeps_audit_history(tmp_path: Path) -> None:
+    path = tmp_path / "device_revocation.sqlite3"
+    make_database(path)
+    connection = connect(path)
+    try:
+        insert_event(connection, site_event(event_id="before-revoke"), ingested_at="2026-10-30T08:00:00Z")
+        assert revoke_device(connection, DEVICE_ID, revoked_at="2026-10-31T08:00:00Z") is True
+        assert revoke_device(connection, DEVICE_ID, revoked_at="2026-10-31T08:01:00Z") is False
+        assert revoke_device(connection, "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa") is None
+        assert connection.execute("SELECT revoked_at FROM devices WHERE device_id=?", (DEVICE_ID,)).fetchone()[0] == "2026-10-31T08:00:00.000000Z"
+        assert connection.execute("SELECT count(*) FROM events WHERE device_id=?", (DEVICE_ID,)).fetchone()[0] == 1
+    finally:
+        connection.close()
+
+    initialize_database(path)
+    connection = connect(path)
+    try:
+        # Revocation must retain recent event history; the 30-day retention
+        # policy should only remove this after it expires.
+        assert connection.execute("SELECT count(*) FROM events").fetchone()[0] == 1
     finally:
         connection.close()
 

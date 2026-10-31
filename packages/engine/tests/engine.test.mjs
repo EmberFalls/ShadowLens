@@ -111,6 +111,13 @@ test('large contact lists trigger bulk category and high ordinal risk', () => {
   assert.equal(result.detection.scanCompleteness, 'FULL');
 });
 
+test('a small benign CSV example is not escalated as a bulk contact list', () => {
+  const text = 'name,email\nSample,not-an-address\nOther,none';
+  const result = analyze({ text, policy: DEFAULT_POLICY });
+  assert.equal(result.detection.categoryCounts.BULK_CONTACT_LIST, undefined);
+  assert.equal(result.decision.action, 'ALLOW');
+});
+
 test('fullwidth address characters normalize but redaction keeps original spans', () => {
   const text = 'contact person＠shop.invalid';
   const result = analyze({ text, policy: DEFAULT_POLICY });

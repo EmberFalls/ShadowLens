@@ -1,6 +1,6 @@
 # Person A extension verification
 
-Verified on Windows 11, 2026-10-30. Scope: SH-006, SH-007, SH-008 and the independent SH-019 observer. The user explicitly retained SH-009 and the API/dashboard dependencies with teammates. These integration requirements remain open; this record does not close all four issues.
+Historical verification snapshot from Windows 11, 2026-10-30. At that point, SH-009 and API/dashboard integration were still assigned to teammates. The current-tree verification below supersedes that integration status.
 
 ## Commands and results
 
@@ -54,3 +54,17 @@ Raw browser output and profiles are under ignored `apps/extension/test-results/`
 5. Complete the current-Chrome manual load, popup and Options flow using `apps/extension/dist` through Extensions → Load unpacked. Verify sandbox coverage, exact receiver text, blocked original absence and no injection into API/dashboard. Do not mark SH-006 or full release acceptance complete before this check.
 
 The only changes to the SH-009 scaffold are the Options-page credential sender restriction and its `getURL` declaration. The sandbox change fixes `/` mapping to `index.html` on Windows; browser tests exposed the original 404. Queue, API, dashboard and sandbox business logic ownership remain with the assigned teammates.
+
+## Current-tree verification — 2026-10-31
+
+The earlier handoff describes the 2026-10-30 scaffold and is superseded. The current worker composes the observer with `chrome.webNavigation`, `chrome.alarms`, the enrolled device ID, and `PrivacySafeQueue`; Options persists the opt-in setting. The queue validates event DTOs before storage and upload. The protected receiver and dashboard integration now pass synthetic end-to-end checks.
+
+| Current check | Result |
+| --- | --- |
+| API suite, including owner controls and database management | 62 passed |
+| Extension unit tests | 41 passed |
+| Extension browser acceptance | 19 passed, including synthetic ChatGPT, Gemini and Claude-shaped pages |
+| Live local API/dashboard E2E | 3 passed: observed domains, unsupported-site classification, metadata privacy, owner policy, retention, export, deletion, and session persistence |
+| Engine tests and synthetic evaluation quality gate | 41 passed; gate passed on the current synthetic splits |
+
+These results verify the local implementation using test pages and synthetic events; they do not establish compatibility with current logged-in provider websites or protect paths the adapter does not recognize. A manual install in the user's current Chrome profile, provider live compatibility review, independent holdout evaluation, and clean-install/rollback release rehearsal remain outstanding.

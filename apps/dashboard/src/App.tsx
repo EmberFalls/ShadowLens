@@ -3,8 +3,10 @@ import type { DataClient, DomainSummaryV2, DeviceListV2, EventPageV2, SummaryV2,
 import { Overview } from "./pages/Overview.js";
 import { Tools } from "./pages/Tools.js";
 import { Events } from "./pages/Events.js";
+import { Privacy } from "./pages/Privacy.js";
+import { Policy } from "./pages/Policy.js";
 
-type Page = "Overview" | "Tools" | "Events";
+type Page = "Overview" | "Tools" | "Events" | "Policy" | "Privacy";
 export function App({ client, mode = "MOCK", onLogout }: { client: DataClient; mode?: "LIVE" | "MOCK"; onLogout?: () => void }) {
   const [page, setPage] = useState<Page>("Overview");
   const [days, setDays] = useState(7);
@@ -14,6 +16,7 @@ export function App({ client, mode = "MOCK", onLogout }: { client: DataClient; m
   const [domains, setDomains] = useState<DomainSummaryV2[]>([]);
   const [devices, setDevices] = useState<DeviceListV2 | null>(null);
   const [events, setEvents] = useState<EventPageV2 | null>(null);
+  const [refreshVersion, setRefreshVersion] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -25,18 +28,20 @@ export function App({ client, mode = "MOCK", onLogout }: { client: DataClient; m
         setSummary(nextSummary); setSeries(nextSeries); setDomains(nextDomains); setEvents(nextEvents); setDevices(nextDevices);
       }).catch(() => { if (active) setError(mode === "LIVE" ? "Live dashboard data is unavailable. No mock data is being shown." : "Unknown API error. Dashboard data is unavailable."); });
     return () => { active = false; };
-  }, [client, days, timezone, mode]);
+  }, [client, days, timezone, mode, refreshVersion]);
 
   return <div className="shell">
     <header className="topbar"><a className="logo" href="#overview">ShadowLens <small>OWNER DASHBOARD</small></a><div className="top-actions"><span className={mode === "LIVE" ? "mode live" : "mode"}>{mode === "LIVE" ? "LIVE DATA" : "MOCK DATA"}</span>{onLogout && <button className="logout" onClick={onLogout}>Sign out</button>}</div></header>
-    <div className="layout"><aside className="sidebar"><p>WORKSPACE</p>{(["Overview", "Tools", "Events"] as Page[]).map((item) => <button key={item} className={page === item ? "nav active" : "nav"} onClick={() => setPage(item)}>{item}</button>)}<div className="side-note">Coverage is based on observed reports from registered devices.</div></aside>
+    <div className="layout"><aside className="sidebar"><p>WORKSPACE</p>{(["Overview", "Tools", "Events", "Policy", "Privacy"] as Page[]).map((item) => <button key={item} className={page === item ? "nav active" : "nav"} onClick={() => setPage(item)}>{item}</button>)}<div className="side-note">Coverage is based on observed reports from registered devices.</div></aside>
       <main><div className="page-heading"><div><p className="eyebrow">PRIVACY OPERATIONS</p><h1>{page}</h1><p>Visibility is limited to metadata that registered devices report.</p></div>
         <div className="filters"><label>Window <select value={days} onChange={(event) => setDays(Number(event.target.value))}><option value={7}>7 days</option><option value={14}>14 days</option><option value={30}>30 days</option></select></label><label>Timezone <select value={timezone} onChange={(event) => setTimezone(event.target.value as "UTC" | "Asia/Kolkata")}><option value="UTC">UTC</option><option value="Asia/Kolkata">Asia/Kolkata</option></select></label></div>
       </div>
       {error && <div className="error" role="alert">{error}</div>}
-      {page === "Overview" && <Overview summary={summary} series={series} domains={domains} devices={devices} />}
+      {page === "Overview" && <Overview summary={summary} series={series} domains={domains} devices={devices} client={client} onDevicesUpdated={setDevices} />}
       {page === "Tools" && <Tools domains={domains} client={client} timezone={timezone} onUpdated={(updated) => setDomains((current) => current.map((domain) => domain.siteId === updated.siteId ? updated : domain))} />}
       {page === "Events" && <Events page={events} timezone={timezone} />}
+      {page === "Policy" && <Policy client={client} />}
+      {page === "Privacy" && <Privacy client={client} onEventsDeleted={() => setRefreshVersion((version) => version + 1)} />}
       <footer>Counts describe observed events. Approval labels do not claim enforcement.</footer>
     </main></div>
   </div>;

@@ -10,10 +10,13 @@ afterEach(cleanup);
 describe("dashboard mock experience", () => {
   it("renders empty and partial payloads without inventing counts", async () => {
     const empty: DataClient = {
-      getSummary: async () => ({ ...await mockClient.getSummary(7), siteVisitsObserved: 0, guardedAttempts: 0, redactionsPlanned: 0, redactionsPageAttested: 0 }),
+      getSummary: async () => ({ ...await mockClient.getSummary(7), siteVisitsObserved: 0, guardedAttempts: 0, bestEffortAttempts: 0, redactionsPlanned: 0, redactionsPageAttested: 0 }),
       getTimeseries: async (days, timezone) => ({ contractVersion: "v2", windowDays: days, timezone, buckets: [] }),
       getEvents: async () => ({ contractVersion: "v2", items: [], nextCursor: null }),
-      getDomains: async () => [], setApproval: mockClient.setApproval, getDevices: async () => ({ contractVersion: "v2", items: [] }),
+      getDomains: async () => [], setApproval: mockClient.setApproval, getDevices: async () => ({ contractVersion: "v2", items: [] }), enrollDevice: mockClient.enrollDevice, revokeDevice: async () => ({ contractVersion: "v2", items: [] }),
+      getRetentionSettings: mockClient.getRetentionSettings, setRetentionDays: mockClient.setRetentionDays,
+      exportMetadata: mockClient.exportMetadata, deleteEventHistory: mockClient.deleteEventHistory,
+      getPolicy: mockClient.getPolicy, setPolicy: mockClient.setPolicy, getPolicyKey: mockClient.getPolicyKey,
     };
     render(<App client={empty} />);
     expect(await screen.findByText("No trend data available.")).toBeTruthy();
@@ -27,7 +30,7 @@ describe("dashboard mock experience", () => {
     let requestedZone = "";
     const client: DataClient = { ...mockClient, getTimeseries: async (days, timezone) => { requestedZone = timezone; return mockClient.getTimeseries(days, timezone); } };
     render(<App client={client} />);
-    await screen.findByText("Trend · visits and guarded attempts");
+    await screen.findByText("Trend · visits and protection outcomes");
     fireEvent.change(screen.getByLabelText("Timezone"), { target: { value: "Asia/Kolkata" } });
     await waitFor(() => expect(requestedZone).toBe("Asia/Kolkata"));
     expect(await screen.findByText(/Asia\/Kolkata local dates/)).toBeTruthy();
@@ -45,5 +48,13 @@ describe("dashboard mock experience", () => {
     render(<App client={broken} />);
     expect((await screen.findByRole("alert")).textContent).toContain("Unknown API error");
     expect(screen.queryByText("private response content")).toBeNull();
+  });
+
+  it("updates device status after an owner revokes enrollment", async () => {
+    render(<App client={mockClient} />);
+    const revoke = (await screen.findAllByRole("button", { name: "Revoke device" }))[0];
+    fireEvent.click(revoke);
+    expect(await screen.findByText("Revoked · enrollment disabled")).toBeTruthy();
+    expect(screen.queryAllByRole("button", { name: "Revoke device" })).toHaveLength(2);
   });
 });

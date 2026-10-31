@@ -11,7 +11,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
 
-from ..db.database import normalize_utc_timestamp, transaction
+from ..db.database import normalize_utc_timestamp, record_device_runtime_metadata, transaction
 
 MAX_BATCH_ITEMS = 25
 MAX_BATCH_BYTES = 32 * 1024
@@ -194,11 +194,11 @@ def ingest_event_batch(
                     duplicates += 1
                     continue
                 accepted += 1
-                if isinstance(event, Heartbeat):
-                    connection.execute(
-                        "UPDATE devices SET last_heartbeat_at = ? WHERE device_id = ?",
-                        (server_time, authenticated_device_id),
-                    )
+                record_device_runtime_metadata(
+                    connection,
+                    event.model_dump(mode="json"),
+                    ingested_at=server_time,
+                )
     except sqlite3.Error:
         raise DatabaseUnavailable from None
     return IngestResponse(accepted=accepted, duplicates=duplicates)
