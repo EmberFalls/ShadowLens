@@ -92,9 +92,16 @@ async def export_metadata(
                 "createdAt": row["created_at"],
                 "revokedAt": row["revoked_at"],
                 "lastHeartbeatAt": row["last_heartbeat_at"],
+                "lastMetadataSyncAt": row["last_event_at"],
+                "extensionVersion": row["extension_version"],
+                "policyRevision": row["policy_revision"],
+                "engineVersion": row["engine_version"],
+                "lastScannerResult": row["last_scanner_result"] or "NOT_REPORTED",
             }
             for row in connection.execute(
-                "SELECT device_id, device_label, created_at, revoked_at, last_heartbeat_at FROM devices ORDER BY created_at, device_id"
+                "SELECT device_id, device_label, created_at, revoked_at, last_heartbeat_at, last_event_at, "
+                "extension_version, policy_revision, engine_version, last_scanner_result "
+                "FROM devices ORDER BY created_at, device_id"
             )
         ]
         domains = [

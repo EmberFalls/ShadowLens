@@ -80,6 +80,11 @@
         "deviceId",
         "lastHeartbeatAt",
         "lastEventAt",
+        "lastMetadataSyncAt",
+        "extensionVersion",
+        "policyRevision",
+        "engineVersion",
+        "lastScannerResult",
         "observation",
         "enrollmentStatus"
       ],
@@ -104,6 +109,15 @@
           "format": "date-time",
           "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
         },
+        "lastMetadataSyncAt": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+        },
+        "extensionVersion": { "type": ["string", "null"], "maxLength": 32 },
+        "policyRevision": { "type": ["integer", "null"], "minimum": 1 },
+        "engineVersion": { "type": ["string", "null"], "maxLength": 32 },
+        "lastScannerResult": { "enum": ["NOT_REPORTED", "SCAN_REPORTED", "FAILED_SAFE"] },
         "observation": {
           "enum": [
             "RECENTLY_SEEN",

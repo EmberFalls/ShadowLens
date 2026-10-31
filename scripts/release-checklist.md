@@ -13,10 +13,12 @@
 
 ## Known gate state for this working branch
 
-- **G3 — receiver proof:** green on baseline `edcf934`; 13/13 extension browser tests passed. The redaction receiver recorded exactly `Contact [REDACTED_PII]` and not the original email sample.
-- **G4 — telemetry and dashboard reconciliation:** blocked. The normal API app currently does not register the analytics, domains, and device routers required by the live dashboard. Rerun the full-stack E2E suite after the API owner integrates these routes.
-- **G5 — independent evaluator:** not recorded on this branch. Attach the evaluator command, output, and SHA before release.
-- **G6 — release rehearsal and rollback tag:** not recorded. No tag is green until G3–G5 are green and a demo rehearsal passes.
+- **G3 — receiver proof:** green in local Chromium browser tests and CI. The browser suite verifies exact redacted receiver text, blocked/fail-safe non-release, and cancellation after edits. Provider-shaped fixtures do not prove live provider compatibility.
+- **G4 — telemetry and dashboard reconciliation:** green in local API/dashboard E2E on the current integration line. It verifies synthetic event ingestion, privacy rejection, provider metrics, device freshness and live dashboard behavior. Re-run on the final release SHA.
+- **G5 — independent evaluator:** not recorded. A genuinely independent reviewer must author and attest a disjoint holdout, then attach the evaluator command, output, and SHA before release.
+- **G6 — release rehearsal and rollback tag:** not recorded. No tag is green until G3–G5 are green and a clean-install/demo/rollback rehearsal passes.
+- **G7 — provider pilot:** not recorded. Current logged-in ChatGPT, Gemini, and Claude compatibility and unsupported-path behavior still need manual verification.
+- **G8 — business pilot:** not recorded. HTTPS deployment, managed browser rollout, restore drill, privacy review and per-business isolation need operator evidence.
 
 ## Rollback
 
@@ -30,7 +32,7 @@
 
 | Gate | SHA / tag | Result | Evidence |
 | --- | --- | --- | --- |
-| G3 | `edcf934` | PASS | 13/13 Chromium extension tests; redacted receiver assertion |
-| G4 | — | BLOCKED | API route registration dependency; E2E not yet run |
+| G3 | `19fb922` | PASS | CI and local Chromium receiver tests; rerun on release SHA |
+| G4 | `19fb922` | PASS | Local API/dashboard E2E; pending rerun with device-health changes on the release SHA |
 | G5 | — | NOT RUN | Independent evaluator evidence required |
 | G6 | — | NOT RUN | Rehearsal and green tag required |

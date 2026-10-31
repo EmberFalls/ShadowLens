@@ -18,6 +18,11 @@ DeviceSummaryV2 = TypedDict("DeviceSummaryV2", {
     "deviceId": Required[str],
     "lastHeartbeatAt": Required[Union[str, None]],
     "lastEventAt": Required[Union[str, None]],
+    "lastMetadataSyncAt": Required[Union[str, None]],
+    "extensionVersion": Required[Union[str, None]],
+    "policyRevision": Required[Union[int, None]],
+    "engineVersion": Required[Union[str, None]],
+    "lastScannerResult": Required[Literal["NOT_REPORTED", "SCAN_REPORTED", "FAILED_SAFE"]],
     "observation": Required[Literal["RECENTLY_SEEN", "STALE", "NEVER_SEEN"]],
     "enrollmentStatus": Required[Literal["ACTIVE", "REVOKED"]],
 }, total=False)

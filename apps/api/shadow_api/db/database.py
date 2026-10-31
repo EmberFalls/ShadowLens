@@ -186,6 +186,30 @@ MIGRATIONS: tuple[tuple[int, str], ...] = (
         CREATE INDEX idx_auth_login_limits_updated ON auth_login_limits(updated_at);
         """,
     ),
+    (
+        6,
+        """
+        ALTER TABLE devices ADD COLUMN last_event_at TEXT CHECK (last_event_at IS NULL OR last_event_at GLOB '????-??-??T??:??:??.??????Z');
+        ALTER TABLE devices ADD COLUMN extension_version TEXT CHECK (extension_version IS NULL OR length(extension_version) BETWEEN 1 AND 32);
+        ALTER TABLE devices ADD COLUMN extension_version_at TEXT CHECK (extension_version_at IS NULL OR extension_version_at GLOB '????-??-??T??:??:??.??????Z');
+        ALTER TABLE devices ADD COLUMN policy_revision INTEGER CHECK (policy_revision IS NULL OR policy_revision >= 1);
+        ALTER TABLE devices ADD COLUMN engine_version TEXT CHECK (engine_version IS NULL OR length(engine_version) BETWEEN 1 AND 32);
+        ALTER TABLE devices ADD COLUMN last_submission_at TEXT CHECK (last_submission_at IS NULL OR last_submission_at GLOB '????-??-??T??:??:??.??????Z');
+        ALTER TABLE devices ADD COLUMN last_scanner_result TEXT CHECK (last_scanner_result IS NULL OR last_scanner_result IN ('SCAN_REPORTED','FAILED_SAFE'));
+        UPDATE devices SET
+            last_event_at = (SELECT MAX(ingested_at) FROM events WHERE device_id = devices.device_id),
+            extension_version = (SELECT json_extract(payload_json, '$.extensionVersion') FROM events WHERE device_id = devices.device_id AND kind = 'DEVICE_HEARTBEAT' ORDER BY ingested_at DESC, event_id DESC LIMIT 1),
+            extension_version_at = (SELECT MAX(ingested_at) FROM events WHERE device_id = devices.device_id AND kind = 'DEVICE_HEARTBEAT'),
+            policy_revision = (SELECT json_extract(payload_json, '$.policyRevision') FROM events WHERE device_id = devices.device_id AND kind = 'SUBMISSION' ORDER BY ingested_at DESC, event_id DESC LIMIT 1),
+            engine_version = (SELECT json_extract(payload_json, '$.engineVersion') FROM events WHERE device_id = devices.device_id AND kind = 'SUBMISSION' ORDER BY ingested_at DESC, event_id DESC LIMIT 1),
+            last_submission_at = (SELECT MAX(ingested_at) FROM events WHERE device_id = devices.device_id AND kind = 'SUBMISSION'),
+            last_scanner_result = CASE
+                WHEN NOT EXISTS (SELECT 1 FROM events WHERE device_id = devices.device_id AND kind = 'SUBMISSION') THEN NULL
+                WHEN (SELECT json_extract(payload_json, '$.disposition') FROM events WHERE device_id = devices.device_id AND kind = 'SUBMISSION' ORDER BY ingested_at DESC, event_id DESC LIMIT 1) = 'FAILED_SAFE' THEN 'FAILED_SAFE'
+                ELSE 'SCAN_REPORTED'
+            END;
+        """,
+    ),
 )
 
 
@@ -512,11 +536,27 @@ def insert_event(connection: sqlite3.Connection, event: Mapping[str, Any], *, in
             ).fetchone()
             if existing is None or existing["device_id"] != device_id or existing["payload_json"] != payload:
                 raise ValueError("event ID conflicts with a different stored event")
-        if inserted and kind == "DEVICE_HEARTBEAT":
+        if inserted:
             connection.execute(
-                "UPDATE devices SET last_heartbeat_at = ? WHERE device_id = ?",
-                (ingested, device_id),
+                "UPDATE devices SET last_event_at = CASE WHEN last_event_at IS NULL OR last_event_at < ? THEN ? ELSE last_event_at END "
+                "WHERE device_id = ?",
+                (ingested, ingested, device_id),
             )
+            if kind == "DEVICE_HEARTBEAT":
+                connection.execute(
+                    "UPDATE devices SET last_heartbeat_at = CASE WHEN last_heartbeat_at IS NULL OR last_heartbeat_at < ? THEN ? ELSE last_heartbeat_at END, "
+                    "extension_version = CASE WHEN extension_version_at IS NULL OR extension_version_at <= ? THEN ? ELSE extension_version END, "
+                    "extension_version_at = CASE WHEN extension_version_at IS NULL OR extension_version_at <= ? THEN ? ELSE extension_version_at END "
+                    "WHERE device_id = ?",
+                    (ingested, ingested, ingested, event["extensionVersion"], ingested, ingested, device_id),
+                )
+            elif kind == "SUBMISSION":
+                scanner_result = "FAILED_SAFE" if event["disposition"] == "FAILED_SAFE" else "SCAN_REPORTED"
+                connection.execute(
+                    "UPDATE devices SET policy_revision = ?, engine_version = ?, last_scanner_result = ?, last_submission_at = ? "
+                    "WHERE device_id = ? AND (last_submission_at IS NULL OR last_submission_at <= ?)",
+                    (event["policyRevision"], event["engineVersion"], scanner_result, ingested, device_id, ingested),
+                )
     return inserted
 
 
@@ -580,6 +620,10 @@ def delete_all_events(connection: sqlite3.Connection, *, changed_at: datetime | 
     timestamp = normalize_utc_timestamp(changed_at)
     with transaction(connection):
         deleted = connection.execute("DELETE FROM events").rowcount
+        connection.execute(
+            "UPDATE devices SET last_heartbeat_at=NULL, last_event_at=NULL, extension_version=NULL, "
+            "extension_version_at=NULL, policy_revision=NULL, engine_version=NULL, last_submission_at=NULL, last_scanner_result=NULL"
+        )
         connection.execute(
             "INSERT INTO owner_audit(action, detail_json, changed_at) VALUES ('EVENTS_DELETED', ?, ?)",
             (json.dumps({"deletedEvents": deleted}, separators=(",", ":")), timestamp),

@@ -9,7 +9,7 @@ from fastapi.testclient import TestClient
 import pytest
 
 from apps.api.shadow_api.config import Settings
-from apps.api.shadow_api.db.database import connect, hash_owner_password, initialize_database, normalize_utc_timestamp
+from apps.api.shadow_api.db.database import connect, hash_owner_password, initialize_database, insert_event, normalize_utc_timestamp, prune_events
 from apps.api.shadow_api.main import create_app
 from apps.api.shadow_api.routers.analytics import router as analytics_router
 from apps.api.shadow_api.routers.devices import router as devices_router
@@ -177,13 +177,42 @@ def test_device_status_distinguishes_recent_stale_and_never_seen(database: Path)
                            ("a1d347bf-0a3a-47cf-b87f-184b1c2cb5b0", "b" * 64, normalize_utc_timestamp(NOW), normalize_utc_timestamp("2026-10-31T07:50:00Z")))
         connection.execute("INSERT INTO devices(device_id,token_hash,created_at,last_heartbeat_at) VALUES (?,?,?,?)",
                            ("b1d347bf-0a3a-47cf-b87f-184b1c2cb5b0", "c" * 64, normalize_utc_timestamp(NOW), normalize_utc_timestamp("2026-10-31T07:40:00Z")))
+        submission_only_id = "c1d347bf-0a3a-47cf-b87f-184b1c2cb5b0"
+        connection.execute("INSERT INTO devices(device_id,token_hash,created_at) VALUES (?,?,?)",
+                           (submission_only_id, "d" * 64, normalize_utc_timestamp(NOW)))
+        submission_fixture = json.loads(_event("SUBMISSION", "2026-10-31T07:55:00Z")["payload_json"])
+        submission_fixture["deviceId"] = submission_only_id
+        insert_event(connection, submission_fixture, ingested_at="2026-10-31T07:55:00Z")
         result = list_devices(connection, now=NOW)
         statuses = {item["deviceId"]: item["observation"] for item in result["items"]}
         enrollments = {item["deviceId"]: item["enrollmentStatus"] for item in result["items"]}
         assert statuses[DEVICE_ID] == "NEVER_SEEN"
         assert statuses["a1d347bf-0a3a-47cf-b87f-184b1c2cb5b0"] == "RECENTLY_SEEN"
         assert statuses["b1d347bf-0a3a-47cf-b87f-184b1c2cb5b0"] == "STALE"
+        assert statuses[submission_only_id] == "RECENTLY_SEEN"
         assert all(state == "ACTIVE" for state in enrollments.values())
+    finally:
+        connection.close()
+
+
+def test_device_projection_reports_only_last_ingested_runtime_metadata(database: Path) -> None:
+    connection = connect(database)
+    try:
+        for kind, timestamp, kwargs in (
+            ("DEVICE_HEARTBEAT", "2026-09-01T07:58:00Z", {}),
+            ("SUBMISSION", "2026-09-01T07:59:00Z", {"disposition": "FAILED_SAFE", "action": None}),
+        ):
+            fixture = _event(kind, timestamp, **kwargs)
+            insert_event(connection, json.loads(fixture["payload_json"]), ingested_at=timestamp)
+        assert prune_events(connection, now=NOW, retention_days=30) == 2
+        result = list_devices(connection, now=NOW)
+        device = next(item for item in result["items"] if item["deviceId"] == DEVICE_ID)
+        assert device["lastMetadataSyncAt"] == "2026-09-01T07:59:00.000000Z"
+        assert device["extensionVersion"] == "1.0.0"
+        assert device["policyRevision"] == 1
+        assert device["engineVersion"] == "1.0.0"
+        assert device["lastScannerResult"] == "FAILED_SAFE"
+
     finally:
         connection.close()
 

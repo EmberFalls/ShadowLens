@@ -26,9 +26,9 @@ const events: EventPageV2 = {
   ],
 };
 const devices: DeviceListV2 = { contractVersion: "v2", items: [
-  { deviceId: "6bde3d14-92bb-461b-89f9-7bacb7fb846c", lastHeartbeatAt: "2026-10-30T08:02:00Z", lastEventAt: "2026-10-30T08:02:00Z", observation: "RECENTLY_SEEN", enrollmentStatus: "ACTIVE" },
-  { deviceId: "9bde3d14-92bb-461b-89f9-7bacb7fb846c", lastHeartbeatAt: "2026-10-30T07:20:00Z", lastEventAt: "2026-10-30T07:20:00Z", observation: "RECENTLY_SEEN", enrollmentStatus: "ACTIVE" },
-  { deviceId: "abde3d14-92bb-461b-89f9-7bacb7fb846c", lastHeartbeatAt: "2026-10-29T06:00:00Z", lastEventAt: null, observation: "STALE", enrollmentStatus: "ACTIVE" },
+  { deviceId: "6bde3d14-92bb-461b-89f9-7bacb7fb846c", lastHeartbeatAt: "2026-10-30T08:02:00Z", lastEventAt: "2026-10-30T08:02:00Z", lastMetadataSyncAt: "2026-10-30T08:02:00Z", extensionVersion: "0.1.0", policyRevision: 2, engineVersion: "0.1.0", lastScannerResult: "SCAN_REPORTED", observation: "RECENTLY_SEEN", enrollmentStatus: "ACTIVE" },
+  { deviceId: "9bde3d14-92bb-461b-89f9-7bacb7fb846c", lastHeartbeatAt: "2026-10-30T07:20:00Z", lastEventAt: "2026-10-30T07:20:00Z", lastMetadataSyncAt: "2026-10-30T07:20:00Z", extensionVersion: "0.1.0", policyRevision: 1, engineVersion: "0.1.0", lastScannerResult: "FAILED_SAFE", observation: "RECENTLY_SEEN", enrollmentStatus: "ACTIVE" },
+  { deviceId: "abde3d14-92bb-461b-89f9-7bacb7fb846c", lastHeartbeatAt: "2026-10-29T06:00:00Z", lastEventAt: null, lastMetadataSyncAt: null, extensionVersion: "0.1.0", policyRevision: null, engineVersion: null, lastScannerResult: "NOT_REPORTED", observation: "STALE", enrollmentStatus: "ACTIVE" },
 ] };
 let mockRetentionDays = 30;
 let mockEventItems = [...events.items];
@@ -67,7 +67,7 @@ export const mockClient: DataClient = {
   async enrollDevice(_label) {
     const deviceId = crypto.randomUUID();
     const token = `mock_device_token_${"x".repeat(40)}`;
-    devices.items.push({ deviceId, lastHeartbeatAt: null, lastEventAt: null, observation: "NEVER_SEEN", enrollmentStatus: "ACTIVE" });
+    devices.items.push({ deviceId, lastHeartbeatAt: null, lastEventAt: null, lastMetadataSyncAt: null, extensionVersion: null, policyRevision: null, engineVersion: null, lastScannerResult: "NOT_REPORTED", observation: "NEVER_SEEN", enrollmentStatus: "ACTIVE" });
     return { deviceId, token, policyKeyId: "0".repeat(64) };
   },
   async revokeDevice(deviceId) { return { ...devices, items: devices.items.map((device) => device.deviceId === deviceId ? { ...device, enrollmentStatus: "REVOKED" } : { ...device }) }; },
@@ -77,11 +77,15 @@ export const mockClient: DataClient = {
     // The event feed carries server ingestion metadata around each event; the privacy
     // export intentionally contains only the sanitized event DTO itself.
     contractVersion: "v2", exportedAt: new Date().toISOString(), retentionDays: mockRetentionDays, events: mockEventItems.map(({ event }) => event),
-    devices: devices.items.map((device) => ({ deviceId: device.deviceId, deviceLabel: "Demo browser", createdAt: new Date().toISOString(), revokedAt: device.enrollmentStatus === "REVOKED" ? new Date().toISOString() : null, lastHeartbeatAt: device.lastHeartbeatAt })),
+    devices: devices.items.map((device) => ({ deviceId: device.deviceId, deviceLabel: "Demo browser", createdAt: new Date().toISOString(), revokedAt: device.enrollmentStatus === "REVOKED" ? new Date().toISOString() : null, lastHeartbeatAt: device.lastHeartbeatAt, lastMetadataSyncAt: device.lastMetadataSyncAt, extensionVersion: device.extensionVersion, policyRevision: device.policyRevision, engineVersion: device.engineVersion, lastScannerResult: device.lastScannerResult })),
     domains: domains.map((domain) => ({ siteId: domain.siteId, canonicalHost: domainHosts[domain.siteId], approvalStatus: domain.approvalStatus, updatedAt: new Date().toISOString() })),
     domainApprovalHistory: [], policy: { ...mockPolicy, rules: mockPolicy.rules.map((rule) => ({ ...rule })) }, policyKeyId: "0".repeat(64), administrativeAudit: [],
   }; },
-  async deleteEventHistory() { const deletedEvents = mockEventItems.length; mockEventItems = []; return { deletedEvents }; },
+  async deleteEventHistory() {
+    const deletedEvents = mockEventItems.length; mockEventItems = [];
+    devices.items = devices.items.map((device) => ({ ...device, lastHeartbeatAt: null, lastEventAt: null, lastMetadataSyncAt: null, extensionVersion: null, policyRevision: null, engineVersion: null, lastScannerResult: "NOT_REPORTED", observation: "NEVER_SEEN" }));
+    return { deletedEvents };
+  },
   async getPolicy() { return { ...mockPolicy, rules: mockPolicy.rules.map((rule) => ({ ...rule })) }; },
   async setPolicy(policy) { mockPolicy = { contractVersion: "v2", revision: mockPolicy.revision + 1, ...policy, updatedAt: new Date().toISOString() }; return this.getPolicy(); },
   async getPolicyKey() { return { algorithm: "ECDSA_P256_SHA256", keyId: "0".repeat(64) }; },

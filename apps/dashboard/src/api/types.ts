@@ -13,7 +13,12 @@ export interface MetadataExport {
   exportedAt: string;
   retentionDays: number;
   events: RiskEventV2[];
-  devices: Array<{ deviceId: string; deviceLabel: string; createdAt: string; revokedAt: string | null; lastHeartbeatAt: string | null }>;
+  devices: Array<{
+    deviceId: string; deviceLabel: string; createdAt: string; revokedAt: string | null;
+    lastHeartbeatAt: string | null; lastMetadataSyncAt: string | null; extensionVersion: string | null;
+    policyRevision: number | null; engineVersion: string | null;
+    lastScannerResult: "NOT_REPORTED" | "SCAN_REPORTED" | "FAILED_SAFE";
+  }>;
   domains: Array<{ siteId: SiteId; canonicalHost: string; approvalStatus: ApprovalStatus; updatedAt: string }>;
   domainApprovalHistory: Array<{ siteId: SiteId; oldStatus: ApprovalStatus; newStatus: ApprovalStatus; changedAt: string }>;
   policy: OwnerPolicy;

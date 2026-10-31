@@ -156,9 +156,14 @@ function isDomain(value: unknown): value is DomainSummaryV2 {
 function isDomains(value: unknown): value is DomainSummaryV2[] { return Array.isArray(value) && value.every(isDomain); }
 function isDeviceList(value: unknown): value is DeviceListV2 {
   return object(value) && hasKeys(value, ["contractVersion", "items"]) && value.contractVersion === "v2" && Array.isArray(value.items) && value.items.every(device => object(device)
-    && hasKeys(device, ["deviceId", "lastHeartbeatAt", "lastEventAt", "observation", "enrollmentStatus"])
+    && hasKeys(device, ["deviceId", "lastHeartbeatAt", "lastEventAt", "lastMetadataSyncAt", "extensionVersion", "policyRevision", "engineVersion", "lastScannerResult", "observation", "enrollmentStatus"])
     && typeof device.deviceId === "string" && (device.lastHeartbeatAt === null || isIso(device.lastHeartbeatAt))
-    && (device.lastEventAt === null || isIso(device.lastEventAt)) && ["RECENTLY_SEEN", "STALE", "NEVER_SEEN"].includes(String(device.observation))
+    && (device.lastEventAt === null || isIso(device.lastEventAt)) && (device.lastMetadataSyncAt === null || isIso(device.lastMetadataSyncAt))
+    && (device.extensionVersion === null || typeof device.extensionVersion === "string" && /^[A-Za-z0-9.+_-]{1,32}$/.test(device.extensionVersion))
+    && (device.policyRevision === null || isCount(device.policyRevision) && device.policyRevision >= 1)
+    && (device.engineVersion === null || typeof device.engineVersion === "string" && /^[A-Za-z0-9.+_-]{1,32}$/.test(device.engineVersion))
+    && ["NOT_REPORTED", "SCAN_REPORTED", "FAILED_SAFE"].includes(String(device.lastScannerResult))
+    && ["RECENTLY_SEEN", "STALE", "NEVER_SEEN"].includes(String(device.observation))
     && ["ACTIVE", "REVOKED"].includes(String(device.enrollmentStatus)));
 }
 function isEnrollment(value: unknown): value is NewDeviceCredential {
@@ -217,10 +222,15 @@ function isMetadataExport(value: unknown): value is MetadataExport {
     && value.retentionDays >= 1 && value.retentionDays <= 3650
     && Array.isArray(value.events) && value.events.every(isRiskEvent)
     && Array.isArray(value.devices) && value.devices.every((entry) => object(entry)
-      && hasKeys(entry, ["deviceId", "deviceLabel", "createdAt", "revokedAt", "lastHeartbeatAt"])
+      && hasKeys(entry, ["deviceId", "deviceLabel", "createdAt", "revokedAt", "lastHeartbeatAt", "lastMetadataSyncAt", "extensionVersion", "policyRevision", "engineVersion", "lastScannerResult"])
       && typeof entry.deviceId === "string" && typeof entry.deviceLabel === "string" && entry.deviceLabel.length <= 100
       && isIso(entry.createdAt) && (entry.revokedAt === null || isIso(entry.revokedAt))
-      && (entry.lastHeartbeatAt === null || isIso(entry.lastHeartbeatAt)))
+      && (entry.lastHeartbeatAt === null || isIso(entry.lastHeartbeatAt))
+      && (entry.lastMetadataSyncAt === null || isIso(entry.lastMetadataSyncAt))
+      && (entry.extensionVersion === null || typeof entry.extensionVersion === "string" && /^[A-Za-z0-9.+_-]{1,32}$/.test(entry.extensionVersion))
+      && (entry.policyRevision === null || isCount(entry.policyRevision) && entry.policyRevision >= 1)
+      && (entry.engineVersion === null || typeof entry.engineVersion === "string" && /^[A-Za-z0-9.+_-]{1,32}$/.test(entry.engineVersion))
+      && ["NOT_REPORTED", "SCAN_REPORTED", "FAILED_SAFE"].includes(String(entry.lastScannerResult)))
     && Array.isArray(value.domains) && value.domains.every((entry) => object(entry)
       && hasKeys(entry, ["siteId", "canonicalHost", "approvalStatus", "updatedAt"])
       && SITE_IDS.has(String(entry.siteId)) && typeof entry.canonicalHost === "string"

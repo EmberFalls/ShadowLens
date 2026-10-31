@@ -141,6 +141,8 @@ def test_privacy_retention_export_and_delete_preserve_enrollment(client) -> None
     assert export["retentionDays"] == 7
     assert [item["eventId"] for item in export["events"]] == [event["eventId"]]
     assert export["devices"][0]["deviceLabel"] == "Laptop"
+    assert export["devices"][0]["lastMetadataSyncAt"] is not None
+    assert export["devices"][0]["lastScannerResult"] == "NOT_REPORTED"
     serialized_export = json.dumps(export)
     assert device["token"] not in serialized_export
     assert OWNER_PASSWORD not in serialized_export
@@ -150,6 +152,9 @@ def test_privacy_retention_export_and_delete_preserve_enrollment(client) -> None
     assert deleted.json() == {"deletedEvents": 1}
     assert api.get("/api/v1/privacy/export").json()["events"] == []
     assert api.get("/api/v1/devices").json()["items"][0]["enrollmentStatus"] == "ACTIVE"
+    cleared_device = api.get("/api/v1/devices").json()["items"][0]
+    assert cleared_device["lastMetadataSyncAt"] is None
+    assert cleared_device["observation"] == "NEVER_SEEN"
     assert api.get("/api/v1/domains").status_code == 200
     connection = connect(database)
     try:

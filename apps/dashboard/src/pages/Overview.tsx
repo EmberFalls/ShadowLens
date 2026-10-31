@@ -50,10 +50,18 @@ export function Overview({ summary, series, domains, devices, client, onDevicesU
         {series && <small className="muted">{series.timezone} local dates. Visits, sandbox submissions, provider best-effort submissions, and page-attested redactions are separate measures.</small>}
       </article>
     </section>
-    <section className="panel"><h2>Device last seen</h2><p className="muted">Server-ingested heartbeat/event timestamps for registered devices only.</p>
+    <section className="panel"><h2>Device deployment health</h2><p className="muted">Last-reported browser and scanner metadata for registered devices. A missing report does not prove the extension is uninstalled.</p>
       <div className="privacy-row"><label htmlFor="device-label">New device label</label><input id="device-label" maxLength={100} value={deviceLabel} onChange={(event) => setDeviceLabel(event.target.value)} placeholder="e.g. Office browser 1" /><button disabled={enrollingDevice || !deviceLabel.trim()} onClick={() => void enrollDevice()}>{enrollingDevice ? "Enrolling…" : "Enroll device"}</button></div>
       {issuedCredential && <div className="warning" role="status"><strong>Copy these values now; the bearer credential is shown only once.</strong><p>In extension settings, enter the device ID, bearer token, and policy key fingerprint. Treat the token like a password; compare the fingerprint to the Policy page.</p><p>Device ID: <code>{issuedCredential.deviceId}</code></p><p>Bearer token: <code className="credential-value">{issuedCredential.token}</code></p><p>Policy key fingerprint: <code className="credential-value">{issuedCredential.policyKeyId}</code></p><button onClick={() => setIssuedCredential(null)}>Hide credential</button></div>}
-      {!devices?.items.length ? <p>No registered devices reported.</p> : <ul className="device-list">{devices.items.map((device) => <li key={device.deviceId}><code>{device.deviceId.slice(0, 8)}…</code><span>{device.enrollmentStatus === "REVOKED" ? "Revoked · enrollment disabled" : device.observation === "STALE" ? "Active · stale" : device.observation === "NEVER_SEEN" ? "Active · never seen" : "Active · recently seen"}</span><time>{device.lastHeartbeatAt ?? "No heartbeat recorded"}</time>{device.enrollmentStatus === "ACTIVE" && <button disabled={revokingDeviceId === device.deviceId} onClick={() => void revokeDevice(device.deviceId)}>{revokingDeviceId === device.deviceId ? "Revoking…" : "Revoke device"}</button>}</li>)}</ul>}
+      {!devices?.items.length ? <p>No registered devices reported.</p> : <ul className="device-list">{devices.items.map((device) => <li key={device.deviceId}>
+        <code>{device.deviceId.slice(0, 8)}…</code>
+        <span>{device.enrollmentStatus === "REVOKED" ? "Revoked · enrollment disabled" : device.observation === "STALE" ? "Active · stale" : device.observation === "NEVER_SEEN" ? "Active · never seen" : "Active · recently seen"}</span>
+        <span>Extension: {device.extensionVersion ?? "not reported"}</span>
+        <span>Policy revision: {device.policyRevision ?? "not reported"} · Scanner: {device.lastScannerResult === "FAILED_SAFE" ? "last report failed safe" : device.lastScannerResult === "SCAN_REPORTED" ? "scan outcome reported" : "no scan reported"}</span>
+        <span>Engine: {device.engineVersion ?? "not reported"}</span>
+        <time>{device.lastMetadataSyncAt ? `Metadata synced ${new Date(device.lastMetadataSyncAt).toLocaleString()}` : "No metadata sync recorded"}</time>
+        {device.enrollmentStatus === "ACTIVE" && <button disabled={revokingDeviceId === device.deviceId} onClick={() => void revokeDevice(device.deviceId)}>{revokingDeviceId === device.deviceId ? "Revoking…" : "Revoke device"}</button>}
+      </li>)}</ul>}
       {deviceActionError && <p className="error" role="alert">{deviceActionError}</p>}
     </section>
   </>;
