@@ -49,6 +49,16 @@ Use the Microsoft Edge management service or Group Policy. Configure `ExtensionS
 
 After policy sync, confirm the policy appears in `edge://policy` and the extension is active on `edge://extensions`.
 
+## Rehearse a paired backup restore
+
+After creating a protected database backup and its `.policy-key.pem` sidecar, run the isolated rehearsal:
+
+```powershell
+python -m apps.api.shadow_api.db.manage restore-drill --input C:\ShadowLensBackup\shadowlens.sqlite3
+```
+
+The command restores the pair into a temporary directory, verifies SQLite integrity and schema migration, checks that the restored signing key matches the supplied sidecar, and confirms that pre-restore database/key copies work. It prints aggregate metadata counts only and removes its temporary files on exit. It does not access or change the configured active database or key, so the API may remain running. This rehearsal checks the recovery command path; before a business pilot, operators must still rehearse restoring into the actual deployment and verify that the service and enrolled browsers recover correctly.
+
 ## Pilot and rollout checks
 
 - Enroll a small pilot group and confirm all expected devices appear in the owner dashboard. A missing, revoked, stale, or unregistered device is not proof of protection.
