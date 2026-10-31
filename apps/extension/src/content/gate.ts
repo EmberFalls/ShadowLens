@@ -56,7 +56,7 @@ namespace ShadowShield.Content {
         ? adapter.isSendTarget(event.target)
         : event.type === "submit"
           ? adapter.isSubmitTarget?.(event.target) === true
-          : adapter.isComposerTarget(event.target);
+          : adapter.isComposerTarget(event.target) || adapter.isUninspectableEditorShortcut?.(event as KeyboardEvent) === true;
       if (!supportedGesture) return;
       event.preventDefault(); event.stopImmediatePropagation();
       if (!event.isTrusted || this.destroyed || this.machine.state !== "READY") return;
@@ -180,3 +180,4 @@ namespace ShadowShield.Content {
     return new ProtectedGate(adapter);
   }
 }
+

@@ -56,7 +56,8 @@ test.beforeAll(async ({}, info) => {
   page.on("pageerror", error => console.error("Sandbox runtime error:", error.message));
 });
 test.afterAll(async () => { await context?.close(); });
-test.beforeEach(async () => {
+test.beforeEach(async ({}, testInfo) => {
+  if (process.env.SHADOWLENS_PROVIDER_FIXTURES_ONLY === "1" && /Gemini textarea wrapper|unknown Gemini editor/.test(testInfo.title)) return;
   await page.goto("http://localhost:4173");
   await expect(page.locator("#coverage")).toContainText("SANDBOX GUARDED");
 });
@@ -296,6 +297,50 @@ test("Gemini adapter requires a trusted warning acknowledgement before the secon
   await context.unroute("https://gemini.google.com/**");
 });
 
+test("Gemini textarea wrapper is recognized and redacted before its send handler receives text", async () => {
+  await page.bringToFront();
+  await context.route("https://gemini.google.com/**", route => route.fulfill({ contentType: "text/html", body: `<!doctype html><html><body>
+    <div class="text-input-field_textarea-wrapper"><textarea placeholder="Enter a prompt for Gemini"></textarea></div>
+    <button id="provider-send" aria-label="Send message">Send</button><ol id="provider-received"></ol>
+    <script>document.querySelector('#provider-send').addEventListener('click',()=>{const item=document.createElement('li');item.textContent=document.querySelector('textarea').value;document.querySelector('#provider-received').append(item);});</script>
+  </body></html>` }));
+  await page.goto("https://gemini.google.com/");
+  await expect.poll(() => page.locator("html").getAttribute("data-shadowshield-coverage")).toBe("THIRD_PARTY_BEST_EFFORT");
+  const composer = page.locator(".text-input-field_textarea-wrapper textarea");
+  await composer.fill("Synthetic contact qa.person@example.com");
+  await page.locator("#provider-send").click();
+  await expect(page.locator("#shadowshield-review-host")).toHaveCount(1);
+  expect(await reviewValue(".preview")).toBe("Synthetic contact [REDACTED_PII]");
+  await trustedReviewClick(".approve");
+  await expect(composer).toHaveValue("Synthetic contact [REDACTED_PII]");
+  await page.locator("#provider-send").click();
+  await expect(page.locator("#provider-received li")).toHaveText(["Synthetic contact [REDACTED_PII]"]);
+  await context.unroute("https://gemini.google.com/**");
+});
+
+test("unknown Gemini editor blocks both Enter and Send instead of passing a draft through", async () => {
+  await page.bringToFront();
+  await context.route("https://gemini.google.com/**", route => route.fulfill({ contentType: "text/html", body: `<!doctype html><html><body>
+    <div class="future-provider-composer-shell"><div id="unknown-editor" contenteditable="true"></div></div>
+    <button id="provider-send" aria-label="Send message">Send</button><ol id="provider-received"></ol>
+    <script>
+      const editor=document.querySelector('#unknown-editor');
+      const send=()=>{const item=document.createElement('li');item.textContent=editor.innerText;document.querySelector('#provider-received').append(item);};
+      document.querySelector('#provider-send').addEventListener('click',send);
+      editor.addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send();}});
+    </script>
+  </body></html>` }));
+  await page.goto("https://gemini.google.com/");
+  await expect.poll(() => page.locator("html").getAttribute("data-shadowshield-coverage")).toBe("UNPROTECTED");
+  await page.locator("#unknown-editor").fill("Synthetic test only: contact qa.person@example.com");
+  await page.locator("#unknown-editor").press("Enter");
+  await expect(page.locator("#provider-received li")).toHaveCount(0);
+  await expect(page.locator("#shadowshield-provider-notice")).toHaveCount(1);
+  await page.locator("#provider-send").click();
+  await expect(page.locator("#provider-received li")).toHaveCount(0);
+  await context.unroute("https://gemini.google.com/**");
+});
+
 test("Claude adapter blocks synthetic private-key content without reaching its receiver", async () => {
   await page.bringToFront();
   await context.route("https://claude.ai/**", route => route.fulfill({ contentType: "text/html", body: `<!doctype html><html><body>
@@ -337,3 +382,4 @@ test("provider fixture blocks recognized file and voice paths and clears a selec
   expect(transferWasBlocked).toBe(true);
   await context.unroute("https://chatgpt.com/**");
 });
+

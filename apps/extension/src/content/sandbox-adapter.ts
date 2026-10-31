@@ -6,6 +6,7 @@ namespace ShadowShield.Content {
     isSendTarget(target: EventTarget | null): boolean;
     isSubmitTarget?(target: EventTarget | null): boolean;
     isComposerTarget(target: EventTarget | null): boolean;
+    isUninspectableEditorShortcut?(event: KeyboardEvent): boolean;
     readDraft(): { text: string; revision: number } | null;
     writeDraft(text: string): boolean;
     release(attemptId: string): void;
@@ -116,3 +117,4 @@ namespace ShadowShield.Content {
     }
   }
 }
+

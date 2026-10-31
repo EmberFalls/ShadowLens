@@ -3,23 +3,32 @@ namespace ShadowShield.Content {
   type ProviderConfig = { hosts: string[]; composer: string[]; send: string[]; label: string };
   const PROVIDER_OBSERVED_ATTRIBUTES = ["id", "data-testid", "data-placeholder", "aria-label", "aria-disabled", "aria-hidden", "disabled", "hidden", "style", "class", "role", "contenteditable", "type"];
 
+  /** Provider editors may be rendered inside open web-component shadow roots. */
+  function queryAcrossOpenShadowRoots(root: Document | ShadowRoot, selector: string): Element[] {
+    const matches = Array.from(root.querySelectorAll(selector));
+    for (const element of Array.from(root.querySelectorAll("*"))) {
+      if (element.shadowRoot) matches.push(...queryAcrossOpenShadowRoots(element.shadowRoot, selector));
+    }
+    return matches;
+  }
+
   const PROVIDERS: Record<Provider, ProviderConfig> = {
     CHATGPT: {
       hosts: ["chatgpt.com", "chat.openai.com"],
-      composer: ["#prompt-textarea", "[data-testid='conversation-compose']", "form [contenteditable='true'][data-placeholder]", "main textarea"],
-      send: ["button[data-testid='send-button']", "form button[aria-label*='Send' i]", "button[aria-label*='Send prompt' i]"],
+      composer: ["#prompt-textarea", "[data-testid='conversation-compose']", "main [contenteditable='true'][role='textbox']", "main [contenteditable='true']", "form [contenteditable='true'][data-placeholder]", "main textarea"],
+      send: ["button[data-testid='send-button']", "button[data-testid*='composer-submit' i]", "button[aria-label*='Send' i]", "[role='button'][aria-label*='Send' i]"],
       label: "ChatGPT",
     },
     GEMINI: {
       hosts: ["gemini.google.com"],
-      composer: ["[contenteditable='true'][role='textbox']", "rich-textarea [contenteditable='true']", "textarea[aria-label*='prompt' i]"],
-      send: ["button[aria-label*='Send' i]", "button[aria-label*='Submit' i]", "button[data-testid*='send' i]"],
+      composer: [".text-input-field_textarea-wrapper textarea", ".text-input-field_textarea-wrapper [contenteditable='true']", ".text-input-field_textarea-wrapper [role='textbox']", "[contenteditable='true'][role='textbox']", "rich-textarea [contenteditable='true']", "main [contenteditable='true']", "textarea[aria-label*='prompt' i]", "textarea[placeholder*='prompt' i]"],
+      send: ["button[aria-label*='Send' i]", "button[aria-label*='Submit' i]", "button[data-testid*='send' i]", "[role='button'][aria-label*='Send' i]"],
       label: "Gemini",
     },
     CLAUDE: {
       hosts: ["claude.ai"],
-      composer: ["[contenteditable='true'][data-placeholder]", "[contenteditable='true'][role='textbox']", "fieldset [contenteditable='true']", "textarea"],
-      send: ["button[aria-label*='Send' i]", "button[aria-label*='Submit' i]", "button[data-testid*='send' i]"],
+      composer: ["[contenteditable='true'][data-placeholder]", "[contenteditable='true'][role='textbox']", "fieldset [contenteditable='true']", "main [contenteditable='true']", "textarea"],
+      send: ["button[aria-label*='Send' i]", "button[aria-label*='Submit' i]", "button[data-testid*='send' i]", "[role='button'][aria-label*='Send' i]"],
       label: "Claude",
     },
   };
@@ -99,14 +108,24 @@ namespace ShadowShield.Content {
       const button = this.sendButtons().find((candidate) => candidate === target || candidate.contains(target));
       if (!button) return false;
       const composer = this.composerForTarget(button);
-      if (!composer || this.sendButtonFor(composer, false) !== button) return false;
+      if (!composer) {
+        this.showNotice("ShadowLens can't inspect this prompt, so sending is blocked on this page.");
+        return true;
+      }
+      if (this.sendButtonFor(composer, false) !== button) return false;
       this.selectedComposer = composer;
       return true;
     }
     isSubmitTarget(target: EventTarget | null): boolean {
       if (!(target instanceof HTMLFormElement)) return false;
       const composers = this.composerCandidates().filter((candidate) => candidate.closest("form") === target);
-      if (composers.length !== 1) return false;
+      if (composers.length !== 1) {
+        if (this.sendButtons().some((button) => target.contains(button))) {
+          this.showNotice("ShadowLens can't inspect this prompt, so sending is blocked on this page.");
+          return true;
+        }
+        return false;
+      }
       this.selectedComposer = composers[0];
       return true;
     }
@@ -115,6 +134,16 @@ namespace ShadowShield.Content {
       const composer = this.composerCandidates().find((candidate) => candidate === target || candidate.contains(target));
       if (!composer) return false;
       this.selectedComposer = composer;
+      return true;
+    }
+    isUninspectableEditorShortcut(event: KeyboardEvent): boolean {
+      if (this.isCompatible() || event.key !== "Enter" || event.shiftKey || event.isComposing || event.keyCode === 229) return false;
+      const path = event.composedPath();
+      const editor = path.some((node) => node instanceof Element && node.matches(
+        "textarea,input,[contenteditable='true'],[role='textbox'],.text-input-field_textarea-wrapper",
+      ));
+      if (!editor) return false;
+      this.showNotice("ShadowLens can't inspect this prompt, so sending is blocked on this page.");
       return true;
     }
     isSupportedTarget(target: EventTarget | null): boolean { return this.isSendTarget(target) || this.isComposerTarget(target); }
@@ -212,7 +241,7 @@ namespace ShadowShield.Content {
     private composerCandidates(): HTMLElement[] {
       const result: HTMLElement[] = [];
       for (const selector of PROVIDERS[this.siteId].composer) {
-        for (const candidate of Array.from(this.root.querySelectorAll(selector))) {
+        for (const candidate of queryAcrossOpenShadowRoots(this.root, selector)) {
           if (candidate instanceof HTMLElement
             && (candidate.isContentEditable || candidate instanceof HTMLTextAreaElement || candidate instanceof HTMLInputElement)
             && this.isVisible(candidate) && !result.includes(candidate)) result.push(candidate);
@@ -222,8 +251,8 @@ namespace ShadowShield.Content {
     }
     private sendButtons(): HTMLElement[] {
       const result: HTMLElement[] = [];
-      for (const selector of [...PROVIDERS[this.siteId].send, "form button[type='submit']"]) {
-        for (const candidate of Array.from(this.root.querySelectorAll(selector))) {
+      for (const selector of [...PROVIDERS[this.siteId].send, "form button[type='submit']", "form [role='button'][type='submit']"]) {
+        for (const candidate of queryAcrossOpenShadowRoots(this.root, selector)) {
           if (candidate instanceof HTMLElement && this.isVisible(candidate) && !result.includes(candidate)) result.push(candidate);
         }
       }
@@ -290,3 +319,4 @@ namespace ShadowShield.Content {
     }
   }
 }
+
