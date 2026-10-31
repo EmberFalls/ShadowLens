@@ -497,6 +497,45 @@ def _validate_event_values(event: Mapping[str, Any], kind: str) -> None:
             raise ValueError("invalid engine version")
 
 
+def record_device_runtime_metadata(
+    connection: sqlite3.Connection,
+    event: Mapping[str, Any],
+    *,
+    ingested_at: datetime | str,
+) -> None:
+    """Update the minimal per-device runtime projection for a newly inserted event.
+
+    Call only inside the same transaction that inserts the validated event.
+    These allowlisted fields survive normal event pruning but are cleared when
+    the owner explicitly deletes event history.
+    """
+    kind = event.get("kind")
+    device_id = event.get("deviceId")
+    if kind not in _EVENT_FIELDS or not isinstance(device_id, str):
+        raise ValueError("cannot project an invalid device event")
+    timestamp = normalize_utc_timestamp(ingested_at)
+    connection.execute(
+        "UPDATE devices SET last_event_at = CASE WHEN last_event_at IS NULL OR last_event_at < ? THEN ? ELSE last_event_at END "
+        "WHERE device_id = ?",
+        (timestamp, timestamp, device_id),
+    )
+    if kind == "DEVICE_HEARTBEAT":
+        connection.execute(
+            "UPDATE devices SET last_heartbeat_at = CASE WHEN last_heartbeat_at IS NULL OR last_heartbeat_at < ? THEN ? ELSE last_heartbeat_at END, "
+            "extension_version = CASE WHEN extension_version_at IS NULL OR extension_version_at <= ? THEN ? ELSE extension_version END, "
+            "extension_version_at = CASE WHEN extension_version_at IS NULL OR extension_version_at <= ? THEN ? ELSE extension_version_at END "
+            "WHERE device_id = ?",
+            (timestamp, timestamp, timestamp, event["extensionVersion"], timestamp, timestamp, device_id),
+        )
+    elif kind == "SUBMISSION":
+        scanner_result = "FAILED_SAFE" if event["disposition"] == "FAILED_SAFE" else "SCAN_REPORTED"
+        connection.execute(
+            "UPDATE devices SET policy_revision = ?, engine_version = ?, last_scanner_result = ?, last_submission_at = ? "
+            "WHERE device_id = ? AND (last_submission_at IS NULL OR last_submission_at <= ?)",
+            (event["policyRevision"], event["engineVersion"], scanner_result, timestamp, device_id, timestamp),
+        )
+
+
 def insert_event(connection: sqlite3.Connection, event: Mapping[str, Any], *, ingested_at: datetime | str | None = None) -> bool:
     """Atomically insert one allowlisted event; return False for a duplicate ID.
 
@@ -537,26 +576,7 @@ def insert_event(connection: sqlite3.Connection, event: Mapping[str, Any], *, in
             if existing is None or existing["device_id"] != device_id or existing["payload_json"] != payload:
                 raise ValueError("event ID conflicts with a different stored event")
         if inserted:
-            connection.execute(
-                "UPDATE devices SET last_event_at = CASE WHEN last_event_at IS NULL OR last_event_at < ? THEN ? ELSE last_event_at END "
-                "WHERE device_id = ?",
-                (ingested, ingested, device_id),
-            )
-            if kind == "DEVICE_HEARTBEAT":
-                connection.execute(
-                    "UPDATE devices SET last_heartbeat_at = CASE WHEN last_heartbeat_at IS NULL OR last_heartbeat_at < ? THEN ? ELSE last_heartbeat_at END, "
-                    "extension_version = CASE WHEN extension_version_at IS NULL OR extension_version_at <= ? THEN ? ELSE extension_version END, "
-                    "extension_version_at = CASE WHEN extension_version_at IS NULL OR extension_version_at <= ? THEN ? ELSE extension_version_at END "
-                    "WHERE device_id = ?",
-                    (ingested, ingested, ingested, event["extensionVersion"], ingested, ingested, device_id),
-                )
-            elif kind == "SUBMISSION":
-                scanner_result = "FAILED_SAFE" if event["disposition"] == "FAILED_SAFE" else "SCAN_REPORTED"
-                connection.execute(
-                    "UPDATE devices SET policy_revision = ?, engine_version = ?, last_scanner_result = ?, last_submission_at = ? "
-                    "WHERE device_id = ? AND (last_submission_at IS NULL OR last_submission_at <= ?)",
-                    (event["policyRevision"], event["engineVersion"], scanner_result, ingested, device_id, ingested),
-                )
+            record_device_runtime_metadata(connection, event, ingested_at=ingested)
     return inserted
 
 
