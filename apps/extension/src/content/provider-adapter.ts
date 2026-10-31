@@ -137,12 +137,22 @@ namespace ShadowShield.Content {
       return true;
     }
     isUninspectableEditorShortcut(event: KeyboardEvent): boolean {
-      if (this.isCompatible() || event.key !== "Enter" || event.shiftKey || event.isComposing || event.keyCode === 229) return false;
+      if (event.key !== "Enter" || event.shiftKey || event.isComposing || event.keyCode === 229) return false;
       const path = event.composedPath();
       const editor = path.some((node) => node instanceof Element && node.matches(
         "textarea,input,[contenteditable='true'],[role='textbox'],.text-input-field_textarea-wrapper",
       ));
       if (!editor) return false;
+      const knownGeminiEditor = path.some((node) => node instanceof Element && node.matches(".text-input-field_textarea-wrapper"));
+      const sendInUnknownEditorRegion = this.sendButtons().some((button) =>
+        path.some((node) => node instanceof HTMLElement
+          && node.contains(button)
+          && !this.composerCandidates().some((candidate) => node.contains(candidate))),
+      );
+      // A recognized composer elsewhere must not make an unrecognized active
+      // editor's Enter shortcut slip through. Keep unrelated page inputs usable
+      // when the adapter already has a compatible composer.
+      if (this.isCompatible() && !knownGeminiEditor && !sendInUnknownEditorRegion) return false;
       this.showNotice("ShadowLens can't inspect this prompt, so sending is blocked on this page.");
       return true;
     }

@@ -100,3 +100,17 @@ test("Gemini textarea under its current wrapper is recognized as the prompt comp
   adapter.disconnect();
 });
 
+test("an unrecognized editor in the active Send region stays blocked when another composer is compatible", () => {
+  const { adapter, send, unknownEditor } = providerAdapter();
+  const activeRegion = new FakeElement("div");
+  activeRegion.append(unknownEditor, send);
+  const elsewhere = new FakeElement("textarea");
+  adapter.composerCandidates = () => [elsewhere];
+  adapter.sendButtons = () => [send];
+  adapter.sendButtonFor = () => send;
+  assert.equal(adapter.isCompatible(), true);
+  const enter = { key: "Enter", shiftKey: false, isComposing: false, keyCode: 13, composedPath: () => [unknownEditor, activeRegion] };
+  assert.equal(adapter.isUninspectableEditorShortcut(enter), true);
+  adapter.disconnect();
+});
+
