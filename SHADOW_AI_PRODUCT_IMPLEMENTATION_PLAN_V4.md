@@ -23,8 +23,10 @@
 - Deployment health projection is now implemented: owner-visible server-ingested extension version, latest policy revision and engine version, last metadata sync, and last scanner outcome. These minimal fields persist independently of event pruning. Scanner outcome is the last reported guarded scan result, not a live health attestation; no report does not imply extension removal.
 - The observed Gemini `.text-input-field_textarea-wrapper` editor layout is now covered by the provider adapter. Isolated Chromium fixtures verify redaction before the provider-shaped receiver gets text and fail-closed handling for an unknown editor (2/2 pass); live-provider G7 remains open.
 - A packaged-extension rehearsal now builds the upload ZIP, extracts it into a fresh temporary directory, and loads that extracted artifact into a clean Chromium profile for the synthetic provider fixtures. This is repeatable package-install evidence; tagged rollback and operator deployment rehearsal remain open under G6/G8.
-- The extension worker suite now passes 45/45, including signed key rotation and preservation of the previous trust state after an invalid replacement.
-- Per-provider build-time release flags can disable a provider adapter while leaving the sandbox guard active. The latest extension suite passes 46/46 with a flag regression case; provider disabling still requires shipping the configured extension build or rolling back the release.
+- The extension worker suite passes 46/46, including signed key rotation and preservation of the previous trust state after an invalid replacement.
+- Per-provider build-time release flags can disable a provider adapter while leaving the sandbox guard active. The packaged-extension test now reuses an existing staged Chromium binary before trying to stage a copy from Playwright's cache.
+- GitHub Actions run 16 passed on PR #25 head `93443591053ddf1ead01e50506f78d48bb4a3702`, including API, contracts, engine, extension, clean-profile packaged-extension, dashboard, synthetic evaluation and protected-receiver integration gates.
+- Current live Chrome Gemini smoke check (2026-10-31): the extension currently loaded in the user's profile failed to intercept a synthetic email prompt, which reached Gemini unchanged. The updated package's two synthetic Gemini fixtures pass, but the updated package has not been installed/reloaded into that profile. G7 remains unverified; ChatGPT and Claude current-page matrices are also outstanding.
 
 ---
 
