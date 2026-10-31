@@ -191,6 +191,10 @@ def test_device_status_distinguishes_recent_stale_and_never_seen(database: Path)
         assert statuses["b1d347bf-0a3a-47cf-b87f-184b1c2cb5b0"] == "STALE"
         assert statuses[submission_only_id] == "RECENTLY_SEEN"
         assert all(state == "ACTIVE" for state in enrollments.values())
+        summary = build_summary(connection, days=7, now=NOW)
+        assert summary["observedDevices"] == 1
+        assert summary["freshDevices"] == 1
+        assert summary["staleDevices"] == 0
     finally:
         connection.close()
 

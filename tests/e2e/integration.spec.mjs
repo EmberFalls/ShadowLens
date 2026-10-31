@@ -10,7 +10,8 @@ test("live dashboard shows only API data, persists approval, and labels coverage
   await expect(page.locator(".metric").filter({ hasText: "Sandbox guarded attempts" }).locator("strong")).toHaveText("1");
   await expect(page.getByText(/Best-effort text protection enabled for: CHATGPT/)).toBeVisible();
   await expect(page.getByText(/Unsupported domains observed: COPILOT/)).toBeVisible();
-  await expect(page.getByText("Active · stale")).toHaveCount(2);
+  await expect(page.getByText("Active · stale")).toHaveCount(1);
+  await expect(page.getByText("Active · recently seen")).toHaveCount(1);
   await page.getByLabel("Window").selectOption("14");
   await expect(page.getByLabel("Window")).toHaveValue("14");
   await page.getByLabel("Timezone").selectOption("Asia/Kolkata");
