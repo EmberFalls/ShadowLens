@@ -48,6 +48,10 @@ export interface Config {
   }[];
   allowWarnOverride: boolean;
   updatedAt: string;
+  /**
+   * @maxItems 100
+   */
+  protectedTerms?: string[];
 }
 export interface Decision {
   action: Action;

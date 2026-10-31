@@ -9,7 +9,7 @@ export interface Finding { id: string; ruleId: RuleId; category: Category; sever
 export interface DetectionResult { contractVersion: 'v2'; engineVersion: string; inputLength: number; findings: Finding[]; categoryCounts: Partial<Record<Category, number>>; highestFindingSeverity: Severity | null; aggregateScore: number; aggregateTier: RiskTier; scanCompleteness: 'FULL' }
 export interface ReplacementOperation { start: number; end: number; replacement: string; category: Category }
 export interface PolicyRule { id: string; category: Category | '*'; minimumSeverity: Severity; action: DecisionAction; enabled: boolean }
-export interface PolicyConfig { contractVersion: 'v2'; revision: number; defaultFindingAction: 'WARN' | 'BLOCK'; rules: PolicyRule[]; allowWarnOverride: boolean; updatedAt: string }
+export interface PolicyConfig { contractVersion: 'v2'; revision: number; defaultFindingAction: 'WARN' | 'BLOCK'; rules: PolicyRule[]; allowWarnOverride: boolean; updatedAt: string; protectedTerms?: string[] }
 export interface PolicyDecision { action: DecisionAction; score: number; aggregateTier: RiskTier; matchedRuleIds: string[]; reasonCodes: ReasonCode[]; overrideAllowed: boolean; requiresWarnAcknowledgement: boolean; replacementOperations: ReplacementOperation[]; policyRevision: number }
 export interface AnalysisInput { text: string; policy: PolicyConfig; customTerms?: readonly string[] }
 export interface AnalysisOutput { detection: DetectionResult; decision: PolicyDecision }

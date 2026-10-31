@@ -1,8 +1,15 @@
 namespace ShadowShield.Messages {
-  export type SetDeviceCredential = { type: "SET_DEVICE_CREDENTIAL"; token: string; deviceId?: string };
+  export type SetDeviceCredential = { type: "SET_DEVICE_CREDENTIAL"; token: string; deviceId?: string; policyKeyId?: string };
+  export type GetPolicySyncStatus = { type: "GET_POLICY_SYNC_STATUS" };
+  export type SyncPolicyNow = { type: "SYNC_POLICY_NOW" };
+  export type GetApiOrigin = { type: "GET_API_ORIGIN" };
+  export type SetApiOrigin = { type: "SET_API_ORIGIN"; origin: string };
   export type GetConnectionStatus = { type: "GET_CONNECTION_STATUS" };
   export type GetDomainObservation = { type: "GET_DOMAIN_OBSERVATION" };
   export type SetDomainObservation = { type: "SET_DOMAIN_OBSERVATION"; enabled: boolean };
+  export type GetCustomTerms = { type: "GET_CUSTOM_TERMS" };
+  export type SetCustomTerms = { type: "SET_CUSTOM_TERMS"; terms: string[] };
+  export type SimulatePolicy = { type: "SIMULATE_POLICY" };
   export type CommonEvent = { contractVersion: "v2"; eventId: string; clientObservedAt: string; deviceId?: string };
   export type SubmissionEvent = CommonEvent & {
     kind: "SUBMISSION"; siteId: "SANDBOX" | "CHATGPT" | "GEMINI" | "CLAUDE" | "COPILOT" | "PERPLEXITY";
@@ -25,7 +32,7 @@ namespace ShadowShield.Messages {
   export type RequestAnalysis = { type: "ANALYZE_LOCAL"; text: string };
   export type VerifyRedaction = { type: "VERIFY_REDACTION"; originalText: string; approvedText: string; analysis: ShadowShield.Content.Analysis; warnAcknowledged: boolean };
   export type CoverageUpdate = { type: "COVERAGE_UPDATE"; coverage: CoverageStatus };
-  export type Request = SetDeviceCredential | GetConnectionStatus | GetDomainObservation | SetDomainObservation | EnqueueEvent | GetCoverage | RequestAnalysis | VerifyRedaction | CoverageUpdate;
+  export type Request = SetDeviceCredential | GetPolicySyncStatus | SyncPolicyNow | GetApiOrigin | SetApiOrigin | GetConnectionStatus | GetDomainObservation | SetDomainObservation | GetCustomTerms | SetCustomTerms | SimulatePolicy | EnqueueEvent | GetCoverage | RequestAnalysis | VerifyRedaction | CoverageUpdate;
   export type ConnectionStatus = { connected: boolean; reconnectRequired: boolean; message: string };
-  export type CoverageStatus = { mode: "SANDBOX_GUARDED" | "UNPROTECTED" | "UNSUPPORTED"; label: string };
+  export type CoverageStatus = { mode: "SANDBOX_GUARDED" | "THIRD_PARTY_BEST_EFFORT" | "UNPROTECTED" | "UNSUPPORTED"; label: string };
 }

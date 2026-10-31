@@ -1,6 +1,6 @@
 import type { PolicyConfig } from './types-internal.js';
 export const DEFAULT_POLICY: PolicyConfig = {
-  contractVersion:'v2', revision:1, defaultFindingAction:'WARN', allowWarnOverride:true, updatedAt:'2026-10-30T00:00:00Z',
+  contractVersion:'v2', revision:1, defaultFindingAction:'WARN', allowWarnOverride:true, updatedAt:'2026-10-30T00:00:00Z', protectedTerms:[],
   rules:[
     {id:'POLICY.PRIVATE_KEY',category:'SECRET_PRIVATE_KEY',minimumSeverity:'LOW',action:'BLOCK',enabled:true},
     {id:'POLICY.TOKEN',category:'SECRET_TOKEN',minimumSeverity:'HIGH',action:'REDACT',enabled:true},

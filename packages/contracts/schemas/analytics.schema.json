@@ -1,13 +1,255 @@
 {
- "$schema":"https://json-schema.org/draft/2020-12/schema",
- "$id":"https://shadowshield.local/contracts/v2/analytics.schema.json",
- "title":"Analytics response v2",
- "oneOf":[{"$ref":"#/$defs/summary"},{"$ref":"#/$defs/timeseries"},{"$ref":"#/$defs/eventPage"}],
- "$defs":{
-  "count":{"type":"integer","minimum":0},
-  "category":{"enum":["PII_EMAIL","PII_PHONE","PII_PAYMENT_CARD","PII_AADHAAR","PII_INDIA_PAN","PII_GSTIN","PII_IFSC","PII_UPI","SECRET_TOKEN","SECRET_PRIVATE_KEY","CONFIDENTIAL_MARKER","SOURCE_CODE_CONTEXT","CUSTOM_PROTECTED_TERM","BULK_CONTACT_LIST"]},
-  "summary":{"type":"object","additionalProperties":false,"required":["contractVersion","windowDays","timezone","siteVisitsObserved","distinctAiSitesObserved","guardedAttempts","policyBlocks","failedSafe","redactionsPlanned","redactionsPageAttested","warningsIssued","pageAttestedReleases","observedDevices","freshDevices","staleDevices","categories","fromUtc","toUtc","coverageNote"],"properties":{"contractVersion":{"const":"v2"},"windowDays":{"type":"integer","minimum":1,"maximum":30},"timezone":{"enum":["UTC","Asia/Kolkata"]},"siteVisitsObserved":{"$ref":"#/$defs/count"},"distinctAiSitesObserved":{"$ref":"#/$defs/count"},"guardedAttempts":{"$ref":"#/$defs/count"},"policyBlocks":{"$ref":"#/$defs/count"},"failedSafe":{"$ref":"#/$defs/count"},"redactionsPlanned":{"$ref":"#/$defs/count"},"redactionsPageAttested":{"$ref":"#/$defs/count"},"warningsIssued":{"$ref":"#/$defs/count"},"pageAttestedReleases":{"$ref":"#/$defs/count"},"observedDevices":{"$ref":"#/$defs/count"},"freshDevices":{"$ref":"#/$defs/count"},"staleDevices":{"$ref":"#/$defs/count"},"categories":{"type":"object","propertyNames":{"$ref":"#/$defs/category"},"additionalProperties":{"$ref":"#/$defs/count"}},"fromUtc":{"type":"string","format":"date-time","pattern":"^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"},"toUtc":{"type":"string","format":"date-time","pattern":"^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"},"coverageNote":{"type":"string"}}},
-  "timeseries":{"type":"object","additionalProperties":false,"required":["contractVersion","timezone","windowDays","buckets"],"properties":{"contractVersion":{"const":"v2"},"timezone":{"enum":["UTC","Asia/Kolkata"]},"windowDays":{"type":"integer","minimum":1,"maximum":30},"buckets":{"type":"array","items":{"type":"object","additionalProperties":false,"required":["bucketDateLocal","siteVisitsObserved","guardedAttempts","policyBlocks","failedSafe","redactionsPageAttested"],"properties":{"bucketDateLocal":{"type":"string","format":"date"},"siteVisitsObserved":{"$ref":"#/$defs/count"},"guardedAttempts":{"$ref":"#/$defs/count"},"policyBlocks":{"$ref":"#/$defs/count"},"failedSafe":{"$ref":"#/$defs/count"},"redactionsPageAttested":{"$ref":"#/$defs/count"}}}}}},
-  "eventPage":{"type":"object","additionalProperties":false,"required":["contractVersion","items","nextCursor"],"properties":{"contractVersion":{"const":"v2"},"items":{"type":"array","items":{"$ref":"event.schema.json"}},"nextCursor":{"type":["string","null"]}}}
- }
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://shadowshield.local/contracts/v2/analytics.schema.json",
+  "title": "Analytics response v2",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/summary"
+    },
+    {
+      "$ref": "#/$defs/timeseries"
+    },
+    {
+      "$ref": "#/$defs/eventPage"
+    }
+  ],
+  "$defs": {
+    "count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "category": {
+      "enum": [
+        "PII_EMAIL",
+        "PII_PHONE",
+        "PII_PAYMENT_CARD",
+        "PII_AADHAAR",
+        "PII_INDIA_PAN",
+        "PII_GSTIN",
+        "PII_IFSC",
+        "PII_UPI",
+        "SECRET_TOKEN",
+        "SECRET_PRIVATE_KEY",
+        "CONFIDENTIAL_MARKER",
+        "SOURCE_CODE_CONTEXT",
+        "CUSTOM_PROTECTED_TERM",
+        "BULK_CONTACT_LIST"
+      ]
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contractVersion",
+        "windowDays",
+        "timezone",
+        "siteVisitsObserved",
+        "distinctAiSitesObserved",
+        "guardedAttempts",
+        "bestEffortAttempts",
+        "policyBlocks",
+        "failedSafe",
+        "redactionsPlanned",
+        "redactionsPageAttested",
+        "warningsIssued",
+        "pageAttestedReleases",
+        "observedDevices",
+        "freshDevices",
+        "staleDevices",
+        "categories",
+        "fromUtc",
+        "toUtc",
+        "coverageNote"
+      ],
+      "properties": {
+        "contractVersion": {
+          "const": "v2"
+        },
+        "windowDays": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 30
+        },
+        "timezone": {
+          "enum": [
+            "UTC",
+            "Asia/Kolkata"
+          ]
+        },
+        "siteVisitsObserved": {
+          "$ref": "#/$defs/count"
+        },
+        "distinctAiSitesObserved": {
+          "$ref": "#/$defs/count"
+        },
+        "guardedAttempts": {
+          "$ref": "#/$defs/count"
+        },
+        "policyBlocks": {
+          "$ref": "#/$defs/count"
+        },
+        "failedSafe": {
+          "$ref": "#/$defs/count"
+        },
+        "redactionsPlanned": {
+          "$ref": "#/$defs/count"
+        },
+        "redactionsPageAttested": {
+          "$ref": "#/$defs/count"
+        },
+        "warningsIssued": {
+          "$ref": "#/$defs/count"
+        },
+        "pageAttestedReleases": {
+          "$ref": "#/$defs/count"
+        },
+        "observedDevices": {
+          "$ref": "#/$defs/count"
+        },
+        "freshDevices": {
+          "$ref": "#/$defs/count"
+        },
+        "staleDevices": {
+          "$ref": "#/$defs/count"
+        },
+        "categories": {
+          "type": "object",
+          "propertyNames": {
+            "$ref": "#/$defs/category"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/count"
+          }
+        },
+        "fromUtc": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+        },
+        "toUtc": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+        },
+        "coverageNote": {
+          "type": "string"
+        },
+        "bestEffortAttempts": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "timeseries": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contractVersion",
+        "timezone",
+        "windowDays",
+        "buckets"
+      ],
+      "properties": {
+        "contractVersion": {
+          "const": "v2"
+        },
+        "timezone": {
+          "enum": [
+            "UTC",
+            "Asia/Kolkata"
+          ]
+        },
+        "windowDays": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 30
+        },
+        "buckets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "bucketDateLocal",
+              "siteVisitsObserved",
+              "guardedAttempts",
+              "bestEffortAttempts",
+              "policyBlocks",
+              "failedSafe",
+              "redactionsPageAttested"
+            ],
+            "properties": {
+              "bucketDateLocal": {
+                "type": "string",
+                "format": "date"
+              },
+              "siteVisitsObserved": {
+                "$ref": "#/$defs/count"
+              },
+              "guardedAttempts": {
+                "$ref": "#/$defs/count"
+              },
+              "policyBlocks": {
+                "$ref": "#/$defs/count"
+              },
+              "failedSafe": {
+                "$ref": "#/$defs/count"
+              },
+              "redactionsPageAttested": {
+                "$ref": "#/$defs/count"
+              },
+              "bestEffortAttempts": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    "eventPage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contractVersion",
+        "items",
+        "nextCursor"
+      ],
+      "properties": {
+        "contractVersion": {
+          "const": "v2"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/eventRecord"
+          }
+        },
+        "nextCursor": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "eventRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "event",
+        "ingestedAt"
+      ],
+      "properties": {
+        "event": {
+          "$ref": "event.schema.json"
+        },
+        "ingestedAt": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+        }
+      }
+    }
+  }
 }

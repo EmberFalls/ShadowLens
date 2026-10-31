@@ -6,6 +6,7 @@
       "lastHeartbeatAt": null,
       "lastEventAt": null,
       "observation": "STALE",
+      "enrollmentStatus": "ACTIVE",
       "employeeEmail": "person@example.invalid"
     }
   ]

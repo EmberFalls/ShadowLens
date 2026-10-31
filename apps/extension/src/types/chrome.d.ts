@@ -19,6 +19,9 @@ declare namespace chrome {
     function removeListener(listener: (details: NavigationDetails) => void): void;
   }
   namespace alarms { function create(name: string, info: { periodInMinutes: number }): void; function clear(name: string): Promise<boolean>; const onAlarm: { addListener(listener: (alarm: { name: string }) => void): void; removeListener(listener: (alarm: { name: string }) => void): void } }
+  namespace permissions {
+    function request(permissions: { origins?: string[] }, callback: (granted: boolean) => void): void;
+  }
   namespace runtime { const onStartup: { addListener(listener: () => void): void }; }
   namespace runtime {
     const onInstalled: { addListener(listener: () => void): void };

@@ -115,6 +115,7 @@ def build_summary(
         "siteVisitsObserved": len(site_visits),
         "distinctAiSitesObserved": len({str(row["site_id"]) for row in site_visits if row["site_id"] != "SANDBOX"}),
         "guardedAttempts": sum(1 for event, _ in submissions if event.get("coverageMode") == "SANDBOX_GUARDED"),
+        "bestEffortAttempts": sum(1 for event, _ in submissions if event.get("coverageMode") == "THIRD_PARTY_BEST_EFFORT"),
         "policyBlocks": sum(1 for event, _ in submissions if event.get("decisionAction") == "BLOCK" and event.get("disposition") == "BLOCKED"),
         "failedSafe": sum(1 for event, _ in submissions if event.get("disposition") == "FAILED_SAFE"),
         "redactionsPlanned": sum(1 for event, _ in submissions if event.get("decisionAction") == "REDACT"),
@@ -152,7 +153,7 @@ def build_timeseries(
     while current <= last_day:
         buckets[current.isoformat()] = {
             "bucketDateLocal": current.isoformat(), "siteVisitsObserved": 0,
-            "guardedAttempts": 0, "policyBlocks": 0, "failedSafe": 0,
+            "guardedAttempts": 0, "bestEffortAttempts": 0, "policyBlocks": 0, "failedSafe": 0,
             "redactionsPageAttested": 0,
         }
         current += timedelta(days=1)
@@ -163,6 +164,7 @@ def build_timeseries(
         elif row["kind"] == "SUBMISSION":
             event = _payload(row)
             bucket["guardedAttempts"] += int(event.get("coverageMode") == "SANDBOX_GUARDED")
+            bucket["bestEffortAttempts"] += int(event.get("coverageMode") == "THIRD_PARTY_BEST_EFFORT")
             bucket["policyBlocks"] += int(event.get("decisionAction") == "BLOCK" and event.get("disposition") == "BLOCKED")
             bucket["failedSafe"] += int(event.get("disposition") == "FAILED_SAFE")
             bucket["redactionsPageAttested"] += int(event.get("decisionAction") == "REDACT" and event.get("disposition") == "PAGE_ATTESTED")

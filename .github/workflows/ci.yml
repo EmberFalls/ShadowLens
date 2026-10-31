@@ -1,0 +1,81 @@
+name: ShadowLens CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Build, tests, privacy and integration gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install dashboard dependencies
+        run: npm ci --prefix apps/dashboard
+
+      - name: Install API and test dependencies
+        run: python -m pip install -e "apps/api[test]"
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Test API authentication, ingestion, analytics and retention
+        run: python -m pytest apps/api/tests -q
+
+      - name: Validate shared contracts
+        run: npm run contracts:check
+
+      - name: Test detection and policy engine
+        run: npm run test:engine
+
+      - name: Test extension worker and gate
+        run: npm run test:extension
+
+      - name: Test dashboard
+        run: npm run test:dashboard
+
+      - name: Build dashboard
+        run: npm run build:dashboard
+
+      - name: Test evaluation metrics
+        run: npm --prefix tests/eval test
+
+      - name: Generate report and enforce synthetic regression thresholds
+        run: npm --prefix tests/eval run eval:gate
+
+      - name: Run protected receiver and live API/dashboard integration tests
+        env:
+          PYTHON: python
+        run: npm run test:e2e
+
+      - name: Upload aggregate synthetic evaluation report
+        if: always() && hashFiles('tests/eval/report.json') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: shadowlens-synthetic-evaluation
+          path: |
+            tests/eval/report.json
+            tests/eval/report.md
+          retention-days: 14

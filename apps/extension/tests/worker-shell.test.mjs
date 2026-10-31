@@ -5,6 +5,7 @@ import { readFile } from "node:fs/promises";
 
 const workerSource = await readFile(new URL("../dist/apps/extension/src/background/worker.js", import.meta.url), "utf8");
 const deviceId = "7a3b0f7a-7781-4ff1-9c67-50cb8569da51";
+const policyKeyId = "a".repeat(64);
 function fixture() {
   let listener, alarmListener, navigationListener, localAccessLevel, sessionAccessLevel;
   const local = {}, session = {}, messages = [];
@@ -23,18 +24,18 @@ function fixture() {
 test("worker restricts credentials to Options, stores device ID locally and token in session only", async () => {
   const f = fixture();
   const token = `ss_dev_${"x".repeat(48)}`;
-  assert.equal((await f.send({ type: "SET_DEVICE_CREDENTIAL", token, deviceId })).ok, true);
+  assert.equal((await f.send({ type: "SET_DEVICE_CREDENTIAL", token, deviceId, policyKeyId })).ok, true);
   assert.equal(f.localAccessLevel, "TRUSTED_CONTEXTS"); assert.equal(f.sessionAccessLevel, "TRUSTED_CONTEXTS");
   assert.equal(f.session.deviceCredential, token); assert.equal(f.local.shadowshieldProvisionedDeviceId, deviceId);
   assert.equal(JSON.stringify(f.local).includes(token), false);
-  assert.equal((await f.send({ type: "SET_DEVICE_CREDENTIAL", token: `ss_dev_${"y".repeat(48)}`, deviceId }, "http://localhost:4173/")).ok, false);
+  assert.equal((await f.send({ type: "SET_DEVICE_CREDENTIAL", token: `ss_dev_${"y".repeat(48)}`, deviceId, policyKeyId }, "http://localhost:4173/")).ok, false);
   assert.equal(f.session.deviceCredential, token);
 });
 test("worker requires explicit domain opt-in and keeps it restricted to Options", async () => {
   const f = fixture();
-  for (const token of ["", "x", ` ${"x".repeat(64)}`, "x".repeat(513)]) assert.equal((await f.send({ type: "SET_DEVICE_CREDENTIAL", token, deviceId })).ok, false);
+  for (const token of ["", "x", ` ${"x".repeat(64)}`, "x".repeat(513)]) assert.equal((await f.send({ type: "SET_DEVICE_CREDENTIAL", token, deviceId, policyKeyId })).ok, false);
   const token = `ss_dev_${"z".repeat(48)}`;
-  assert.equal((await f.send({ type: "SET_DEVICE_CREDENTIAL", token, deviceId })).ok, true);
+  assert.equal((await f.send({ type: "SET_DEVICE_CREDENTIAL", token, deviceId, policyKeyId })).ok, true);
   assert.equal(f.local.shadowshieldDomainObservationEnabled, undefined);
   assert.equal(JSON.stringify(await f.send({ type: "GET_DOMAIN_OBSERVATION" })), JSON.stringify({ enabled: false }));
   f.navigate({ tabId: 1, frameId: 0, documentId: "doc-before-opt-in", url: "https://chatgpt.com/?q=customer%40example.invalid", transitionType: "link" });
@@ -57,4 +58,29 @@ test("page scripts cannot analyze drafts or enqueue telemetry from an unapproved
   const f = fixture();
   assert.equal(JSON.stringify(await f.send({ type: "ANALYZE_LOCAL", text: "hello" }, "http://localhost:4174/")), JSON.stringify({ ok: false, error: "UNTRUSTED_ORIGIN" }));
   assert.equal(JSON.stringify(await f.send({ type: "ENQUEUE_EVENT", event: {} }, "http://localhost:4174/")), JSON.stringify({ ok: false, queued: false }));
+});
+
+test("custom protected terms stay local, increment policy revision, and apply only on supported pages", async () => {
+  const f = fixture();
+  assert.equal(JSON.stringify(await f.send({ type: "GET_CUSTOM_TERMS" })), JSON.stringify({ terms: [], revision: 1 }));
+  assert.equal((await f.send({ type: "SET_CUSTOM_TERMS", terms: [" Project Atlas "] })).revision, 2);
+  assert.equal(JSON.stringify(f.local.shadowshieldLocalCustomTerms), JSON.stringify(["Project Atlas"]));
+  const analysis = await f.send({ type: "ANALYZE_LOCAL", text: "internal note on project atlas" }, "https://chatgpt.com/");
+  assert.equal(analysis.ok, true);
+  assert.equal(analysis.analysis.decision.action, "WARN");
+  assert.equal(analysis.analysis.decision.policyRevision, 2);
+  assert.equal(analysis.analysis.detection.categoryCounts.CUSTOM_PROTECTED_TERM, 1);
+  assert.equal(JSON.stringify(await f.send({ type: "GET_CUSTOM_TERMS" }, "https://chatgpt.com/")), JSON.stringify({ terms: [], revision: 1 }));
+  assert.equal((await f.send({ type: "SET_CUSTOM_TERMS", terms: ["xx"] })).ok, false);
+  assert.equal((await f.send({ type: "SET_CUSTOM_TERMS", terms: ["Project Atlas", "project atlas"] })).ok, false);
+  assert.equal((await f.send({ type: "SET_CUSTOM_TERMS", terms: Array.from({ length: 101 }, (_, i) => `term ${i}`) })).ok, false);
+});
+
+test("policy simulation returns aggregates from synthetic samples without returning sample text", async () => {
+  const f = fixture();
+  const result = await f.send({ type: "SIMULATE_POLICY" });
+  assert.equal(result.ok, true);
+  assert.equal(result.sampleCount, 5);
+  assert.ok(result.actions.BLOCK >= 1);
+  assert.equal(JSON.stringify(result).includes("PRIVATE KEY"), false);
 });

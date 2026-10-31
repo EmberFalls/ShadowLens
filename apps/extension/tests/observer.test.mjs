@@ -8,7 +8,7 @@ const now = new Date("2026-10-30T12:34:56.000Z");
 const commit = (url, overrides = {}) => ({ tabId: 2, frameId: 0, documentId: "document-1", url, transitionType: "link", ...overrides });
 
 test("maps only exact registry hosts and the exact local sandbox origin", () => {
-  assert.deepEqual(siteForNavigation("https://chatgpt.com/?q=private"), { siteId: "CHATGPT", supportStatus: "UNSUPPORTED" });
+  assert.deepEqual(siteForNavigation("https://chatgpt.com/?q=private"), { siteId: "CHATGPT", supportStatus: "BEST_EFFORT" });
   assert.equal(siteForNavigation("https://evilchatgpt.com/"), null);
   assert.equal(siteForNavigation("https://chatgpt.com.evil.example/"), null);
   assert.equal(siteForNavigation("https://sub.chatgpt.com/"), null);
@@ -16,14 +16,14 @@ test("maps only exact registry hosts and the exact local sandbox origin", () => 
   assert.equal(siteForNavigation("http://localhost:8787/api/v1/health"), null);
 });
 
-test("emits metadata only, strips query and fragment, and marks unguarded AI tools unsupported", async () => {
+test("emits metadata only, strips query and fragment, and marks provider coverage best effort", async () => {
   const events = [];
   const observer = new DomainObserver({ enabled: true, getDeviceId: () => deviceId, enqueue: (event) => events.push(event), now: () => now, makeEventId: () => eventId });
   assert.equal(await observer.onCommitted(commit("https://chatgpt.com/?access_token=synthetic-secret#private")), true);
   assert.equal(events.length, 1);
   assert.deepEqual(events[0], {
     contractVersion: "v2", eventId, clientObservedAt: now.toISOString(), deviceId,
-    kind: "SITE_VISIT", siteId: "CHATGPT", supportStatus: "UNSUPPORTED", reasonCodes: ["UNSUPPORTED_AI_SITE_SEEN"],
+    kind: "SITE_VISIT", siteId: "CHATGPT", supportStatus: "BEST_EFFORT", reasonCodes: [],
   });
   assert.equal(JSON.stringify(events[0]).includes("synthetic-secret"), false);
   assert.equal(Object.hasOwn(events[0], "url"), false);
@@ -71,7 +71,7 @@ test("browser wiring defaults off, registers known hosts only, and removes liste
     navigation: { onCommitted: { addListener(fn, value) { navigation = fn; filter = value; }, removeListener(fn) { assert.equal(fn, navigation); navigation = null; } } },
     alarms: { create(name, value) { scheduled.set(name, value); }, clear(name) { scheduled.delete(name); }, onAlarm: { addListener(fn) { alarm = fn; }, removeListener(fn) { assert.equal(fn, alarm); alarm = null; } } },
   });
-  assert.deepEqual(filter.url.map(value => value.hostEquals), ["localhost", "chatgpt.com", "gemini.google.com", "claude.ai", "copilot.microsoft.com", "perplexity.ai"]);
+  assert.deepEqual(filter.url.map(value => value.hostEquals), ["localhost", "chatgpt.com", "chat.openai.com", "gemini.google.com", "claude.ai", "copilot.microsoft.com", "perplexity.ai"]);
   navigation(commit("https://chatgpt.com/")); await Promise.resolve(); assert.equal(events.length, 0); assert.equal(scheduled.size, 0);
   controller.setEnabled(true); assert.equal(events[0].kind, "DEVICE_HEARTBEAT"); assert.equal(scheduled.get("shadowlens-heartbeat").periodInMinutes, 5);
   navigation(commit("https://claude.ai/?prompt=private")); await Promise.resolve(); assert.equal(events[1].kind, "SITE_VISIT");

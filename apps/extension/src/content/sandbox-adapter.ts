@@ -1,13 +1,17 @@
 namespace ShadowShield.Content {
   export interface ComposerAdapter {
-    readonly siteId: "SANDBOX";
-    readonly coverageMode: "SANDBOX_GUARDED";
+    readonly siteId: "SANDBOX" | "CHATGPT" | "GEMINI" | "CLAUDE";
+    readonly coverageMode: "SANDBOX_GUARDED" | "THIRD_PARTY_BEST_EFFORT";
     isSupportedTarget(target: EventTarget | null): boolean;
     isSendTarget(target: EventTarget | null): boolean;
+    isSubmitTarget?(target: EventTarget | null): boolean;
     isComposerTarget(target: EventTarget | null): boolean;
     readDraft(): { text: string; revision: number } | null;
     writeDraft(text: string): boolean;
     release(attemptId: string): void;
+    consumeReleaseGesture?(event: Event): boolean;
+    resetPending?(): void;
+    coverageLabel(): string;
     restoreDraft(text: string): boolean;
     onReceipt(listener: (attemptId: string) => void): () => void;
   }
@@ -18,7 +22,7 @@ namespace ShadowShield.Content {
     readonly coverageMode = "SANDBOX_GUARDED" as const;
     private revision = 0;
     private lastElement: HTMLTextAreaElement | null = null;
-    private readonly released = new Set<string>();
+    private readonly released = new Map<string, number>();
     private readonly receiptListeners = new Set<(attemptId: string) => void>();
     private readonly observer: MutationObserver;
 
@@ -56,12 +60,24 @@ namespace ShadowShield.Content {
     restoreDraft(text: string): boolean { return this.setDraft(text); }
 
     release(attemptId: string): void {
-      if (!SandboxAdapter.attemptIdPattern.test(attemptId) || this.released.has(attemptId)) throw new Error("Release is not valid or was already used");
+      const now = Date.now();
+      for (const [id, expiresAt] of this.released) if (expiresAt <= now) this.released.delete(id);
+      if (!SandboxAdapter.attemptIdPattern.test(attemptId) || this.released.has(attemptId) || this.released.size >= 128) throw new Error("Release is not valid or was already used");
       const composer = this.composer();
       if (!composer) throw new Error("Sandbox composer disappeared");
-      this.released.add(attemptId);
+      const expiresAt = now + 2_000;
+      this.released.set(attemptId, expiresAt);
+      // Use the owning document's window so embedded documents and unit-test
+      // adapters do not accidentally depend on the top-level global window.
+      this.root.defaultView?.setTimeout(() => {
+        if (this.released.get(attemptId) === expiresAt) this.released.delete(attemptId);
+      }, expiresAt - now);
       composer.dispatchEvent(new CustomEvent("shadowshield:submit-request", { bubbles: true, detail: { protocol: "v2", attemptId } }));
     }
+
+    consumeReleaseGesture(_event: Event): boolean { return false; }
+    resetPending(): void {}
+    coverageLabel(): string { return "Guard active · local sandbox"; }
 
     onReceipt(listener: (attemptId: string) => void): () => void {
       this.receiptListeners.add(listener);
@@ -83,7 +99,10 @@ namespace ShadowShield.Content {
     };
     private readonly onPageReceipt = (event: CustomEvent<unknown>) => {
       const detail = event.detail as { protocol?: unknown; attemptId?: unknown; status?: unknown } | null;
-      if (detail?.protocol !== "v2" || detail.status !== "ACCEPTED" || typeof detail.attemptId !== "string" || !this.released.has(detail.attemptId)) return;
+      if (detail?.protocol !== "v2" || detail.status !== "ACCEPTED" || typeof detail.attemptId !== "string") return;
+      const expiresAt = this.released.get(detail.attemptId);
+      if (expiresAt === undefined || expiresAt <= Date.now()) return;
+      this.released.delete(detail.attemptId);
       for (const listener of this.receiptListeners) listener(detail.attemptId);
     };
     private setDraft(text: string): boolean {

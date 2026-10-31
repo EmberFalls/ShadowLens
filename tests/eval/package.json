@@ -4,7 +4,10 @@
   "type": "module",
   "scripts": {
     "eval": "node eval.mjs",
+    "eval:gate": "node eval.mjs --quality-gate",
     "eval:holdout": "node eval.mjs --holdout",
+    "eval:reviewer-key": "node generate-reviewer-key.mjs",
+    "eval:sign-holdout": "node sign-holdout.mjs",
     "generate": "node prepare-corpus.mjs",
     "build:local-engine": "tsc -p ../../packages/engine/tsconfig.json --outDir ./engine-build",
     "test": "node --test eval.test.mjs"

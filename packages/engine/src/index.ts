@@ -1,7 +1,7 @@
 import { AnalysisFailure, type AnalysisInput, type AnalysisOutput, type DetectionResult, type Finding } from './types-internal.js';
 import { scanText } from './detectors/index.js';
 import { scoreFindings } from './scoring.js';
-import { evaluatePolicy } from './policy.js';
+import { evaluatePolicy, validatePolicy } from './policy.js';
 import { planRedaction } from './redaction.js';
 export * from './types-internal.js';
 export { scanText } from './detectors/index.js';
@@ -13,7 +13,16 @@ export { chunks, MAX_INPUT_UNITS } from './chunk.js';
 
 export function analyze(input: AnalysisInput): AnalysisOutput {
   try {
-    const findings: Finding[] = scanText(input.text, input.customTerms);
+    validatePolicy(input.policy);
+    const uniqueTerms = new Map<string, string>();
+    for (const term of [...(input.policy.protectedTerms ?? []), ...(input.customTerms ?? [])]) {
+      if (typeof term === 'string') {
+        const key = term.normalize('NFC').toLocaleLowerCase('en-US');
+        if (!uniqueTerms.has(key)) uniqueTerms.set(key, term);
+      }
+    }
+    const terms = [...uniqueTerms.values()];
+    const findings: Finding[] = scanText(input.text, terms);
     const score = scoreFindings(findings, { uniqueContactCount: findings.filter(f => ['PII_EMAIL','PII_PHONE'].includes(f.category)).length, contactCsv: findings.some(f => f.category === 'BULK_CONTACT_LIST') });
     const detection: DetectionResult = { contractVersion:'v2', engineVersion:'0.1.0', inputLength:input.text.length, findings, categoryCounts:score.categoryCounts, highestFindingSeverity:score.highestSeverity, aggregateScore:score.score, aggregateTier:score.tier, scanCompleteness:'FULL' };
     const decision = evaluatePolicy({ detection:{ findings, score:score.score, tier:score.tier }, policy:input.policy });

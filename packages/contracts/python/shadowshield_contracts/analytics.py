@@ -27,6 +27,7 @@ Summary = TypedDict("Summary", {
     "fromUtc": Required[str],
     "toUtc": Required[str],
     "coverageNote": Required[str],
+    "bestEffortAttempts": Required[int],
 }, total=False)
 
 Timeseries = TypedDict("Timeseries", {
@@ -38,8 +39,13 @@ Timeseries = TypedDict("Timeseries", {
 
 EventPage = TypedDict("EventPage", {
     "contractVersion": Required[Literal["v2"]],
-    "items": Required[list["RiskEventV2"]],
+    "items": Required[list["EventRecord"]],
     "nextCursor": Required[Union[str, None]],
+}, total=False)
+
+EventRecord = TypedDict("EventRecord", {
+    "event": Required["RiskEventV2"],
+    "ingestedAt": Required[str],
 }, total=False)
 
 AnalyticsResponseV2: TypeAlias = Union[Summary, Timeseries, EventPage]
@@ -51,4 +57,5 @@ TimeseriesBucketsItem = TypedDict("TimeseriesBucketsItem", {
     "policyBlocks": Required["Count"],
     "failedSafe": Required["Count"],
     "redactionsPageAttested": Required["Count"],
+    "bestEffortAttempts": Required[int],
 }, total=False)

@@ -32,8 +32,9 @@ def test_domains_list_and_approval_update_are_authenticated_informational_views(
         assert len(result.json()) == 6
         chatgpt = next(domain for domain in result.json() if domain["siteId"] == "CHATGPT")
         assert chatgpt["approvalStatus"] == "UNREVIEWED"
-        assert chatgpt["supportStatus"] == "UNSUPPORTED"
+        assert chatgpt["supportStatus"] == "BEST_EFFORT"
         assert chatgpt["siteVisitsObserved"] == 0
+        assert chatgpt["bestEffortAttempts"] == 0
 
         changed = client.put(
             "/api/v1/domains/CHATGPT/approval",
@@ -42,7 +43,7 @@ def test_domains_list_and_approval_update_are_authenticated_informational_views(
         )
         assert changed.status_code == 200
         assert changed.json()["approvalStatus"] == "APPROVED"
-        assert changed.json()["supportStatus"] == "UNSUPPORTED"
+        assert changed.json()["supportStatus"] == "BEST_EFFORT"
         assert client.put(
             "/api/v1/domains/CHATGPT/approval",
             headers={"Origin": "http://localhost:4173"},

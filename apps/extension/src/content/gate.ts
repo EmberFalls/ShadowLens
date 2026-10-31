@@ -2,14 +2,13 @@ namespace ShadowShield.Content {
   export interface GatePort {
     onSendGesture(event: Event, adapter: ComposerAdapter): void;
     cancelPending(reason: "USER_CANCELLED" | "EDITOR_CHANGED"): void;
-    getCoverage(): "SANDBOX_GUARDED";
+    getCoverage(): "SANDBOX_GUARDED" | "THIRD_PARTY_BEST_EFFORT";
   }
 
   export type Analysis = { detection: { inputLength: number; engineVersion: string; scanCompleteness: string; categoryCounts: Record<string, number>; aggregateTier: string; aggregateScore: number; findings: unknown[] }; decision: { action: "ALLOW" | "WARN" | "REDACT" | "BLOCK"; policyRevision: number; reasonCodes: string[]; replacementOperations: Array<{start:number;end:number;replacement:string}>; requiresWarnAcknowledgement: boolean; overrideAllowed: boolean } };
 
   export class ProtectedGate implements GatePort {
     private readonly machine = new GateStateMachine();
-    private readonly oneShot = new Set<string>();
     private original: { text: string; revision: number } | null = null;
     private activeAdapter: ComposerAdapter | null = null;
     private pendingAction: Analysis["decision"]["action"] | null = null;
@@ -21,20 +20,28 @@ namespace ShadowShield.Content {
     constructor(private readonly adapter: ComposerAdapter) {
       window.addEventListener("click", this.onClick, true);
       window.addEventListener("keydown", this.onKeyDown, true);
+      window.addEventListener("submit", this.onSubmit, true);
       window.addEventListener("input", this.onEdit, true);
       window.addEventListener("change", this.onEdit, true);
     }
-    getCoverage(): "SANDBOX_GUARDED" { return "SANDBOX_GUARDED"; }
+    getCoverage(): "SANDBOX_GUARDED" | "THIRD_PARTY_BEST_EFFORT" { return this.adapter.coverageMode; }
     destroy(): void {
       this.destroyed = true;
       this.cancelReview?.(); this.clearPending(); this.machine.reset();
       window.removeEventListener("click", this.onClick, true);
       window.removeEventListener("keydown", this.onKeyDown, true);
+      window.removeEventListener("submit", this.onSubmit, true);
       window.removeEventListener("input", this.onEdit, true);
       window.removeEventListener("change", this.onEdit, true);
     }
     cancelPending(reason: "USER_CANCELLED" | "EDITOR_CHANGED"): void {
-      if (this.machine.state === "READY" || this.machine.state === "RELEASING") return;
+      this.adapter.resetPending?.();
+      if (this.machine.state === "READY") return;
+      if (this.machine.state === "RELEASING") {
+        this.clearPending();
+        this.machine.reset();
+        return;
+      }
       this.cancelReview?.();
       this.cancelReview = null;
       if (reason === "EDITOR_CHANGED" || !this.analysis) this.emitTerminal("FAILED_SAFE", null, [reason]);
@@ -42,7 +49,15 @@ namespace ShadowShield.Content {
       this.clearPending(); this.machine.reset();
     }
     onSendGesture(event: Event, adapter: ComposerAdapter): void {
-      if (!(event.type === "click" ? adapter.isSendTarget(event.target) : adapter.isComposerTarget(event.target))) return;
+      // A provider approval only arms the exact approved text for one subsequent
+      // trusted user gesture. Let that native gesture reach the site unchanged.
+      if (adapter.consumeReleaseGesture?.(event)) return;
+      const supportedGesture = event.type === "click"
+        ? adapter.isSendTarget(event.target)
+        : event.type === "submit"
+          ? adapter.isSubmitTarget?.(event.target) === true
+          : adapter.isComposerTarget(event.target);
+      if (!supportedGesture) return;
       event.preventDefault(); event.stopImmediatePropagation();
       if (!event.isTrusted || this.destroyed || this.machine.state !== "READY") return;
       const snapshot = adapter.readDraft();
@@ -61,6 +76,7 @@ namespace ShadowShield.Content {
     }
 
     private readonly onClick = (event: Event) => this.onSendGesture(event, this.adapter);
+    private readonly onSubmit = (event: Event) => this.onSendGesture(event, this.adapter);
     private readonly onKeyDown = (event: KeyboardEvent) => {
       if (event.key !== "Enter" || event.shiftKey || event.isComposing || event.keyCode === 229) return;
       this.onSendGesture(event, this.adapter);
@@ -122,8 +138,8 @@ namespace ShadowShield.Content {
       try { this.machine.move("RELEASING"); } catch { this.failSafe("ENGINE_FAILURE"); return; }
       if (!this.unchanged(adapter, snapshot) || !adapter.writeDraft(approvedText)) { this.failSafe("RELEASE_WRITE_MISMATCH"); return; }
       const readback = adapter.readDraft();
-      if (!readback || readback.text !== approvedText || this.oneShot.size > 10000) { this.failSafe("RELEASE_WRITE_MISMATCH"); return; }
-      const attemptId = crypto.randomUUID(); this.oneShot.add(attemptId);
+      if (!readback || readback.text !== approvedText) { this.failSafe("RELEASE_WRITE_MISMATCH"); return; }
+      const attemptId = crypto.randomUUID();
       let attested = false;
       let closed = false;
       const remove = adapter.onReceipt((receivedId) => { if (!closed && receivedId === attemptId && this.original === snapshot) { attested = true; closed = true; this.emitTerminal("PAGE_ATTESTED", action, [...reasons, "PAGE_ACK_RECEIVED"]); remove(); } });
@@ -138,7 +154,10 @@ namespace ShadowShield.Content {
     }
 
     private readonly onEdit = (event: Event) => {
-      if (this.machine.state !== "READY" && this.machine.state !== "RELEASING" && this.activeAdapter?.isComposerTarget(event.target)) this.cancelPending("EDITOR_CHANGED");
+      if (this.machine.state === "READY" || this.machine.state === "RELEASING" || !this.activeAdapter?.isComposerTarget(event.target)) return;
+      const current = this.activeAdapter.readDraft();
+      if (current && this.original && current.text === this.original.text && current.revision === this.original.revision) return;
+      this.cancelPending("EDITOR_CHANGED");
     };
 
     private clearPending(): void { this.generation++; this.cancelReview?.(); this.original = null; this.activeAdapter = null; this.pendingAction = null; this.cancelReview = null; this.analysis = null; }
@@ -148,7 +167,7 @@ namespace ShadowShield.Content {
       const analysis = this.analysis;
       const length = this.original?.text.length ?? 0;
       const tier = analysis?.detection.aggregateTier ?? "NONE";
-      const event = { contractVersion: "v2", eventId: crypto.randomUUID(), clientObservedAt: new Date().toISOString(), kind: "SUBMISSION", siteId: "SANDBOX", coverageMode: "SANDBOX_GUARDED", disposition,
+      const event = { contractVersion: "v2", eventId: crypto.randomUUID(), clientObservedAt: new Date().toISOString(), kind: "SUBMISSION", siteId: this.adapter.siteId, coverageMode: this.adapter.coverageMode, disposition,
         decisionAction: failed ? null : action, aggregateTier: failed ? "NOT_EVALUATED" : tier, scoreBand: failed ? "NOT_EVALUATED" : tier === "NONE" ? "ZERO" : tier,
         categoryCounts: failed ? {} : analysis?.detection.categoryCounts ?? {}, policyRevision: analysis?.decision.policyRevision ?? 1, engineVersion: analysis?.detection.engineVersion ?? "0.1.0",
         lengthBand: length === 0 ? "EMPTY" : length < 100 ? "1_99" : length < 1000 ? "100_999" : "1000_PLUS", reasonCodes: [...new Set(reasonCodes)].slice(-8) };

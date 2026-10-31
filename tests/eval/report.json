@@ -1,68 +1,104 @@
 {
-  "reportVersion": "v1",
+  "reportVersion": "v2",
   "evaluationStage": "development-current-branch",
   "releaseReady": false,
-  "datasetHash": "a8d9cec3ee985cf901f4369c75e45081aebb1a39fdec424ecf4ca1b7f1684565",
-  "engineBuildSha": "0aa1914763f0996c206f913fe72cbdd7310d480d",
+  "datasetHash": "2f843d2bf38c3d79a6aa3e2411f3708d6fb0baf1cb0c4e5d2a3c650fd86333a5",
+  "evaluationCodeSha256": "c860b637a28fa53ea91d1c6fd5691024d843814f8b75a120e44b7306c558a1c5",
+  "corpusGeneratorSha256": "f9c97b9225fcedf4c646756941a2ff411fd9e21af45330a614b4cfd00e61a641",
+  "engineGitRevision": "89cf18111cbc04672c6fe29d5d36c934484f2de8",
+  "engineSourceSha256": "04516f88588e7e7b402ab587e3a8827aa8ab42340283c8578ee700574051adcd",
+  "engineBuildSha256": "56f2f3884fca219daf334febcf202ab67a05ab360510696f5145a7a8a6aef6b0",
   "engineVersion": "0.1.0",
   "policyRevision": 1,
-  "randomSeed": 17017,
-  "generatedFamilyCaveat": "Template-family samples are correlated; Wilson bounds use row counts and must not be interpreted as independent evidence. No row-level bootstrap is reported; a family-cluster bootstrap would be required for family-level uncertainty.",
-  "uncertaintyCaveat": "Synthetic results are not production accuracy. Wilson bounds describe only this sampled distribution under independence assumptions; template clones violate independence.",
-  "wallClockMs": 133,
-  "development": {
-    "n": 120,
+  "evaluationPolicy": {
+    "protectedTermCount": 1,
+    "protectedTermsIncludedInReport": false
+  },
+  "holdoutAttestation": null,
+  "splitMethodology": {
+    "development": "hand-authored train_dev; template-generated stress set reported separately",
+    "holdout": "externally stored human-authored corpus with Ed25519 reviewer attestation bound to the exact release SHA; exact-text and family disjointness verified"
+  },
+  "unsealedHoldoutCandidates": {
+    "status": "UNSEALED_REQUIRES_INDEPENDENT_REVIEW",
+    "rows": 54,
+    "templateFamilies": 16,
     "truthCounts": {
-      "SENSITIVE": 60,
-      "BENIGN": 35,
+      "SENSITIVE": 34,
+      "BENIGN": 10,
+      "AMBIGUOUS": 10
+    },
+    "categories": [
+      "CONFIDENTIAL_MARKER",
+      "PII_EMAIL",
+      "PII_PAYMENT_CARD",
+      "PII_PHONE",
+      "SECRET_TOKEN"
+    ]
+  },
+  "randomSeed": 17017,
+  "generatedFamilyCaveat": "Examples within a template family may be correlated. Reported bootstrap intervals resample whole families, not rows; they describe variation across the represented synthetic families and are not evidence of real-world accuracy.",
+  "uncertaintyCaveat": "Synthetic metrics are not production accuracy. Percentile intervals use a deterministic family-cluster bootstrap; small or homogeneous family counts can still give misleadingly narrow intervals. Scan timing measures only synchronous engine analysis in the Node runner, not browser messaging, UI overhead, or a range of hardware.",
+  "wallClockMs": 691,
+  "development": {
+    "n": 124,
+    "truthCounts": {
+      "SENSITIVE": 62,
+      "BENIGN": 37,
       "AMBIGUOUS": 25
     },
     "metrics": {
       "prompt": {
-        "tp": 60,
-        "fp": 3,
-        "tn": 32,
+        "tp": 62,
+        "fp": 0,
+        "tn": 37,
         "fn": 0,
         "precision": {
-          "value": 0.9523809523809523,
-          "numerator": 60,
-          "denominator": 63,
-          "display": "95.24% (60/63)"
+          "value": 1,
+          "numerator": 62,
+          "denominator": 62,
+          "display": "100.00% (62/62)"
         },
         "recall": {
           "value": 1,
-          "numerator": 60,
-          "denominator": 60,
-          "display": "100.00% (60/60)"
+          "numerator": 62,
+          "denominator": 62,
+          "display": "100.00% (62/62)"
         },
         "f1": {
-          "value": 0.975609756097561,
-          "numerator": 120,
-          "denominator": 123,
-          "display": "97.56%"
+          "value": 1,
+          "numerator": 124,
+          "denominator": 124,
+          "display": "100.00%"
         },
         "falsePositiveRate": {
-          "value": 0.08571428571428572,
-          "numerator": 3,
-          "denominator": 35,
-          "display": "8.57% (3/35)"
+          "value": 0,
+          "numerator": 0,
+          "denominator": 37,
+          "display": "0.00% (0/37)"
         }
       },
       "benign": {
-        "evaluated": 35,
+        "evaluated": 37,
         "falseBlockRate": {
           "value": 0,
           "numerator": 0,
-          "denominator": 35,
-          "display": "0.00% (0/35)"
+          "denominator": 37,
+          "display": "0.00% (0/37)"
+        },
+        "falseWarningRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 37,
+          "display": "0.00% (0/37)"
         },
         "benignPreventedRate": {
           "value": 0,
           "numerator": 0,
-          "denominator": 35,
-          "display": "0.00% (0/35)"
+          "denominator": 37,
+          "display": "0.00% (0/37)"
         },
-        "falseBlockWilson95Upper": 0.09890099232440402
+        "falseBlockWilson95Upper": 0.0940578258372025
       },
       "ambiguous": {
         "excludedFromBinaryMetrics": 25,
@@ -70,38 +106,38 @@
         "escalated": 0
       },
       "entities": {
-        "expected": 60,
-        "matched": 60,
-        "predicted": 63,
+        "expected": 62,
+        "matched": 62,
+        "predicted": 62,
         "precision": {
-          "value": 0.9523809523809523,
-          "numerator": 60,
-          "denominator": 63,
-          "display": "95.24% (60/63)"
+          "value": 1,
+          "numerator": 62,
+          "denominator": 62,
+          "display": "100.00% (62/62)"
         },
         "recall": {
           "value": 1,
-          "numerator": 60,
-          "denominator": 60,
-          "display": "100.00% (60/60)"
+          "numerator": 62,
+          "denominator": 62,
+          "display": "100.00% (62/62)"
         }
       },
       "perCategory": {
-        "BULK_CONTACT_LIST": {
-          "expected": 0,
-          "matched": 0,
-          "predicted": 3,
+        "CUSTOM_PROTECTED_TERM": {
+          "expected": 2,
+          "matched": 2,
+          "predicted": 2,
           "recall": {
-            "value": null,
-            "numerator": 0,
-            "denominator": 0,
-            "display": "N/A (0/0)"
+            "value": 1,
+            "numerator": 2,
+            "denominator": 2,
+            "display": "100.00% (2/2)"
           },
           "precision": {
-            "value": 0,
-            "numerator": 0,
-            "denominator": 3,
-            "display": "0.00% (0/3)"
+            "value": 1,
+            "numerator": 2,
+            "denominator": 2,
+            "display": "100.00% (2/2)"
           }
         },
         "PII_EMAIL": {
@@ -123,13 +159,13 @@
         }
       },
       "policy": {
-        "eligible": 95,
-        "exactActionMatches": 92,
+        "eligible": 99,
+        "exactActionMatches": 99,
         "correctness": {
-          "value": 0.968421052631579,
-          "numerator": 92,
-          "denominator": 95,
-          "display": "96.84% (92/95)"
+          "value": 1,
+          "numerator": 99,
+          "denominator": 99,
+          "display": "100.00% (99/99)"
         }
       },
       "redaction": {
@@ -145,9 +181,97 @@
       },
       "engineFailures": 0
     },
+    "latencyByInputLength": {
+      "lt_1k": {
+        "runs": 124,
+        "p50Ms": 0.069,
+        "p95Ms": 3.588
+      },
+      "1k_to_10k": {
+        "runs": 0,
+        "p50Ms": null,
+        "p95Ms": null
+      },
+      "gt_10k": {
+        "runs": 0,
+        "p50Ms": null,
+        "p95Ms": null
+      }
+    },
+    "familyClusterBootstrap95": {
+      "method": "family_cluster_percentile",
+      "clusters": 35,
+      "replicates": 2000,
+      "intervals": {
+        "promptPrecision": {
+          "lower95": 1,
+          "upper95": 1,
+          "validReplicates": 2000
+        },
+        "promptRecall": {
+          "lower95": 1,
+          "upper95": 1,
+          "validReplicates": 2000
+        },
+        "falsePositiveRate": {
+          "lower95": 0,
+          "upper95": 0,
+          "validReplicates": 2000
+        },
+        "falseBlockRate": {
+          "lower95": 0,
+          "upper95": 0,
+          "validReplicates": 2000
+        },
+        "falseWarningRate": {
+          "lower95": 0,
+          "upper95": 0,
+          "validReplicates": 2000
+        },
+        "entityPrecision": {
+          "lower95": 1,
+          "upper95": 1,
+          "validReplicates": 2000
+        },
+        "entityRecall": {
+          "lower95": 1,
+          "upper95": 1,
+          "validReplicates": 2000
+        },
+        "redactionResidualRate": {
+          "lower95": 0,
+          "upper95": 0,
+          "validReplicates": 2000
+        }
+      }
+    },
     "templateFamilies": {
       "ambiguous_name_context": {
         "n": 10,
+        "counts": {
+          "tp": 0,
+          "fp": 0,
+          "tn": 0,
+          "fn": 0,
+          "predictedPositive": 0,
+          "actualPositive": 0,
+          "benign": 0,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 10,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 0,
+          "entityMatched": 0,
+          "entityPredicted": 0,
+          "policyEligible": 0,
+          "policyCorrect": 0,
+          "redactionEntitiesRequired": 0,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0
+        },
         "metrics": {
           "prompt": {
             "tp": 0,
@@ -182,6 +306,12 @@
           "benign": {
             "evaluated": 0,
             "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseWarningRate": {
               "value": null,
               "numerator": 0,
               "denominator": 0,
@@ -244,6 +374,30 @@
       },
       "ambiguous_partial_identifier": {
         "n": 10,
+        "counts": {
+          "tp": 0,
+          "fp": 0,
+          "tn": 0,
+          "fn": 0,
+          "predictedPositive": 0,
+          "actualPositive": 0,
+          "benign": 0,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 10,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 0,
+          "entityMatched": 0,
+          "entityPredicted": 0,
+          "policyEligible": 0,
+          "policyCorrect": 0,
+          "redactionEntitiesRequired": 0,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0
+        },
         "metrics": {
           "prompt": {
             "tp": 0,
@@ -278,6 +432,12 @@
           "benign": {
             "evaluated": 0,
             "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseWarningRate": {
               "value": null,
               "numerator": 0,
               "denominator": 0,
@@ -340,6 +500,31 @@
       },
       "code shape": {
         "n": 3,
+        "counts": {
+          "tp": 0,
+          "fp": 0,
+          "tn": 3,
+          "fn": 0,
+          "predictedPositive": 0,
+          "actualPositive": 0,
+          "benign": 3,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 0,
+          "entityMatched": 0,
+          "entityPredicted": 0,
+          "policyEligible": 3,
+          "policyCorrect": 3,
+          "redactionEntitiesRequired": 0,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {}
+        },
         "metrics": {
           "prompt": {
             "tp": 0,
@@ -374,6 +559,12 @@
           "benign": {
             "evaluated": 3,
             "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 3,
+              "display": "0.00% (0/3)"
+            },
+            "falseWarningRate": {
               "value": 0,
               "numerator": 0,
               "denominator": 3,
@@ -436,6 +627,37 @@
       },
       "code_context": {
         "n": 9,
+        "counts": {
+          "tp": 9,
+          "fp": 0,
+          "tn": 0,
+          "fn": 0,
+          "predictedPositive": 9,
+          "actualPositive": 9,
+          "benign": 0,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 9,
+          "entityMatched": 9,
+          "entityPredicted": 9,
+          "policyEligible": 9,
+          "policyCorrect": 9,
+          "redactionEntitiesRequired": 9,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 9,
+              "matched": 9,
+              "predicted": 9
+            }
+          }
+        },
         "metrics": {
           "prompt": {
             "tp": 9,
@@ -470,6 +692,12 @@
           "benign": {
             "evaluated": 0,
             "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseWarningRate": {
               "value": null,
               "numerator": 0,
               "denominator": 0,
@@ -550,6 +778,31 @@
       },
       "credential hard negative": {
         "n": 3,
+        "counts": {
+          "tp": 0,
+          "fp": 0,
+          "tn": 3,
+          "fn": 0,
+          "predictedPositive": 0,
+          "actualPositive": 0,
+          "benign": 3,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 0,
+          "entityMatched": 0,
+          "entityPredicted": 0,
+          "policyEligible": 3,
+          "policyCorrect": 3,
+          "redactionEntitiesRequired": 0,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {}
+        },
         "metrics": {
           "prompt": {
             "tp": 0,
@@ -584,6 +837,12 @@
           "benign": {
             "evaluated": 3,
             "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 3,
+              "display": "0.00% (0/3)"
+            },
+            "falseWarningRate": {
               "value": 0,
               "numerator": 0,
               "denominator": 3,
@@ -646,6 +905,31 @@
       },
       "credential vocabulary hard negative": {
         "n": 2,
+        "counts": {
+          "tp": 0,
+          "fp": 0,
+          "tn": 2,
+          "fn": 0,
+          "predictedPositive": 0,
+          "actualPositive": 0,
+          "benign": 2,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 0,
+          "entityMatched": 0,
+          "entityPredicted": 0,
+          "policyEligible": 2,
+          "policyCorrect": 2,
+          "redactionEntitiesRequired": 0,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {}
+        },
         "metrics": {
           "prompt": {
             "tp": 0,
@@ -680,6 +964,12 @@
           "benign": {
             "evaluated": 2,
             "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 2,
+              "display": "0.00% (0/2)"
+            },
+            "falseWarningRate": {
               "value": 0,
               "numerator": 0,
               "denominator": 2,
@@ -742,6 +1032,37 @@
       },
       "email_plain": {
         "n": 9,
+        "counts": {
+          "tp": 9,
+          "fp": 0,
+          "tn": 0,
+          "fn": 0,
+          "predictedPositive": 9,
+          "actualPositive": 9,
+          "benign": 0,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 9,
+          "entityMatched": 9,
+          "entityPredicted": 9,
+          "policyEligible": 9,
+          "policyCorrect": 9,
+          "redactionEntitiesRequired": 9,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 9,
+              "matched": 9,
+              "predicted": 9
+            }
+          }
+        },
         "metrics": {
           "prompt": {
             "tp": 9,
@@ -776,6 +1097,12 @@
           "benign": {
             "evaluated": 0,
             "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseWarningRate": {
               "value": null,
               "numerator": 0,
               "denominator": 0,
@@ -856,6 +1183,31 @@
       },
       "entity placeholder": {
         "n": 2,
+        "counts": {
+          "tp": 0,
+          "fp": 0,
+          "tn": 2,
+          "fn": 0,
+          "predictedPositive": 0,
+          "actualPositive": 0,
+          "benign": 2,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 0,
+          "entityMatched": 0,
+          "entityPredicted": 0,
+          "policyEligible": 2,
+          "policyCorrect": 2,
+          "redactionEntitiesRequired": 0,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {}
+        },
         "metrics": {
           "prompt": {
             "tp": 0,
@@ -890,6 +1242,12 @@
           "benign": {
             "evaluated": 2,
             "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 2,
+              "display": "0.00% (0/2)"
+            },
+            "falseWarningRate": {
               "value": 0,
               "numerator": 0,
               "denominator": 2,
@@ -952,6 +1310,30 @@
       },
       "hand_extra_ambiguous": {
         "n": 5,
+        "counts": {
+          "tp": 0,
+          "fp": 0,
+          "tn": 0,
+          "fn": 0,
+          "predictedPositive": 0,
+          "actualPositive": 0,
+          "benign": 0,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 5,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 0,
+          "entityMatched": 0,
+          "entityPredicted": 0,
+          "policyEligible": 0,
+          "policyCorrect": 0,
+          "redactionEntitiesRequired": 0,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0
+        },
         "metrics": {
           "prompt": {
             "tp": 0,
@@ -986,6 +1368,12 @@
           "benign": {
             "evaluated": 0,
             "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseWarningRate": {
               "value": null,
               "numerator": 0,
               "denominator": 0,
@@ -1048,6 +1436,31 @@
       },
       "hand_extra_code shape": {
         "n": 1,
+        "counts": {
+          "tp": 0,
+          "fp": 0,
+          "tn": 1,
+          "fn": 0,
+          "predictedPositive": 0,
+          "actualPositive": 0,
+          "benign": 1,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 0,
+          "entityMatched": 0,
+          "entityPredicted": 0,
+          "policyEligible": 1,
+          "policyCorrect": 1,
+          "redactionEntitiesRequired": 0,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {}
+        },
         "metrics": {
           "prompt": {
             "tp": 0,
@@ -1082,6 +1495,12 @@
           "benign": {
             "evaluated": 1,
             "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "falseWarningRate": {
               "value": 0,
               "numerator": 0,
               "denominator": 1,
@@ -1144,6 +1563,31 @@
       },
       "hand_extra_credential hard negative": {
         "n": 1,
+        "counts": {
+          "tp": 0,
+          "fp": 0,
+          "tn": 1,
+          "fn": 0,
+          "predictedPositive": 0,
+          "actualPositive": 0,
+          "benign": 1,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 0,
+          "entityMatched": 0,
+          "entityPredicted": 0,
+          "policyEligible": 1,
+          "policyCorrect": 1,
+          "redactionEntitiesRequired": 0,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {}
+        },
         "metrics": {
           "prompt": {
             "tp": 0,
@@ -1178,6 +1622,12 @@
           "benign": {
             "evaluated": 1,
             "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "falseWarningRate": {
               "value": 0,
               "numerator": 0,
               "denominator": 1,
@@ -1240,6 +1690,31 @@
       },
       "hand_extra_credential vocabulary hard negative": {
         "n": 1,
+        "counts": {
+          "tp": 0,
+          "fp": 0,
+          "tn": 1,
+          "fn": 0,
+          "predictedPositive": 0,
+          "actualPositive": 0,
+          "benign": 1,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 0,
+          "entityMatched": 0,
+          "entityPredicted": 0,
+          "policyEligible": 1,
+          "policyCorrect": 1,
+          "redactionEntitiesRequired": 0,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {}
+        },
         "metrics": {
           "prompt": {
             "tp": 0,
@@ -1274,6 +1749,12 @@
           "benign": {
             "evaluated": 1,
             "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "falseWarningRate": {
               "value": 0,
               "numerator": 0,
               "denominator": 1,
@@ -1336,6 +1817,31 @@
       },
       "hand_extra_entity placeholder": {
         "n": 1,
+        "counts": {
+          "tp": 0,
+          "fp": 0,
+          "tn": 1,
+          "fn": 0,
+          "predictedPositive": 0,
+          "actualPositive": 0,
+          "benign": 1,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 0,
+          "entityMatched": 0,
+          "entityPredicted": 0,
+          "policyEligible": 1,
+          "policyCorrect": 1,
+          "redactionEntitiesRequired": 0,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {}
+        },
         "metrics": {
           "prompt": {
             "tp": 0,
@@ -1370,6 +1876,12 @@
           "benign": {
             "evaluated": 1,
             "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "falseWarningRate": {
               "value": 0,
               "numerator": 0,
               "denominator": 1,
@@ -1432,6 +1944,31 @@
       },
       "hand_extra_mixed language benign": {
         "n": 1,
+        "counts": {
+          "tp": 0,
+          "fp": 0,
+          "tn": 1,
+          "fn": 0,
+          "predictedPositive": 0,
+          "actualPositive": 0,
+          "benign": 1,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 0,
+          "entityMatched": 0,
+          "entityPredicted": 0,
+          "policyEligible": 1,
+          "policyCorrect": 1,
+          "redactionEntitiesRequired": 0,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {}
+        },
         "metrics": {
           "prompt": {
             "tp": 0,
@@ -1466,6 +2003,12 @@
           "benign": {
             "evaluated": 1,
             "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "falseWarningRate": {
               "value": 0,
               "numerator": 0,
               "denominator": 1,
@@ -1528,120 +2071,31 @@
       },
       "hand_extra_multiline csv hard negative": {
         "n": 1,
-        "metrics": {
-          "prompt": {
-            "tp": 0,
-            "fp": 1,
-            "tn": 0,
-            "fn": 0,
-            "precision": {
-              "value": 0,
-              "numerator": 0,
-              "denominator": 1,
-              "display": "0.00% (0/1)"
-            },
-            "recall": {
-              "value": null,
-              "numerator": 0,
-              "denominator": 0,
-              "display": "N/A (0/0)"
-            },
-            "f1": {
-              "value": 0,
-              "numerator": 0,
-              "denominator": 1,
-              "display": "0.00%"
-            },
-            "falsePositiveRate": {
-              "value": 1,
-              "numerator": 1,
-              "denominator": 1,
-              "display": "100.00% (1/1)"
-            }
-          },
-          "benign": {
-            "evaluated": 1,
-            "falseBlockRate": {
-              "value": 0,
-              "numerator": 0,
-              "denominator": 1,
-              "display": "0.00% (0/1)"
-            },
-            "benignPreventedRate": {
-              "value": 0,
-              "numerator": 0,
-              "denominator": 1,
-              "display": "0.00% (0/1)"
-            },
-            "falseBlockWilson95Upper": 0.7934506856227626
-          },
-          "ambiguous": {
-            "excludedFromBinaryMetrics": 0,
-            "detected": 0,
-            "escalated": 0
-          },
-          "entities": {
-            "expected": 0,
-            "matched": 0,
-            "predicted": 1,
-            "precision": {
-              "value": 0,
-              "numerator": 0,
-              "denominator": 1,
-              "display": "0.00% (0/1)"
-            },
-            "recall": {
-              "value": null,
-              "numerator": 0,
-              "denominator": 0,
-              "display": "N/A (0/0)"
-            }
-          },
-          "perCategory": {
-            "BULK_CONTACT_LIST": {
-              "expected": 0,
-              "matched": 0,
-              "predicted": 1,
-              "recall": {
-                "value": null,
-                "numerator": 0,
-                "denominator": 0,
-                "display": "N/A (0/0)"
-              },
-              "precision": {
-                "value": 0,
-                "numerator": 0,
-                "denominator": 1,
-                "display": "0.00% (0/1)"
-              }
-            }
-          },
-          "policy": {
-            "eligible": 1,
-            "exactActionMatches": 0,
-            "correctness": {
-              "value": 0,
-              "numerator": 0,
-              "denominator": 1,
-              "display": "0.00% (0/1)"
-            }
-          },
-          "redaction": {
-            "entitiesRequired": 0,
-            "residualEntities": 0,
-            "residualRate": {
-              "value": null,
-              "numerator": 0,
-              "denominator": 0,
-              "display": "N/A (0/0)"
-            },
-            "unsafeRedactionReleases": 0
-          },
-          "engineFailures": 0
-        }
-      },
-      "hand_extra_numeric hard negative": {
-        "n": 1,
+        "counts": {
+          "tp": 0,
+          "fp": 0,
+          "tn": 1,
+          "fn": 0,
+          "predictedPositive": 0,
+          "actualPositive": 0,
+          "benign": 1,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 0,
+          "entityMatched": 0,
+          "entityPredicted": 0,
+          "policyEligible": 1,
+          "policyCorrect": 1,
+          "redactionEntitiesRequired": 0,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {}
+        },
         "metrics": {
           "prompt": {
             "tp": 0,
@@ -1676,6 +2130,139 @@
           "benign": {
             "evaluated": 1,
             "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "falseWarningRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "benignPreventedRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "falseBlockWilson95Upper": 0.7934506856227626
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 0,
+            "matched": 0,
+            "predicted": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "perCategory": {},
+          "policy": {
+            "eligible": 1,
+            "exactActionMatches": 1,
+            "correctness": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 0,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "hand_extra_numeric hard negative": {
+        "n": 1,
+        "counts": {
+          "tp": 0,
+          "fp": 0,
+          "tn": 1,
+          "fn": 0,
+          "predictedPositive": 0,
+          "actualPositive": 0,
+          "benign": 1,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 0,
+          "entityMatched": 0,
+          "entityPredicted": 0,
+          "policyEligible": 1,
+          "policyCorrect": 1,
+          "redactionEntitiesRequired": 0,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {}
+        },
+        "metrics": {
+          "prompt": {
+            "tp": 0,
+            "fp": 0,
+            "tn": 1,
+            "fn": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "f1": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falsePositiveRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            }
+          },
+          "benign": {
+            "evaluated": 1,
+            "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "falseWarningRate": {
               "value": 0,
               "numerator": 0,
               "denominator": 1,
@@ -1738,6 +2325,31 @@
       },
       "hand_extra_ordinary prose": {
         "n": 1,
+        "counts": {
+          "tp": 0,
+          "fp": 0,
+          "tn": 1,
+          "fn": 0,
+          "predictedPositive": 0,
+          "actualPositive": 0,
+          "benign": 1,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 0,
+          "entityMatched": 0,
+          "entityPredicted": 0,
+          "policyEligible": 1,
+          "policyCorrect": 1,
+          "redactionEntitiesRequired": 0,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {}
+        },
         "metrics": {
           "prompt": {
             "tp": 0,
@@ -1772,6 +2384,12 @@
           "benign": {
             "evaluated": 1,
             "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "falseWarningRate": {
               "value": 0,
               "numerator": 0,
               "denominator": 1,
@@ -1834,6 +2452,31 @@
       },
       "hand_extra_ordinary request": {
         "n": 1,
+        "counts": {
+          "tp": 0,
+          "fp": 0,
+          "tn": 1,
+          "fn": 0,
+          "predictedPositive": 0,
+          "actualPositive": 0,
+          "benign": 1,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 0,
+          "entityMatched": 0,
+          "entityPredicted": 0,
+          "policyEligible": 1,
+          "policyCorrect": 1,
+          "redactionEntitiesRequired": 0,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {}
+        },
         "metrics": {
           "prompt": {
             "tp": 0,
@@ -1868,6 +2511,12 @@
           "benign": {
             "evaluated": 1,
             "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "falseWarningRate": {
               "value": 0,
               "numerator": 0,
               "denominator": 1,
@@ -1930,6 +2579,31 @@
       },
       "hand_extra_unicode benign": {
         "n": 1,
+        "counts": {
+          "tp": 0,
+          "fp": 0,
+          "tn": 1,
+          "fn": 0,
+          "predictedPositive": 0,
+          "actualPositive": 0,
+          "benign": 1,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 0,
+          "entityMatched": 0,
+          "entityPredicted": 0,
+          "policyEligible": 1,
+          "policyCorrect": 1,
+          "redactionEntitiesRequired": 0,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {}
+        },
         "metrics": {
           "prompt": {
             "tp": 0,
@@ -1964,6 +2638,12 @@
           "benign": {
             "evaluated": 1,
             "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "falseWarningRate": {
               "value": 0,
               "numerator": 0,
               "denominator": 1,
@@ -2026,6 +2706,37 @@
       },
       "hand_mixed_code": {
         "n": 5,
+        "counts": {
+          "tp": 5,
+          "fp": 0,
+          "tn": 0,
+          "fn": 0,
+          "predictedPositive": 5,
+          "actualPositive": 5,
+          "benign": 0,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 5,
+          "entityMatched": 5,
+          "entityPredicted": 5,
+          "policyEligible": 5,
+          "policyCorrect": 5,
+          "redactionEntitiesRequired": 5,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 5,
+              "matched": 5,
+              "predicted": 5
+            }
+          }
+        },
         "metrics": {
           "prompt": {
             "tp": 5,
@@ -2060,6 +2771,12 @@
           "benign": {
             "evaluated": 0,
             "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseWarningRate": {
               "value": null,
               "numerator": 0,
               "denominator": 0,
@@ -2140,6 +2857,37 @@
       },
       "hand_mixed_csv": {
         "n": 5,
+        "counts": {
+          "tp": 5,
+          "fp": 0,
+          "tn": 0,
+          "fn": 0,
+          "predictedPositive": 5,
+          "actualPositive": 5,
+          "benign": 0,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 5,
+          "entityMatched": 5,
+          "entityPredicted": 5,
+          "policyEligible": 5,
+          "policyCorrect": 5,
+          "redactionEntitiesRequired": 5,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 5,
+              "matched": 5,
+              "predicted": 5
+            }
+          }
+        },
         "metrics": {
           "prompt": {
             "tp": 5,
@@ -2174,6 +2922,12 @@
           "benign": {
             "evaluated": 0,
             "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseWarningRate": {
               "value": null,
               "numerator": 0,
               "denominator": 0,
@@ -2254,6 +3008,37 @@
       },
       "hand_mixed_multilingual": {
         "n": 5,
+        "counts": {
+          "tp": 5,
+          "fp": 0,
+          "tn": 0,
+          "fn": 0,
+          "predictedPositive": 5,
+          "actualPositive": 5,
+          "benign": 0,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 5,
+          "entityMatched": 5,
+          "entityPredicted": 5,
+          "policyEligible": 5,
+          "policyCorrect": 5,
+          "redactionEntitiesRequired": 5,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 5,
+              "matched": 5,
+              "predicted": 5
+            }
+          }
+        },
         "metrics": {
           "prompt": {
             "tp": 5,
@@ -2288,6 +3073,12 @@
           "benign": {
             "evaluated": 0,
             "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseWarningRate": {
               "value": null,
               "numerator": 0,
               "denominator": 0,
@@ -2368,6 +3159,31 @@
       },
       "mixed language benign": {
         "n": 2,
+        "counts": {
+          "tp": 0,
+          "fp": 0,
+          "tn": 2,
+          "fn": 0,
+          "predictedPositive": 0,
+          "actualPositive": 0,
+          "benign": 2,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 0,
+          "entityMatched": 0,
+          "entityPredicted": 0,
+          "policyEligible": 2,
+          "policyCorrect": 2,
+          "redactionEntitiesRequired": 0,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {}
+        },
         "metrics": {
           "prompt": {
             "tp": 0,
@@ -2402,6 +3218,12 @@
           "benign": {
             "evaluated": 2,
             "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 2,
+              "display": "0.00% (0/2)"
+            },
+            "falseWarningRate": {
               "value": 0,
               "numerator": 0,
               "denominator": 2,
@@ -2464,6 +3286,37 @@
       },
       "mixed_multilingual": {
         "n": 9,
+        "counts": {
+          "tp": 9,
+          "fp": 0,
+          "tn": 0,
+          "fn": 0,
+          "predictedPositive": 9,
+          "actualPositive": 9,
+          "benign": 0,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 9,
+          "entityMatched": 9,
+          "entityPredicted": 9,
+          "policyEligible": 9,
+          "policyCorrect": 9,
+          "redactionEntitiesRequired": 9,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 9,
+              "matched": 9,
+              "predicted": 9
+            }
+          }
+        },
         "metrics": {
           "prompt": {
             "tp": 9,
@@ -2498,6 +3351,12 @@
           "benign": {
             "evaluated": 0,
             "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseWarningRate": {
               "value": null,
               "numerator": 0,
               "denominator": 0,
@@ -2578,17 +3437,42 @@
       },
       "multiline csv hard negative": {
         "n": 2,
+        "counts": {
+          "tp": 0,
+          "fp": 0,
+          "tn": 2,
+          "fn": 0,
+          "predictedPositive": 0,
+          "actualPositive": 0,
+          "benign": 2,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 0,
+          "entityMatched": 0,
+          "entityPredicted": 0,
+          "policyEligible": 2,
+          "policyCorrect": 2,
+          "redactionEntitiesRequired": 0,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {}
+        },
         "metrics": {
           "prompt": {
             "tp": 0,
-            "fp": 2,
-            "tn": 0,
+            "fp": 0,
+            "tn": 2,
             "fn": 0,
             "precision": {
-              "value": 0,
+              "value": null,
               "numerator": 0,
-              "denominator": 2,
-              "display": "0.00% (0/2)"
+              "denominator": 0,
+              "display": "N/A (0/0)"
             },
             "recall": {
               "value": null,
@@ -2597,21 +3481,27 @@
               "display": "N/A (0/0)"
             },
             "f1": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falsePositiveRate": {
               "value": 0,
               "numerator": 0,
               "denominator": 2,
-              "display": "0.00%"
-            },
-            "falsePositiveRate": {
-              "value": 1,
-              "numerator": 2,
-              "denominator": 2,
-              "display": "100.00% (2/2)"
+              "display": "0.00% (0/2)"
             }
           },
           "benign": {
             "evaluated": 2,
             "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 2,
+              "display": "0.00% (0/2)"
+            },
+            "falseWarningRate": {
               "value": 0,
               "numerator": 0,
               "denominator": 2,
@@ -2633,12 +3523,12 @@
           "entities": {
             "expected": 0,
             "matched": 0,
-            "predicted": 2,
+            "predicted": 0,
             "precision": {
-              "value": 0,
+              "value": null,
               "numerator": 0,
-              "denominator": 2,
-              "display": "0.00% (0/2)"
+              "denominator": 0,
+              "display": "N/A (0/0)"
             },
             "recall": {
               "value": null,
@@ -2647,33 +3537,15 @@
               "display": "N/A (0/0)"
             }
           },
-          "perCategory": {
-            "BULK_CONTACT_LIST": {
-              "expected": 0,
-              "matched": 0,
-              "predicted": 2,
-              "recall": {
-                "value": null,
-                "numerator": 0,
-                "denominator": 0,
-                "display": "N/A (0/0)"
-              },
-              "precision": {
-                "value": 0,
-                "numerator": 0,
-                "denominator": 2,
-                "display": "0.00% (0/2)"
-              }
-            }
-          },
+          "perCategory": {},
           "policy": {
             "eligible": 2,
-            "exactActionMatches": 0,
+            "exactActionMatches": 2,
             "correctness": {
-              "value": 0,
-              "numerator": 0,
+              "value": 1,
+              "numerator": 2,
               "denominator": 2,
-              "display": "0.00% (0/2)"
+              "display": "100.00% (2/2)"
             }
           },
           "redaction": {
@@ -2692,6 +3564,37 @@
       },
       "multiline_csv_context": {
         "n": 9,
+        "counts": {
+          "tp": 9,
+          "fp": 0,
+          "tn": 0,
+          "fn": 0,
+          "predictedPositive": 9,
+          "actualPositive": 9,
+          "benign": 0,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 9,
+          "entityMatched": 9,
+          "entityPredicted": 9,
+          "policyEligible": 9,
+          "policyCorrect": 9,
+          "redactionEntitiesRequired": 9,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 9,
+              "matched": 9,
+              "predicted": 9
+            }
+          }
+        },
         "metrics": {
           "prompt": {
             "tp": 9,
@@ -2726,6 +3629,12 @@
           "benign": {
             "evaluated": 0,
             "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseWarningRate": {
               "value": null,
               "numerator": 0,
               "denominator": 0,
@@ -2806,6 +3715,31 @@
       },
       "numeric hard negative": {
         "n": 3,
+        "counts": {
+          "tp": 0,
+          "fp": 0,
+          "tn": 3,
+          "fn": 0,
+          "predictedPositive": 0,
+          "actualPositive": 0,
+          "benign": 3,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 0,
+          "entityMatched": 0,
+          "entityPredicted": 0,
+          "policyEligible": 3,
+          "policyCorrect": 3,
+          "redactionEntitiesRequired": 0,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {}
+        },
         "metrics": {
           "prompt": {
             "tp": 0,
@@ -2840,6 +3774,12 @@
           "benign": {
             "evaluated": 3,
             "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 3,
+              "display": "0.00% (0/3)"
+            },
+            "falseWarningRate": {
               "value": 0,
               "numerator": 0,
               "denominator": 3,
@@ -2902,6 +3842,31 @@
       },
       "ordinary prose": {
         "n": 3,
+        "counts": {
+          "tp": 0,
+          "fp": 0,
+          "tn": 3,
+          "fn": 0,
+          "predictedPositive": 0,
+          "actualPositive": 0,
+          "benign": 3,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 0,
+          "entityMatched": 0,
+          "entityPredicted": 0,
+          "policyEligible": 3,
+          "policyCorrect": 3,
+          "redactionEntitiesRequired": 0,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {}
+        },
         "metrics": {
           "prompt": {
             "tp": 0,
@@ -2936,6 +3901,12 @@
           "benign": {
             "evaluated": 3,
             "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 3,
+              "display": "0.00% (0/3)"
+            },
+            "falseWarningRate": {
               "value": 0,
               "numerator": 0,
               "denominator": 3,
@@ -2998,6 +3969,31 @@
       },
       "ordinary request": {
         "n": 2,
+        "counts": {
+          "tp": 0,
+          "fp": 0,
+          "tn": 2,
+          "fn": 0,
+          "predictedPositive": 0,
+          "actualPositive": 0,
+          "benign": 2,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 0,
+          "entityMatched": 0,
+          "entityPredicted": 0,
+          "policyEligible": 2,
+          "policyCorrect": 2,
+          "redactionEntitiesRequired": 0,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {}
+        },
         "metrics": {
           "prompt": {
             "tp": 0,
@@ -3032,6 +4028,12 @@
           "benign": {
             "evaluated": 2,
             "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 2,
+              "display": "0.00% (0/2)"
+            },
+            "falseWarningRate": {
               "value": 0,
               "numerator": 0,
               "denominator": 2,
@@ -3092,8 +4094,589 @@
           "engineFailures": 0
         }
       },
+      "owner_term_case_match": {
+        "n": 1,
+        "counts": {
+          "tp": 1,
+          "fp": 0,
+          "tn": 0,
+          "fn": 0,
+          "predictedPositive": 1,
+          "actualPositive": 1,
+          "benign": 0,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 1,
+          "entityMatched": 1,
+          "entityPredicted": 1,
+          "policyEligible": 1,
+          "policyCorrect": 1,
+          "redactionEntitiesRequired": 0,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {
+            "CUSTOM_PROTECTED_TERM": {
+              "expected": 1,
+              "matched": 1,
+              "predicted": 1
+            }
+          }
+        },
+        "metrics": {
+          "prompt": {
+            "tp": 1,
+            "fp": 0,
+            "tn": 0,
+            "fn": 0,
+            "precision": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            },
+            "f1": {
+              "value": 1,
+              "numerator": 2,
+              "denominator": 2,
+              "display": "100.00%"
+            },
+            "falsePositiveRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "benign": {
+            "evaluated": 0,
+            "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseWarningRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "benignPreventedRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseBlockWilson95Upper": null
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 1,
+            "matched": 1,
+            "predicted": 1,
+            "precision": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            }
+          },
+          "perCategory": {
+            "CUSTOM_PROTECTED_TERM": {
+              "expected": 1,
+              "matched": 1,
+              "predicted": 1,
+              "recall": {
+                "value": 1,
+                "numerator": 1,
+                "denominator": 1,
+                "display": "100.00% (1/1)"
+              },
+              "precision": {
+                "value": 1,
+                "numerator": 1,
+                "denominator": 1,
+                "display": "100.00% (1/1)"
+              }
+            }
+          },
+          "policy": {
+            "eligible": 1,
+            "exactActionMatches": 1,
+            "correctness": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 0,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "owner_term_exact_match": {
+        "n": 1,
+        "counts": {
+          "tp": 1,
+          "fp": 0,
+          "tn": 0,
+          "fn": 0,
+          "predictedPositive": 1,
+          "actualPositive": 1,
+          "benign": 0,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 1,
+          "entityMatched": 1,
+          "entityPredicted": 1,
+          "policyEligible": 1,
+          "policyCorrect": 1,
+          "redactionEntitiesRequired": 0,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {
+            "CUSTOM_PROTECTED_TERM": {
+              "expected": 1,
+              "matched": 1,
+              "predicted": 1
+            }
+          }
+        },
+        "metrics": {
+          "prompt": {
+            "tp": 1,
+            "fp": 0,
+            "tn": 0,
+            "fn": 0,
+            "precision": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            },
+            "f1": {
+              "value": 1,
+              "numerator": 2,
+              "denominator": 2,
+              "display": "100.00%"
+            },
+            "falsePositiveRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "benign": {
+            "evaluated": 0,
+            "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseWarningRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "benignPreventedRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseBlockWilson95Upper": null
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 1,
+            "matched": 1,
+            "predicted": 1,
+            "precision": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            }
+          },
+          "perCategory": {
+            "CUSTOM_PROTECTED_TERM": {
+              "expected": 1,
+              "matched": 1,
+              "predicted": 1,
+              "recall": {
+                "value": 1,
+                "numerator": 1,
+                "denominator": 1,
+                "display": "100.00% (1/1)"
+              },
+              "precision": {
+                "value": 1,
+                "numerator": 1,
+                "denominator": 1,
+                "display": "100.00% (1/1)"
+              }
+            }
+          },
+          "policy": {
+            "eligible": 1,
+            "exactActionMatches": 1,
+            "correctness": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 0,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "owner_term_near_miss": {
+        "n": 1,
+        "counts": {
+          "tp": 0,
+          "fp": 0,
+          "tn": 1,
+          "fn": 0,
+          "predictedPositive": 0,
+          "actualPositive": 0,
+          "benign": 1,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 0,
+          "entityMatched": 0,
+          "entityPredicted": 0,
+          "policyEligible": 1,
+          "policyCorrect": 1,
+          "redactionEntitiesRequired": 0,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {}
+        },
+        "metrics": {
+          "prompt": {
+            "tp": 0,
+            "fp": 0,
+            "tn": 1,
+            "fn": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "f1": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falsePositiveRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            }
+          },
+          "benign": {
+            "evaluated": 1,
+            "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "falseWarningRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "benignPreventedRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "falseBlockWilson95Upper": 0.7934506856227626
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 0,
+            "matched": 0,
+            "predicted": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "perCategory": {},
+          "policy": {
+            "eligible": 1,
+            "exactActionMatches": 1,
+            "correctness": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 0,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "owner_term_suffix_hard_negative": {
+        "n": 1,
+        "counts": {
+          "tp": 0,
+          "fp": 0,
+          "tn": 1,
+          "fn": 0,
+          "predictedPositive": 0,
+          "actualPositive": 0,
+          "benign": 1,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 0,
+          "entityMatched": 0,
+          "entityPredicted": 0,
+          "policyEligible": 1,
+          "policyCorrect": 1,
+          "redactionEntitiesRequired": 0,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {}
+        },
+        "metrics": {
+          "prompt": {
+            "tp": 0,
+            "fp": 0,
+            "tn": 1,
+            "fn": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "f1": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falsePositiveRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            }
+          },
+          "benign": {
+            "evaluated": 1,
+            "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "falseWarningRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "benignPreventedRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "falseBlockWilson95Upper": 0.7934506856227626
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 0,
+            "matched": 0,
+            "predicted": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "perCategory": {},
+          "policy": {
+            "eligible": 1,
+            "exactActionMatches": 1,
+            "correctness": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 0,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
       "unicode benign": {
         "n": 3,
+        "counts": {
+          "tp": 0,
+          "fp": 0,
+          "tn": 3,
+          "fn": 0,
+          "predictedPositive": 0,
+          "actualPositive": 0,
+          "benign": 3,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 0,
+          "entityMatched": 0,
+          "entityPredicted": 0,
+          "policyEligible": 3,
+          "policyCorrect": 3,
+          "redactionEntitiesRequired": 0,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {}
+        },
         "metrics": {
           "prompt": {
             "tp": 0,
@@ -3128,6 +4711,12 @@
           "benign": {
             "evaluated": 3,
             "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 3,
+              "display": "0.00% (0/3)"
+            },
+            "falseWarningRate": {
               "value": 0,
               "numerator": 0,
               "denominator": 3,
@@ -3190,6 +4779,37 @@
       },
       "unicode_context": {
         "n": 9,
+        "counts": {
+          "tp": 9,
+          "fp": 0,
+          "tn": 0,
+          "fn": 0,
+          "predictedPositive": 9,
+          "actualPositive": 9,
+          "benign": 0,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 9,
+          "entityMatched": 9,
+          "entityPredicted": 9,
+          "policyEligible": 9,
+          "policyCorrect": 9,
+          "redactionEntitiesRequired": 9,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 9,
+              "matched": 9,
+              "predicted": 9
+            }
+          }
+        },
         "metrics": {
           "prompt": {
             "tp": 9,
@@ -3224,6 +4844,12 @@
           "benign": {
             "evaluated": 0,
             "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseWarningRate": {
               "value": null,
               "numerator": 0,
               "denominator": 0,
@@ -3305,46 +4931,52 @@
     }
   },
   "generated": {
-    "n": 1000,
+    "n": 1006,
     "truthCounts": {
-      "SENSITIVE": 800,
+      "SENSITIVE": 806,
       "BENIGN": 200,
       "AMBIGUOUS": 0
     },
     "metrics": {
       "prompt": {
-        "tp": 800,
-        "fp": 20,
-        "tn": 180,
+        "tp": 806,
+        "fp": 0,
+        "tn": 200,
         "fn": 0,
         "precision": {
-          "value": 0.975609756097561,
-          "numerator": 800,
-          "denominator": 820,
-          "display": "97.56% (800/820)"
+          "value": 1,
+          "numerator": 806,
+          "denominator": 806,
+          "display": "100.00% (806/806)"
         },
         "recall": {
           "value": 1,
-          "numerator": 800,
-          "denominator": 800,
-          "display": "100.00% (800/800)"
+          "numerator": 806,
+          "denominator": 806,
+          "display": "100.00% (806/806)"
         },
         "f1": {
-          "value": 0.9876543209876543,
-          "numerator": 1600,
-          "denominator": 1620,
-          "display": "98.77%"
+          "value": 1,
+          "numerator": 1612,
+          "denominator": 1612,
+          "display": "100.00%"
         },
         "falsePositiveRate": {
-          "value": 0.1,
-          "numerator": 20,
+          "value": 0,
+          "numerator": 0,
           "denominator": 200,
-          "display": "10.00% (20/200)"
+          "display": "0.00% (0/200)"
         }
       },
       "benign": {
         "evaluated": 200,
         "falseBlockRate": {
+          "value": 0,
+          "numerator": 0,
+          "denominator": 200,
+          "display": "0.00% (0/200)"
+        },
+        "falseWarningRate": {
           "value": 0,
           "numerator": 0,
           "denominator": 200,
@@ -3364,40 +4996,23 @@
         "escalated": 0
       },
       "entities": {
-        "expected": 1000,
-        "matched": 1000,
-        "predicted": 1128,
+        "expected": 1006,
+        "matched": 1006,
+        "predicted": 1014,
         "precision": {
-          "value": 0.8865248226950354,
-          "numerator": 1000,
-          "denominator": 1128,
-          "display": "88.65% (1000/1128)"
+          "value": 0.9921104536489151,
+          "numerator": 1006,
+          "denominator": 1014,
+          "display": "99.21% (1006/1014)"
         },
         "recall": {
           "value": 1,
-          "numerator": 1000,
-          "denominator": 1000,
-          "display": "100.00% (1000/1000)"
+          "numerator": 1006,
+          "denominator": 1006,
+          "display": "100.00% (1006/1006)"
         }
       },
       "perCategory": {
-        "BULK_CONTACT_LIST": {
-          "expected": 0,
-          "matched": 0,
-          "predicted": 120,
-          "recall": {
-            "value": null,
-            "numerator": 0,
-            "denominator": 0,
-            "display": "N/A (0/0)"
-          },
-          "precision": {
-            "value": 0,
-            "numerator": 0,
-            "denominator": 120,
-            "display": "0.00% (0/120)"
-          }
-        },
         "PII_AADHAAR": {
           "expected": 0,
           "matched": 0,
@@ -3416,20 +5031,20 @@
           }
         },
         "PII_EMAIL": {
-          "expected": 800,
-          "matched": 800,
-          "predicted": 800,
+          "expected": 806,
+          "matched": 806,
+          "predicted": 806,
           "recall": {
             "value": 1,
-            "numerator": 800,
-            "denominator": 800,
-            "display": "100.00% (800/800)"
+            "numerator": 806,
+            "denominator": 806,
+            "display": "100.00% (806/806)"
           },
           "precision": {
             "value": 1,
-            "numerator": 800,
-            "denominator": 800,
-            "display": "100.00% (800/800)"
+            "numerator": 806,
+            "denominator": 806,
+            "display": "100.00% (806/806)"
           }
         },
         "PII_PHONE": {
@@ -3468,31 +5083,120 @@
         }
       },
       "policy": {
-        "eligible": 1000,
-        "exactActionMatches": 980,
+        "eligible": 1006,
+        "exactActionMatches": 1006,
         "correctness": {
-          "value": 0.98,
-          "numerator": 980,
-          "denominator": 1000,
-          "display": "98.00% (980/1000)"
+          "value": 1,
+          "numerator": 1006,
+          "denominator": 1006,
+          "display": "100.00% (1006/1006)"
         }
       },
       "redaction": {
-        "entitiesRequired": 1000,
+        "entitiesRequired": 1006,
         "residualEntities": 0,
         "residualRate": {
           "value": 0,
           "numerator": 0,
-          "denominator": 1000,
-          "display": "0.00% (0/1000)"
+          "denominator": 1006,
+          "display": "0.00% (0/1006)"
         },
         "unsafeRedactionReleases": 0
       },
       "engineFailures": 0
     },
+    "latencyByInputLength": {
+      "lt_1k": {
+        "runs": 1000,
+        "p50Ms": 0.047,
+        "p95Ms": 0.134
+      },
+      "1k_to_10k": {
+        "runs": 5,
+        "p50Ms": 0.327,
+        "p95Ms": 1.42
+      },
+      "gt_10k": {
+        "runs": 1,
+        "p50Ms": 1.643,
+        "p95Ms": 1.643
+      }
+    },
+    "familyClusterBootstrap95": {
+      "method": "family_cluster_percentile",
+      "clusters": 24,
+      "replicates": 2000,
+      "intervals": {
+        "promptPrecision": {
+          "lower95": 1,
+          "upper95": 1,
+          "validReplicates": 2000
+        },
+        "promptRecall": {
+          "lower95": 1,
+          "upper95": 1,
+          "validReplicates": 2000
+        },
+        "falsePositiveRate": {
+          "lower95": 0,
+          "upper95": 0,
+          "validReplicates": 2000
+        },
+        "falseBlockRate": {
+          "lower95": 0,
+          "upper95": 0,
+          "validReplicates": 2000
+        },
+        "falseWarningRate": {
+          "lower95": 0,
+          "upper95": 0,
+          "validReplicates": 2000
+        },
+        "entityPrecision": {
+          "lower95": 0.9778699861687413,
+          "upper95": 1,
+          "validReplicates": 2000
+        },
+        "entityRecall": {
+          "lower95": 1,
+          "upper95": 1,
+          "validReplicates": 2000
+        },
+        "redactionResidualRate": {
+          "lower95": 0,
+          "upper95": 0,
+          "validReplicates": 2000
+        }
+      }
+    },
     "templateFamilies": {
       "benign_code shape": {
         "n": 20,
+        "counts": {
+          "tp": 0,
+          "fp": 0,
+          "tn": 20,
+          "fn": 0,
+          "predictedPositive": 0,
+          "actualPositive": 0,
+          "benign": 20,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 0,
+          "entityMatched": 0,
+          "entityPredicted": 0,
+          "policyEligible": 20,
+          "policyCorrect": 20,
+          "redactionEntitiesRequired": 0,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {}
+        },
         "metrics": {
           "prompt": {
             "tp": 0,
@@ -3527,6 +5231,12 @@
           "benign": {
             "evaluated": 20,
             "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            },
+            "falseWarningRate": {
               "value": 0,
               "numerator": 0,
               "denominator": 20,
@@ -3589,6 +5299,31 @@
       },
       "benign_credential hard negative": {
         "n": 20,
+        "counts": {
+          "tp": 0,
+          "fp": 0,
+          "tn": 20,
+          "fn": 0,
+          "predictedPositive": 0,
+          "actualPositive": 0,
+          "benign": 20,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 0,
+          "entityMatched": 0,
+          "entityPredicted": 0,
+          "policyEligible": 20,
+          "policyCorrect": 20,
+          "redactionEntitiesRequired": 0,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {}
+        },
         "metrics": {
           "prompt": {
             "tp": 0,
@@ -3623,6 +5358,12 @@
           "benign": {
             "evaluated": 20,
             "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            },
+            "falseWarningRate": {
               "value": 0,
               "numerator": 0,
               "denominator": 20,
@@ -3685,6 +5426,31 @@
       },
       "benign_credential vocabulary hard negative": {
         "n": 20,
+        "counts": {
+          "tp": 0,
+          "fp": 0,
+          "tn": 20,
+          "fn": 0,
+          "predictedPositive": 0,
+          "actualPositive": 0,
+          "benign": 20,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 0,
+          "entityMatched": 0,
+          "entityPredicted": 0,
+          "policyEligible": 20,
+          "policyCorrect": 20,
+          "redactionEntitiesRequired": 0,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {}
+        },
         "metrics": {
           "prompt": {
             "tp": 0,
@@ -3719,6 +5485,12 @@
           "benign": {
             "evaluated": 20,
             "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            },
+            "falseWarningRate": {
               "value": 0,
               "numerator": 0,
               "denominator": 20,
@@ -3781,6 +5553,31 @@
       },
       "benign_entity placeholder": {
         "n": 20,
+        "counts": {
+          "tp": 0,
+          "fp": 0,
+          "tn": 20,
+          "fn": 0,
+          "predictedPositive": 0,
+          "actualPositive": 0,
+          "benign": 20,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 0,
+          "entityMatched": 0,
+          "entityPredicted": 0,
+          "policyEligible": 20,
+          "policyCorrect": 20,
+          "redactionEntitiesRequired": 0,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {}
+        },
         "metrics": {
           "prompt": {
             "tp": 0,
@@ -3815,6 +5612,12 @@
           "benign": {
             "evaluated": 20,
             "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            },
+            "falseWarningRate": {
               "value": 0,
               "numerator": 0,
               "denominator": 20,
@@ -3877,6 +5680,31 @@
       },
       "benign_mixed language benign": {
         "n": 20,
+        "counts": {
+          "tp": 0,
+          "fp": 0,
+          "tn": 20,
+          "fn": 0,
+          "predictedPositive": 0,
+          "actualPositive": 0,
+          "benign": 20,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 0,
+          "entityMatched": 0,
+          "entityPredicted": 0,
+          "policyEligible": 20,
+          "policyCorrect": 20,
+          "redactionEntitiesRequired": 0,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {}
+        },
         "metrics": {
           "prompt": {
             "tp": 0,
@@ -3911,6 +5739,12 @@
           "benign": {
             "evaluated": 20,
             "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            },
+            "falseWarningRate": {
               "value": 0,
               "numerator": 0,
               "denominator": 20,
@@ -3973,120 +5807,31 @@
       },
       "benign_multiline csv hard negative": {
         "n": 20,
-        "metrics": {
-          "prompt": {
-            "tp": 0,
-            "fp": 20,
-            "tn": 0,
-            "fn": 0,
-            "precision": {
-              "value": 0,
-              "numerator": 0,
-              "denominator": 20,
-              "display": "0.00% (0/20)"
-            },
-            "recall": {
-              "value": null,
-              "numerator": 0,
-              "denominator": 0,
-              "display": "N/A (0/0)"
-            },
-            "f1": {
-              "value": 0,
-              "numerator": 0,
-              "denominator": 20,
-              "display": "0.00%"
-            },
-            "falsePositiveRate": {
-              "value": 1,
-              "numerator": 20,
-              "denominator": 20,
-              "display": "100.00% (20/20)"
-            }
-          },
-          "benign": {
-            "evaluated": 20,
-            "falseBlockRate": {
-              "value": 0,
-              "numerator": 0,
-              "denominator": 20,
-              "display": "0.00% (0/20)"
-            },
-            "benignPreventedRate": {
-              "value": 0,
-              "numerator": 0,
-              "denominator": 20,
-              "display": "0.00% (0/20)"
-            },
-            "falseBlockWilson95Upper": 0.16112515805281938
-          },
-          "ambiguous": {
-            "excludedFromBinaryMetrics": 0,
-            "detected": 0,
-            "escalated": 0
-          },
-          "entities": {
-            "expected": 0,
-            "matched": 0,
-            "predicted": 20,
-            "precision": {
-              "value": 0,
-              "numerator": 0,
-              "denominator": 20,
-              "display": "0.00% (0/20)"
-            },
-            "recall": {
-              "value": null,
-              "numerator": 0,
-              "denominator": 0,
-              "display": "N/A (0/0)"
-            }
-          },
-          "perCategory": {
-            "BULK_CONTACT_LIST": {
-              "expected": 0,
-              "matched": 0,
-              "predicted": 20,
-              "recall": {
-                "value": null,
-                "numerator": 0,
-                "denominator": 0,
-                "display": "N/A (0/0)"
-              },
-              "precision": {
-                "value": 0,
-                "numerator": 0,
-                "denominator": 20,
-                "display": "0.00% (0/20)"
-              }
-            }
-          },
-          "policy": {
-            "eligible": 20,
-            "exactActionMatches": 0,
-            "correctness": {
-              "value": 0,
-              "numerator": 0,
-              "denominator": 20,
-              "display": "0.00% (0/20)"
-            }
-          },
-          "redaction": {
-            "entitiesRequired": 0,
-            "residualEntities": 0,
-            "residualRate": {
-              "value": null,
-              "numerator": 0,
-              "denominator": 0,
-              "display": "N/A (0/0)"
-            },
-            "unsafeRedactionReleases": 0
-          },
-          "engineFailures": 0
-        }
-      },
-      "benign_numeric hard negative": {
-        "n": 20,
+        "counts": {
+          "tp": 0,
+          "fp": 0,
+          "tn": 20,
+          "fn": 0,
+          "predictedPositive": 0,
+          "actualPositive": 0,
+          "benign": 20,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 0,
+          "entityMatched": 0,
+          "entityPredicted": 0,
+          "policyEligible": 20,
+          "policyCorrect": 20,
+          "redactionEntitiesRequired": 0,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {}
+        },
         "metrics": {
           "prompt": {
             "tp": 0,
@@ -4121,6 +5866,139 @@
           "benign": {
             "evaluated": 20,
             "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            },
+            "falseWarningRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            },
+            "benignPreventedRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            },
+            "falseBlockWilson95Upper": 0.16112515805281938
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 0,
+            "matched": 0,
+            "predicted": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "perCategory": {},
+          "policy": {
+            "eligible": 20,
+            "exactActionMatches": 20,
+            "correctness": {
+              "value": 1,
+              "numerator": 20,
+              "denominator": 20,
+              "display": "100.00% (20/20)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 0,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "benign_numeric hard negative": {
+        "n": 20,
+        "counts": {
+          "tp": 0,
+          "fp": 0,
+          "tn": 20,
+          "fn": 0,
+          "predictedPositive": 0,
+          "actualPositive": 0,
+          "benign": 20,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 0,
+          "entityMatched": 0,
+          "entityPredicted": 0,
+          "policyEligible": 20,
+          "policyCorrect": 20,
+          "redactionEntitiesRequired": 0,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {}
+        },
+        "metrics": {
+          "prompt": {
+            "tp": 0,
+            "fp": 0,
+            "tn": 20,
+            "fn": 0,
+            "precision": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "recall": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "f1": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falsePositiveRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            }
+          },
+          "benign": {
+            "evaluated": 20,
+            "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            },
+            "falseWarningRate": {
               "value": 0,
               "numerator": 0,
               "denominator": 20,
@@ -4183,6 +6061,31 @@
       },
       "benign_ordinary prose": {
         "n": 20,
+        "counts": {
+          "tp": 0,
+          "fp": 0,
+          "tn": 20,
+          "fn": 0,
+          "predictedPositive": 0,
+          "actualPositive": 0,
+          "benign": 20,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 0,
+          "entityMatched": 0,
+          "entityPredicted": 0,
+          "policyEligible": 20,
+          "policyCorrect": 20,
+          "redactionEntitiesRequired": 0,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {}
+        },
         "metrics": {
           "prompt": {
             "tp": 0,
@@ -4217,6 +6120,12 @@
           "benign": {
             "evaluated": 20,
             "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            },
+            "falseWarningRate": {
               "value": 0,
               "numerator": 0,
               "denominator": 20,
@@ -4279,6 +6188,31 @@
       },
       "benign_ordinary request": {
         "n": 20,
+        "counts": {
+          "tp": 0,
+          "fp": 0,
+          "tn": 20,
+          "fn": 0,
+          "predictedPositive": 0,
+          "actualPositive": 0,
+          "benign": 20,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 0,
+          "entityMatched": 0,
+          "entityPredicted": 0,
+          "policyEligible": 20,
+          "policyCorrect": 20,
+          "redactionEntitiesRequired": 0,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {}
+        },
         "metrics": {
           "prompt": {
             "tp": 0,
@@ -4313,6 +6247,12 @@
           "benign": {
             "evaluated": 20,
             "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            },
+            "falseWarningRate": {
               "value": 0,
               "numerator": 0,
               "denominator": 20,
@@ -4375,6 +6315,31 @@
       },
       "benign_unicode benign": {
         "n": 20,
+        "counts": {
+          "tp": 0,
+          "fp": 0,
+          "tn": 20,
+          "fn": 0,
+          "predictedPositive": 0,
+          "actualPositive": 0,
+          "benign": 20,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 0,
+          "entityMatched": 0,
+          "entityPredicted": 0,
+          "policyEligible": 20,
+          "policyCorrect": 20,
+          "redactionEntitiesRequired": 0,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {}
+        },
         "metrics": {
           "prompt": {
             "tp": 0,
@@ -4409,6 +6374,12 @@
           "benign": {
             "evaluated": 20,
             "falseBlockRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 20,
+              "display": "0.00% (0/20)"
+            },
+            "falseWarningRate": {
               "value": 0,
               "numerator": 0,
               "denominator": 20,
@@ -4469,8 +6440,945 @@
           "engineFailures": 0
         }
       },
+      "boundary_length_10000": {
+        "n": 1,
+        "counts": {
+          "tp": 1,
+          "fp": 0,
+          "tn": 0,
+          "fn": 0,
+          "predictedPositive": 1,
+          "actualPositive": 1,
+          "benign": 0,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 1,
+          "entityMatched": 1,
+          "entityPredicted": 1,
+          "policyEligible": 1,
+          "policyCorrect": 1,
+          "redactionEntitiesRequired": 1,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 1,
+              "matched": 1,
+              "predicted": 1
+            }
+          }
+        },
+        "metrics": {
+          "prompt": {
+            "tp": 1,
+            "fp": 0,
+            "tn": 0,
+            "fn": 0,
+            "precision": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            },
+            "f1": {
+              "value": 1,
+              "numerator": 2,
+              "denominator": 2,
+              "display": "100.00%"
+            },
+            "falsePositiveRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "benign": {
+            "evaluated": 0,
+            "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseWarningRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "benignPreventedRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseBlockWilson95Upper": null
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 1,
+            "matched": 1,
+            "predicted": 1,
+            "precision": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            }
+          },
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 1,
+              "matched": 1,
+              "predicted": 1,
+              "recall": {
+                "value": 1,
+                "numerator": 1,
+                "denominator": 1,
+                "display": "100.00% (1/1)"
+              },
+              "precision": {
+                "value": 1,
+                "numerator": 1,
+                "denominator": 1,
+                "display": "100.00% (1/1)"
+              }
+            }
+          },
+          "policy": {
+            "eligible": 1,
+            "exactActionMatches": 1,
+            "correctness": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 1,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "boundary_length_10001": {
+        "n": 1,
+        "counts": {
+          "tp": 1,
+          "fp": 0,
+          "tn": 0,
+          "fn": 0,
+          "predictedPositive": 1,
+          "actualPositive": 1,
+          "benign": 0,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 1,
+          "entityMatched": 1,
+          "entityPredicted": 1,
+          "policyEligible": 1,
+          "policyCorrect": 1,
+          "redactionEntitiesRequired": 1,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 1,
+              "matched": 1,
+              "predicted": 1
+            }
+          }
+        },
+        "metrics": {
+          "prompt": {
+            "tp": 1,
+            "fp": 0,
+            "tn": 0,
+            "fn": 0,
+            "precision": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            },
+            "f1": {
+              "value": 1,
+              "numerator": 2,
+              "denominator": 2,
+              "display": "100.00%"
+            },
+            "falsePositiveRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "benign": {
+            "evaluated": 0,
+            "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseWarningRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "benignPreventedRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseBlockWilson95Upper": null
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 1,
+            "matched": 1,
+            "predicted": 1,
+            "precision": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            }
+          },
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 1,
+              "matched": 1,
+              "predicted": 1,
+              "recall": {
+                "value": 1,
+                "numerator": 1,
+                "denominator": 1,
+                "display": "100.00% (1/1)"
+              },
+              "precision": {
+                "value": 1,
+                "numerator": 1,
+                "denominator": 1,
+                "display": "100.00% (1/1)"
+              }
+            }
+          },
+          "policy": {
+            "eligible": 1,
+            "exactActionMatches": 1,
+            "correctness": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 1,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "boundary_length_2047": {
+        "n": 1,
+        "counts": {
+          "tp": 1,
+          "fp": 0,
+          "tn": 0,
+          "fn": 0,
+          "predictedPositive": 1,
+          "actualPositive": 1,
+          "benign": 0,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 1,
+          "entityMatched": 1,
+          "entityPredicted": 1,
+          "policyEligible": 1,
+          "policyCorrect": 1,
+          "redactionEntitiesRequired": 1,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 1,
+              "matched": 1,
+              "predicted": 1
+            }
+          }
+        },
+        "metrics": {
+          "prompt": {
+            "tp": 1,
+            "fp": 0,
+            "tn": 0,
+            "fn": 0,
+            "precision": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            },
+            "f1": {
+              "value": 1,
+              "numerator": 2,
+              "denominator": 2,
+              "display": "100.00%"
+            },
+            "falsePositiveRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "benign": {
+            "evaluated": 0,
+            "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseWarningRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "benignPreventedRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseBlockWilson95Upper": null
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 1,
+            "matched": 1,
+            "predicted": 1,
+            "precision": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            }
+          },
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 1,
+              "matched": 1,
+              "predicted": 1,
+              "recall": {
+                "value": 1,
+                "numerator": 1,
+                "denominator": 1,
+                "display": "100.00% (1/1)"
+              },
+              "precision": {
+                "value": 1,
+                "numerator": 1,
+                "denominator": 1,
+                "display": "100.00% (1/1)"
+              }
+            }
+          },
+          "policy": {
+            "eligible": 1,
+            "exactActionMatches": 1,
+            "correctness": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 1,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "boundary_length_2048": {
+        "n": 1,
+        "counts": {
+          "tp": 1,
+          "fp": 0,
+          "tn": 0,
+          "fn": 0,
+          "predictedPositive": 1,
+          "actualPositive": 1,
+          "benign": 0,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 1,
+          "entityMatched": 1,
+          "entityPredicted": 1,
+          "policyEligible": 1,
+          "policyCorrect": 1,
+          "redactionEntitiesRequired": 1,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 1,
+              "matched": 1,
+              "predicted": 1
+            }
+          }
+        },
+        "metrics": {
+          "prompt": {
+            "tp": 1,
+            "fp": 0,
+            "tn": 0,
+            "fn": 0,
+            "precision": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            },
+            "f1": {
+              "value": 1,
+              "numerator": 2,
+              "denominator": 2,
+              "display": "100.00%"
+            },
+            "falsePositiveRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "benign": {
+            "evaluated": 0,
+            "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseWarningRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "benignPreventedRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseBlockWilson95Upper": null
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 1,
+            "matched": 1,
+            "predicted": 1,
+            "precision": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            }
+          },
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 1,
+              "matched": 1,
+              "predicted": 1,
+              "recall": {
+                "value": 1,
+                "numerator": 1,
+                "denominator": 1,
+                "display": "100.00% (1/1)"
+              },
+              "precision": {
+                "value": 1,
+                "numerator": 1,
+                "denominator": 1,
+                "display": "100.00% (1/1)"
+              }
+            }
+          },
+          "policy": {
+            "eligible": 1,
+            "exactActionMatches": 1,
+            "correctness": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 1,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "boundary_length_2049": {
+        "n": 1,
+        "counts": {
+          "tp": 1,
+          "fp": 0,
+          "tn": 0,
+          "fn": 0,
+          "predictedPositive": 1,
+          "actualPositive": 1,
+          "benign": 0,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 1,
+          "entityMatched": 1,
+          "entityPredicted": 1,
+          "policyEligible": 1,
+          "policyCorrect": 1,
+          "redactionEntitiesRequired": 1,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 1,
+              "matched": 1,
+              "predicted": 1
+            }
+          }
+        },
+        "metrics": {
+          "prompt": {
+            "tp": 1,
+            "fp": 0,
+            "tn": 0,
+            "fn": 0,
+            "precision": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            },
+            "f1": {
+              "value": 1,
+              "numerator": 2,
+              "denominator": 2,
+              "display": "100.00%"
+            },
+            "falsePositiveRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "benign": {
+            "evaluated": 0,
+            "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseWarningRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "benignPreventedRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseBlockWilson95Upper": null
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 1,
+            "matched": 1,
+            "predicted": 1,
+            "precision": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            }
+          },
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 1,
+              "matched": 1,
+              "predicted": 1,
+              "recall": {
+                "value": 1,
+                "numerator": 1,
+                "denominator": 1,
+                "display": "100.00% (1/1)"
+              },
+              "precision": {
+                "value": 1,
+                "numerator": 1,
+                "denominator": 1,
+                "display": "100.00% (1/1)"
+              }
+            }
+          },
+          "policy": {
+            "eligible": 1,
+            "exactActionMatches": 1,
+            "correctness": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 1,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
+      "boundary_length_9999": {
+        "n": 1,
+        "counts": {
+          "tp": 1,
+          "fp": 0,
+          "tn": 0,
+          "fn": 0,
+          "predictedPositive": 1,
+          "actualPositive": 1,
+          "benign": 0,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 1,
+          "entityMatched": 1,
+          "entityPredicted": 1,
+          "policyEligible": 1,
+          "policyCorrect": 1,
+          "redactionEntitiesRequired": 1,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 1,
+              "matched": 1,
+              "predicted": 1
+            }
+          }
+        },
+        "metrics": {
+          "prompt": {
+            "tp": 1,
+            "fp": 0,
+            "tn": 0,
+            "fn": 0,
+            "precision": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            },
+            "f1": {
+              "value": 1,
+              "numerator": 2,
+              "denominator": 2,
+              "display": "100.00%"
+            },
+            "falsePositiveRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            }
+          },
+          "benign": {
+            "evaluated": 0,
+            "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseWarningRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "benignPreventedRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseBlockWilson95Upper": null
+          },
+          "ambiguous": {
+            "excludedFromBinaryMetrics": 0,
+            "detected": 0,
+            "escalated": 0
+          },
+          "entities": {
+            "expected": 1,
+            "matched": 1,
+            "predicted": 1,
+            "precision": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            },
+            "recall": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            }
+          },
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 1,
+              "matched": 1,
+              "predicted": 1,
+              "recall": {
+                "value": 1,
+                "numerator": 1,
+                "denominator": 1,
+                "display": "100.00% (1/1)"
+              },
+              "precision": {
+                "value": 1,
+                "numerator": 1,
+                "denominator": 1,
+                "display": "100.00% (1/1)"
+              }
+            }
+          },
+          "policy": {
+            "eligible": 1,
+            "exactActionMatches": 1,
+            "correctness": {
+              "value": 1,
+              "numerator": 1,
+              "denominator": 1,
+              "display": "100.00% (1/1)"
+            }
+          },
+          "redaction": {
+            "entitiesRequired": 1,
+            "residualEntities": 0,
+            "residualRate": {
+              "value": 0,
+              "numerator": 0,
+              "denominator": 1,
+              "display": "0.00% (0/1)"
+            },
+            "unsafeRedactionReleases": 0
+          },
+          "engineFailures": 0
+        }
+      },
       "sensitive_0": {
         "n": 100,
+        "counts": {
+          "tp": 100,
+          "fp": 0,
+          "tn": 0,
+          "fn": 0,
+          "predictedPositive": 100,
+          "actualPositive": 100,
+          "benign": 0,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 100,
+          "entityMatched": 100,
+          "entityPredicted": 100,
+          "policyEligible": 100,
+          "policyCorrect": 100,
+          "redactionEntitiesRequired": 100,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 100,
+              "matched": 100,
+              "predicted": 100
+            }
+          }
+        },
         "metrics": {
           "prompt": {
             "tp": 100,
@@ -4505,6 +7413,12 @@
           "benign": {
             "evaluated": 0,
             "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseWarningRate": {
               "value": null,
               "numerator": 0,
               "denominator": 0,
@@ -4585,6 +7499,37 @@
       },
       "sensitive_1": {
         "n": 100,
+        "counts": {
+          "tp": 100,
+          "fp": 0,
+          "tn": 0,
+          "fn": 0,
+          "predictedPositive": 100,
+          "actualPositive": 100,
+          "benign": 0,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 100,
+          "entityMatched": 100,
+          "entityPredicted": 100,
+          "policyEligible": 100,
+          "policyCorrect": 100,
+          "redactionEntitiesRequired": 100,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 100,
+              "matched": 100,
+              "predicted": 100
+            }
+          }
+        },
         "metrics": {
           "prompt": {
             "tp": 100,
@@ -4624,6 +7569,12 @@
               "denominator": 0,
               "display": "N/A (0/0)"
             },
+            "falseWarningRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
             "benignPreventedRate": {
               "value": null,
               "numerator": 0,
@@ -4640,12 +7591,12 @@
           "entities": {
             "expected": 100,
             "matched": 100,
-            "predicted": 200,
+            "predicted": 100,
             "precision": {
-              "value": 0.5,
+              "value": 1,
               "numerator": 100,
-              "denominator": 200,
-              "display": "50.00% (100/200)"
+              "denominator": 100,
+              "display": "100.00% (100/100)"
             },
             "recall": {
               "value": 1,
@@ -4655,23 +7606,6 @@
             }
           },
           "perCategory": {
-            "BULK_CONTACT_LIST": {
-              "expected": 0,
-              "matched": 0,
-              "predicted": 100,
-              "recall": {
-                "value": null,
-                "numerator": 0,
-                "denominator": 0,
-                "display": "N/A (0/0)"
-              },
-              "precision": {
-                "value": 0,
-                "numerator": 0,
-                "denominator": 100,
-                "display": "0.00% (0/100)"
-              }
-            },
             "PII_EMAIL": {
               "expected": 100,
               "matched": 100,
@@ -4716,6 +7650,37 @@
       },
       "sensitive_2": {
         "n": 100,
+        "counts": {
+          "tp": 100,
+          "fp": 0,
+          "tn": 0,
+          "fn": 0,
+          "predictedPositive": 100,
+          "actualPositive": 100,
+          "benign": 0,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 100,
+          "entityMatched": 100,
+          "entityPredicted": 100,
+          "policyEligible": 100,
+          "policyCorrect": 100,
+          "redactionEntitiesRequired": 100,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 100,
+              "matched": 100,
+              "predicted": 100
+            }
+          }
+        },
         "metrics": {
           "prompt": {
             "tp": 100,
@@ -4750,6 +7715,12 @@
           "benign": {
             "evaluated": 0,
             "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseWarningRate": {
               "value": null,
               "numerator": 0,
               "denominator": 0,
@@ -4830,6 +7801,37 @@
       },
       "sensitive_3": {
         "n": 100,
+        "counts": {
+          "tp": 100,
+          "fp": 0,
+          "tn": 0,
+          "fn": 0,
+          "predictedPositive": 100,
+          "actualPositive": 100,
+          "benign": 0,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 100,
+          "entityMatched": 100,
+          "entityPredicted": 100,
+          "policyEligible": 100,
+          "policyCorrect": 100,
+          "redactionEntitiesRequired": 100,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 100,
+              "matched": 100,
+              "predicted": 100
+            }
+          }
+        },
         "metrics": {
           "prompt": {
             "tp": 100,
@@ -4864,6 +7866,12 @@
           "benign": {
             "evaluated": 0,
             "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseWarningRate": {
               "value": null,
               "numerator": 0,
               "denominator": 0,
@@ -4944,6 +7952,37 @@
       },
       "sensitive_4": {
         "n": 100,
+        "counts": {
+          "tp": 100,
+          "fp": 0,
+          "tn": 0,
+          "fn": 0,
+          "predictedPositive": 100,
+          "actualPositive": 100,
+          "benign": 0,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 100,
+          "entityMatched": 100,
+          "entityPredicted": 100,
+          "policyEligible": 100,
+          "policyCorrect": 100,
+          "redactionEntitiesRequired": 100,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 100,
+              "matched": 100,
+              "predicted": 100
+            }
+          }
+        },
         "metrics": {
           "prompt": {
             "tp": 100,
@@ -4978,6 +8017,12 @@
           "benign": {
             "evaluated": 0,
             "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseWarningRate": {
               "value": null,
               "numerator": 0,
               "denominator": 0,
@@ -5058,6 +8103,37 @@
       },
       "sensitive_5": {
         "n": 100,
+        "counts": {
+          "tp": 100,
+          "fp": 0,
+          "tn": 0,
+          "fn": 0,
+          "predictedPositive": 100,
+          "actualPositive": 100,
+          "benign": 0,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 100,
+          "entityMatched": 100,
+          "entityPredicted": 100,
+          "policyEligible": 100,
+          "policyCorrect": 100,
+          "redactionEntitiesRequired": 100,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 100,
+              "matched": 100,
+              "predicted": 100
+            }
+          }
+        },
         "metrics": {
           "prompt": {
             "tp": 100,
@@ -5092,6 +8168,12 @@
           "benign": {
             "evaluated": 0,
             "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseWarningRate": {
               "value": null,
               "numerator": 0,
               "denominator": 0,
@@ -5172,6 +8254,42 @@
       },
       "sensitive_6": {
         "n": 100,
+        "counts": {
+          "tp": 100,
+          "fp": 0,
+          "tn": 0,
+          "fn": 0,
+          "predictedPositive": 100,
+          "actualPositive": 100,
+          "benign": 0,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 200,
+          "entityMatched": 200,
+          "entityPredicted": 200,
+          "policyEligible": 100,
+          "policyCorrect": 100,
+          "redactionEntitiesRequired": 200,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 100,
+              "matched": 100,
+              "predicted": 100
+            },
+            "SECRET_TOKEN": {
+              "expected": 100,
+              "matched": 100,
+              "predicted": 100
+            }
+          }
+        },
         "metrics": {
           "prompt": {
             "tp": 100,
@@ -5206,6 +8324,12 @@
           "benign": {
             "evaluated": 0,
             "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseWarningRate": {
               "value": null,
               "numerator": 0,
               "denominator": 0,
@@ -5303,6 +8427,47 @@
       },
       "sensitive_7": {
         "n": 100,
+        "counts": {
+          "tp": 100,
+          "fp": 0,
+          "tn": 0,
+          "fn": 0,
+          "predictedPositive": 100,
+          "actualPositive": 100,
+          "benign": 0,
+          "benignBlocks": 0,
+          "benignWarnings": 0,
+          "benignPrevented": 0,
+          "ambiguous": 0,
+          "ambiguousDetected": 0,
+          "ambiguousEscalated": 0,
+          "entityExpected": 200,
+          "entityMatched": 200,
+          "entityPredicted": 208,
+          "policyEligible": 100,
+          "policyCorrect": 100,
+          "redactionEntitiesRequired": 200,
+          "redactionResidualEntities": 0,
+          "unsafeRedactionReleases": 0,
+          "engineFailures": 0,
+          "perCategory": {
+            "PII_EMAIL": {
+              "expected": 100,
+              "matched": 100,
+              "predicted": 100
+            },
+            "PII_PHONE": {
+              "expected": 100,
+              "matched": 100,
+              "predicted": 100
+            },
+            "PII_AADHAAR": {
+              "expected": 0,
+              "matched": 0,
+              "predicted": 8
+            }
+          }
+        },
         "metrics": {
           "prompt": {
             "tp": 100,
@@ -5337,6 +8502,12 @@
           "benign": {
             "evaluated": 0,
             "falseBlockRate": {
+              "value": null,
+              "numerator": 0,
+              "denominator": 0,
+              "display": "N/A (0/0)"
+            },
+            "falseWarningRate": {
               "value": null,
               "numerator": 0,
               "denominator": 0,
@@ -5451,5 +8622,115 @@
       }
     }
   },
-  "holdout": null
+  "holdout": null,
+  "qualityGate": {
+    "status": "PASS",
+    "scope": "synthetic regression only; not production accuracy or release evidence",
+    "thresholds": {
+      "minimumPromptPrecision": 0.9,
+      "minimumPromptRecall": 0.95,
+      "maximumBenignFalseBlockRate": 0.01,
+      "maximumRedactionResidualRate": 0,
+      "maximumUnsafeRedactionReleases": 0,
+      "maximumP95ScanLatencyMsUpTo10k": 300
+    },
+    "checks": [
+      {
+        "split": "development",
+        "metric": "promptPrecision",
+        "actual": 1,
+        "operator": "at_least",
+        "threshold": 0.9,
+        "passed": true
+      },
+      {
+        "split": "development",
+        "metric": "promptRecall",
+        "actual": 1,
+        "operator": "at_least",
+        "threshold": 0.95,
+        "passed": true
+      },
+      {
+        "split": "development",
+        "metric": "benignFalseBlockRate",
+        "actual": 0,
+        "operator": "at_most",
+        "threshold": 0.01,
+        "passed": true
+      },
+      {
+        "split": "development",
+        "metric": "redactionResidualRate",
+        "actual": 0,
+        "operator": "at_most",
+        "threshold": 0,
+        "passed": true
+      },
+      {
+        "split": "development",
+        "metric": "unsafeRedactionReleases",
+        "actual": 0,
+        "operator": "at_most",
+        "threshold": 0,
+        "passed": true
+      },
+      {
+        "split": "generated",
+        "metric": "promptPrecision",
+        "actual": 1,
+        "operator": "at_least",
+        "threshold": 0.9,
+        "passed": true
+      },
+      {
+        "split": "generated",
+        "metric": "promptRecall",
+        "actual": 1,
+        "operator": "at_least",
+        "threshold": 0.95,
+        "passed": true
+      },
+      {
+        "split": "generated",
+        "metric": "benignFalseBlockRate",
+        "actual": 0,
+        "operator": "at_most",
+        "threshold": 0.01,
+        "passed": true
+      },
+      {
+        "split": "generated",
+        "metric": "redactionResidualRate",
+        "actual": 0,
+        "operator": "at_most",
+        "threshold": 0,
+        "passed": true
+      },
+      {
+        "split": "generated",
+        "metric": "unsafeRedactionReleases",
+        "actual": 0,
+        "operator": "at_most",
+        "threshold": 0,
+        "passed": true
+      },
+      {
+        "split": "generated",
+        "metric": "p95ScanLatencyMs_under1k",
+        "actual": 0.134,
+        "operator": "at_most",
+        "threshold": 300,
+        "passed": true
+      },
+      {
+        "split": "generated",
+        "metric": "p95ScanLatencyMs_1kTo10k",
+        "actual": 1.42,
+        "operator": "at_most",
+        "threshold": 300,
+        "passed": true
+      }
+    ]
+  }
 }

@@ -11,6 +11,7 @@ DomainSummaryV2 = TypedDict("DomainSummaryV2", {
     "siteVisitsObserved": Required[int],
     "guardedAttempts": Required[int],
     "lastVisitAt": Required[Union[str, None]],
+    "bestEffortAttempts": Required[int],
 }, total=False)
 
 DeviceSummaryV2 = TypedDict("DeviceSummaryV2", {
@@ -18,6 +19,7 @@ DeviceSummaryV2 = TypedDict("DeviceSummaryV2", {
     "lastHeartbeatAt": Required[Union[str, None]],
     "lastEventAt": Required[Union[str, None]],
     "observation": Required[Literal["RECENTLY_SEEN", "STALE", "NEVER_SEEN"]],
+    "enrollmentStatus": Required[Literal["ACTIVE", "REVOKED"]],
 }, total=False)
 
 DeviceListV2 = TypedDict("DeviceListV2", {

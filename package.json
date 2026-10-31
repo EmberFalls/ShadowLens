@@ -12,6 +12,7 @@
     "contracts:python:generate": "node packages/contracts/scripts/generate-python-types.mjs",
     "contracts:python:check": "node packages/contracts/scripts/generate-python-types.mjs --check",
     "build:extension": "tsc -p apps/extension/tsconfig.json && tsc -p apps/extension/tsconfig.background.json && node apps/extension/scripts/build-worker.mjs && node apps/extension/scripts/copy-static.mjs",
+    "package:extension": "npm run build:extension && python apps/extension/scripts/package.py",
     "check:extension": "node apps/extension/scripts/validate-manifest.mjs",
     "test:extension": "npm run build:extension && node --test apps/extension/tests/*.test.mjs",
     "test:extension:browser": "npm run build:extension && playwright test -c apps/extension/playwright.config.mjs",

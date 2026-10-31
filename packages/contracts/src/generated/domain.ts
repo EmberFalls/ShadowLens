@@ -10,6 +10,7 @@ export interface DomainSummaryV2 {
   siteVisitsObserved: number;
   guardedAttempts: number;
   lastVisitAt: string | null;
+  bestEffortAttempts: number;
 }
 export interface DeviceListV2 {
   contractVersion: 'v2';
@@ -20,4 +21,5 @@ export interface DeviceSummaryV2 {
   lastHeartbeatAt: string | null;
   lastEventAt: string | null;
   observation: 'RECENTLY_SEEN' | 'STALE' | 'NEVER_SEEN';
+  enrollmentStatus: 'ACTIVE' | 'REVOKED';
 }

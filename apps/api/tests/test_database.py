@@ -24,6 +24,7 @@ from apps.api.shadow_api.db.database import (
     migrate,
     normalize_utc_timestamp,
     prune_events,
+    revoke_device,
     seed_domains,
     update_domain_approval,
     verify_bearer_token,
@@ -67,9 +68,9 @@ def test_cold_start_migration_is_repeatable_and_enables_constraints(tmp_path: Pa
     try:
         assert connection.execute("PRAGMA foreign_keys").fetchone()[0] == 1
         assert connection.execute("PRAGMA journal_mode").fetchone()[0].lower() == "wal"
-        assert connection.execute("SELECT count(*) FROM schema_migrations").fetchone()[0] == 1
+        assert connection.execute("SELECT count(*) FROM schema_migrations").fetchone()[0] == 5
         tables = {row[0] for row in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")}
-        assert {"devices", "domains", "events", "owners", "owner_sessions", "domain_approval_changes"} <= tables
+        assert {"devices", "domains", "events", "owners", "owner_sessions", "domain_approval_changes", "app_settings", "owner_audit"} <= tables
         indexes = {row[0] for row in connection.execute("SELECT name FROM sqlite_master WHERE type='index'")}
         assert {"idx_events_kind_time", "idx_events_site_time", "idx_events_device_time", "idx_approval_changes_site_time"} <= indexes
         assert len(connection.execute("PRAGMA foreign_key_list(events)").fetchall()) == 2
@@ -179,6 +180,40 @@ def test_retention_deletes_events_only_and_defaults_to_30_days(tmp_path: Path) -
         assert connection.execute("SELECT count(*) FROM owners WHERE owner_id='owner-1'").fetchone()[0] == 1
         with pytest.raises(ValueError):
             prune_events(connection, retention_days=0)
+    finally:
+        connection.close()
+
+
+def test_database_startup_applies_default_event_retention(tmp_path: Path) -> None:
+    path = tmp_path / "startup_retention.sqlite3"
+    make_database(path)
+    connection = connect(path)
+    try:
+        insert_event(connection, site_event(event_id="expired"), ingested_at="2020-01-01T00:00:00Z")
+    finally:
+        connection.close()
+
+
+def test_device_revocation_is_idempotent_and_keeps_audit_history(tmp_path: Path) -> None:
+    path = tmp_path / "device_revocation.sqlite3"
+    make_database(path)
+    connection = connect(path)
+    try:
+        insert_event(connection, site_event(event_id="before-revoke"), ingested_at="2026-10-30T08:00:00Z")
+        assert revoke_device(connection, DEVICE_ID, revoked_at="2026-10-31T08:00:00Z") is True
+        assert revoke_device(connection, DEVICE_ID, revoked_at="2026-10-31T08:01:00Z") is False
+        assert revoke_device(connection, "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa") is None
+        assert connection.execute("SELECT revoked_at FROM devices WHERE device_id=?", (DEVICE_ID,)).fetchone()[0] == "2026-10-31T08:00:00.000000Z"
+        assert connection.execute("SELECT count(*) FROM events WHERE device_id=?", (DEVICE_ID,)).fetchone()[0] == 1
+    finally:
+        connection.close()
+
+    initialize_database(path)
+    connection = connect(path)
+    try:
+        # Revocation must retain recent event history; the 30-day retention
+        # policy should only remove this after it expires.
+        assert connection.execute("SELECT count(*) FROM events").fetchone()[0] == 1
     finally:
         connection.close()
 

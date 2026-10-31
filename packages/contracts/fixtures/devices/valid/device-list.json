@@ -5,7 +5,8 @@
       "deviceId": "61d92fe7-323f-4e37-8016-6691c93f7401",
       "lastHeartbeatAt": "2026-10-30T09:00:00Z",
       "lastEventAt": null,
-      "observation": "RECENTLY_SEEN"
+      "observation": "RECENTLY_SEEN",
+      "enrollmentStatus": "ACTIVE"
     }
   ]
 }

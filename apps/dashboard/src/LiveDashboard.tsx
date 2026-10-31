@@ -25,7 +25,12 @@ export function LiveDashboard() {
     if (typeof password !== "string" || !password) { setLoginError("Enter the owner password."); return; }
     event.currentTarget.reset();
     try { await client.login(password); setSession("signed-in"); }
-    catch (error) { setLoginError(error instanceof ApiError && error.status >= 500 ? "The local service is unavailable." : "Sign-in failed. Check the owner password and try again."); }
+    catch (error) {
+      if (error instanceof ApiError && error.status === 429) {
+        const wait = error.retryAfterSeconds;
+        setLoginError(wait ? `Too many sign-in attempts. Try again in ${wait} seconds.` : "Too many sign-in attempts. Try again later.");
+      } else setLoginError(error instanceof ApiError && error.status >= 500 ? "The local service is unavailable." : "Sign-in failed. Check the owner password and try again.");
+    }
   }}><p className="eyebrow">LOCAL OWNER ACCESS</p><h1>Sign in to ShadowLens</h1><p>Dashboard data stays on this device. Sign-in is required to view it.</p><label htmlFor="owner-password">Owner password</label><input id="owner-password" name="password" type="password" autoComplete="current-password" required maxLength={1024} /><button type="submit">Sign in</button>{loginError && <p role="alert" className="error">{loginError}</p>}</form></main>;
   return <App client={client} mode="LIVE" onLogout={async () => { try { await client.logout(); } finally { setSession("signed-out"); } }} />;
 }

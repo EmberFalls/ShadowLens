@@ -61,9 +61,9 @@ describe("live dashboard API client", () => {
 
   it("rejects payloads with raw prompt or URL fields instead of rendering them", async () => {
     const unsafe = await mockClient.getEvents(50);
-    const first = unsafe.items[0] as unknown as Record<string, unknown>;
+    const first = unsafe.items[0] as unknown as { event: Record<string, unknown>; ingestedAt: string };
     for (const extra of [{ promptText: "should never render" }, { content: "unrecognized private data" }]) {
-      const client = createApiClient({ fetchImpl: vi.fn(async () => response({ ...unsafe, items: [{ ...first, ...extra }] })) as typeof fetch });
+      const client = createApiClient({ fetchImpl: vi.fn(async () => response({ ...unsafe, items: [{ ...first, event: { ...first.event, ...extra } }] })) as typeof fetch });
       await expect(client.getEvents(50)).rejects.toMatchObject<ApiError>({ status: 502, code: "INVALID_RESPONSE" });
     }
   });

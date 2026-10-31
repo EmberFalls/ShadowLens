@@ -16,7 +16,7 @@ def list_devices(connection: sqlite3.Connection, *, now: datetime | str | None =
     current = datetime.fromisoformat(current_text.replace("Z", "+00:00"))
     fresh_after = normalize_utc_timestamp(current - timedelta(minutes=FRESHNESS_MINUTES))
     rows = connection.execute(
-        "SELECT d.device_id, d.last_heartbeat_at, MAX(e.ingested_at) AS last_event_at "
+        "SELECT d.device_id, d.last_heartbeat_at, d.revoked_at, MAX(e.ingested_at) AS last_event_at "
         "FROM devices d LEFT JOIN events e ON e.device_id = d.device_id "
         "GROUP BY d.device_id, d.last_heartbeat_at ORDER BY d.created_at, d.device_id"
     ).fetchall()
@@ -35,6 +35,7 @@ def list_devices(connection: sqlite3.Connection, *, now: datetime | str | None =
             "lastHeartbeatAt": None if heartbeat is None else str(heartbeat),
             "lastEventAt": None if last_event is None else str(last_event),
             "observation": observation,
+            "enrollmentStatus": "REVOKED" if row["revoked_at"] is not None else "ACTIVE",
         })
     return {"contractVersion": "v2", "items": items}
 
