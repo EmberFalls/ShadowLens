@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { analyze, type PolicyConfig } from "@shadowshield/engine";
 import type { DataClient, OwnerPolicy, PolicyDraft, PolicyKeyInfo } from "../api/types.js";
 
 function editablePolicy(policy: OwnerPolicy): Omit<PolicyDraft, "protectedTerms"> {
@@ -22,6 +23,7 @@ export function Policy({ client }: { client: DataClient }) {
   const [json, setJson] = useState("");
   const [protectedTerms, setProtectedTerms] = useState("");
   const [busy, setBusy] = useState(false);
+  const [simulation, setSimulation] = useState<Array<{ label: string; action: string; findings: string[] }> | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -62,16 +64,56 @@ export function Policy({ client }: { client: DataClient }) {
     catch { setError("Clipboard access is unavailable. Select and copy the fingerprint manually."); }
   }
 
+  function simulate() {
+    let draftRules: Omit<PolicyDraft, "protectedTerms">;
+    try { draftRules = JSON.parse(json) as Omit<PolicyDraft, "protectedTerms">; }
+    catch { setSimulation(null); setError("Policy JSON is invalid; correct it before previewing."); return; }
+    const terms = parseProtectedTerms(protectedTerms);
+    if (!terms) { setSimulation(null); setError("Enter up to 100 unique phrases, each 3–100 printable characters, one per line."); return; }
+    if (!policy) return;
+    const candidate = {
+      contractVersion: "v2" as const,
+      revision: policy.revision,
+      updatedAt: new Date().toISOString(),
+      ...draftRules,
+      protectedTerms: terms,
+    } as PolicyConfig;
+    const examples = [
+      { label: "Routine business request", text: "Summarize the public launch checklist and list its three milestones." },
+      { label: "Synthetic contact detail", text: "For this demo, contact the sample user at person@shop.invalid." },
+      { label: "Synthetic private key", text: "-----BEGIN PRIVATE KEY-----\nSYNTHETIC_ONLY\n-----END PRIVATE KEY-----" },
+      { label: "Confidentiality marker", text: "CONFIDENTIAL: review the sample project roadmap." },
+      ...(terms[0] ? [{ label: "Configured business term", text: `Synthetic policy preview for ${terms[0]}.` }] : []),
+    ];
+    try {
+      const result = examples.map(({ label, text }) => {
+        const output = analyze({ text, policy: candidate });
+        return { label, action: output.decision.action, findings: [...new Set(output.detection.findings.map((finding) => finding.category))] };
+      });
+      setError(null);
+      setSimulation(result);
+    } catch {
+      setSimulation(null);
+      setError("Policy could not be simulated. Check supported fields and keep the required private-key block rule enabled.");
+    }
+  }
+
   return <section className="panel">
     <h2>Owner policy</h2>
     <p className="muted">Policy revisions are signed by this installation. Connected extensions verify signatures locally before using a revision. Private-key findings remain blocked and cannot be weakened here. Business terms are delivered in the signed policy and scanned on enrolled browsers; matched text is never included in usage events.</p>
     {policy && <p>Current revision: <strong>{policy.revision}</strong> · Updated: {new Date(policy.updatedAt).toLocaleString()}</p>}
     <label htmlFor="owner-protected-terms">Business protected terms</label>
     <p className="muted">One customer, project, or internal term per line. Each term is stored by this owner service and copied to enrolled browser profiles for local scanning.</p>
-    <textarea id="owner-protected-terms" rows={6} maxLength={10099} spellCheck={false} value={protectedTerms} onChange={(event) => setProtectedTerms(event.target.value)} placeholder={"Project Atlas\nCustomer Acme"} />
+    <textarea id="owner-protected-terms" rows={6} maxLength={10099} spellCheck={false} value={protectedTerms} onChange={(event) => { setProtectedTerms(event.target.value); setSimulation(null); }} placeholder={"Project Atlas\nCustomer Acme"} />
     <label htmlFor="owner-policy-json">Policy rules (JSON)</label>
-    <textarea id="owner-policy-json" className="policy-editor" spellCheck={false} value={json} onChange={(event) => setJson(event.target.value)} />
+    <textarea id="owner-policy-json" className="policy-editor" spellCheck={false} value={json} onChange={(event) => { setJson(event.target.value); setSimulation(null); }} />
     <button disabled={busy || !policy} onClick={() => void save()}>{busy ? "Saving…" : "Save and sign policy"}</button>
+    <section className="policy-simulator" aria-labelledby="policy-simulator-title">
+      <h2 id="policy-simulator-title">Policy simulator</h2>
+      <p className="muted">Preview the unsaved rules against synthetic examples in this browser. Prompt text and matched business terms are not sent to the service, saved, or shown in results. This is a small sanity check, not an evaluation or protection guarantee.</p>
+      <button type="button" className="secondary" disabled={!policy} onClick={simulate}>Preview current draft</button>
+      {simulation && <div className="table-wrap"><table aria-label="Synthetic policy preview"><thead><tr><th>Example</th><th>Detected categories</th><th>Draft action</th></tr></thead><tbody>{simulation.map((item) => <tr key={item.label}><td>{item.label}</td><td>{item.findings.length ? item.findings.join(", ") : "None"}</td><td><strong>{item.action}</strong></td></tr>)}</tbody></table></div>}
+    </section>
     <h2>Device trust fingerprint</h2>
     <p className="muted">Compare this value with the fingerprint shown when enrolling a browser, then enter it in that browser’s extension settings.</p>
     {key && <p><code className="credential-value">{key.keyId}</code> <button onClick={() => void copyFingerprint()}>Copy fingerprint</button></p>}
