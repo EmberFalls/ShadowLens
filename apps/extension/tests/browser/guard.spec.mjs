@@ -37,7 +37,7 @@ async function trustedReviewClick(selector) {
 }
 
 test.beforeAll(async ({}, info) => {
-  const extension = resolve("apps/extension/dist");
+  const extension = resolve(process.env.SHADOWLENS_EXTENSION_DIR ?? "apps/extension/dist");
   let executablePath = process.env.SHADOWLENS_CHROMIUM_EXECUTABLE;
   // On this Windows sandbox, activation of cached Chrome assemblies fails outside
   // the workspace. Stage an unchanged copy; never alter the signed browser files.

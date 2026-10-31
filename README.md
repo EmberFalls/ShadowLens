@@ -14,7 +14,10 @@ npm --prefix tests/eval test
 npm run test:dashboard
 npm run build:dashboard
 npm run test:extension:browser
+npm run test:extension:package
 ```
+
+`test:extension:package` builds the store-upload ZIP, extracts it into a fresh temporary directory, then loads that extracted package into a clean Chromium profile and runs synthetic Gemini guard fixtures. It verifies the packaged artifact can load and enforce its text gate; it does not verify current live provider pages or substitute for release tagging and rollback.
 
 The extension browser suite uses Playwright 1.58.2 with its bundled Chromium build. On Windows, Playwright stages an unchanged browser copy under `apps/extension/.browser-runtime` because the cached browser cannot be activated from its original location in this environment.
 

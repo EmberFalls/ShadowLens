@@ -53,6 +53,9 @@ jobs:
       - name: Test extension worker and gate
         run: npm run test:extension
 
+      - name: Test packaged extension in a clean browser profile
+        run: npm run test:extension:package
+
       - name: Test dashboard
         run: npm run test:dashboard
 
@@ -79,3 +82,4 @@ jobs:
             tests/eval/report.json
             tests/eval/report.md
           retention-days: 14
+

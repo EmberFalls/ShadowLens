@@ -16,6 +16,7 @@
     "check:extension": "node apps/extension/scripts/validate-manifest.mjs",
     "test:extension": "npm run build:extension && node --test apps/extension/tests/*.test.mjs",
     "test:extension:browser": "npm run build:extension && playwright test -c apps/extension/playwright.config.mjs",
+    "test:extension:package": "npm run package:extension && node apps/extension/scripts/test-packaged-extension.mjs",
     "build:dashboard": "npm --prefix apps/dashboard run build",
     "test:dashboard": "npm --prefix apps/dashboard test",
     "test:e2e": "npm run test:extension:browser && node tests/e2e/run.mjs",
@@ -32,3 +33,4 @@
     "typescript": "^5.7.3"
   }
 }
+
