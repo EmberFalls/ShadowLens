@@ -63,7 +63,7 @@ test.beforeAll(async ({}, info) => {
 });
 test.afterAll(async () => { await context?.close(); });
 test.beforeEach(async ({}, testInfo) => {
-  if (process.env.SHADOWLENS_PROVIDER_FIXTURES_ONLY === "1" && /Gemini textarea wrapper|unknown Gemini editor/.test(testInfo.title)) return;
+  if (process.env.SHADOWLENS_PROVIDER_FIXTURES_ONLY === "1" && /Gemini textarea wrapper|Gemini benign send and SPA composer replacement|unknown Gemini editor/.test(testInfo.title)) return;
   await page.goto("http://localhost:4173");
   await expect(page.locator("#coverage")).toContainText("SANDBOX GUARDED");
 });
@@ -324,6 +324,45 @@ test("Gemini textarea wrapper is recognized and redacted before its send handler
   await context.unroute("https://gemini.google.com/**");
 });
 
+test("Gemini benign send and SPA composer replacement preserve the guard", async () => {
+  await page.bringToFront();
+  await context.route("https://gemini.google.com/**", route => route.fulfill({ contentType: "text/html", body: `<!doctype html><html><body>
+    <div class="text-input-field_textarea-wrapper"><textarea placeholder="Enter a prompt for Gemini"></textarea></div>
+    <button id="provider-send" aria-label="Send message">Send</button><ol id="provider-received"></ol>
+    <script>document.querySelector('#provider-send').addEventListener('click',()=>{const item=document.createElement('li');item.textContent=document.querySelector('textarea').value;document.querySelector('#provider-received').append(item);});</script>
+  </body></html>` }));
+  await page.goto("https://gemini.google.com/");
+  await expect.poll(() => page.locator("html").getAttribute("data-shadowshield-coverage")).toBe("THIRD_PARTY_BEST_EFFORT");
+  const initialComposer = page.locator(".text-input-field_textarea-wrapper textarea");
+  const benign = "Summarize this public fictional story.";
+  await initialComposer.fill(benign);
+  await page.locator("#provider-send").click();
+  await expect(page.locator("#provider-received li")).toHaveCount(0);
+  await page.locator("#provider-send").click();
+  await expect(page.locator("#provider-received li")).toHaveText([benign]);
+  await expect(page.locator("#shadowshield-review-host")).toHaveCount(0);
+  await page.waitForTimeout(400);
+
+  await page.locator(".text-input-field_textarea-wrapper").evaluate(wrapper => {
+    history.pushState({}, "", "/app/after-navigation");
+    const replacement = document.createElement("textarea");
+    replacement.placeholder = "Enter a prompt for Gemini";
+    wrapper.replaceChildren(replacement);
+  });
+  const replacement = page.locator(".text-input-field_textarea-wrapper textarea");
+  const sensitive = "Synthetic contact qa.person@example.com";
+  await replacement.fill(sensitive);
+  await page.locator("#provider-send").click();
+  await expect(page.locator("#shadowshield-review-host")).toHaveCount(1);
+  expect(await reviewValue(".preview")).toBe("Synthetic contact [REDACTED_PII]");
+  await trustedReviewClick(".approve");
+  await expect(replacement).toHaveValue("Synthetic contact [REDACTED_PII]");
+  await expect(page.locator("#provider-received li")).toHaveCount(1);
+  await page.locator("#provider-send").click();
+  await expect(page.locator("#provider-received li")).toHaveText([benign, "Synthetic contact [REDACTED_PII]"]);
+  await context.unroute("https://gemini.google.com/**");
+});
+
 test("unknown Gemini editor blocks both Enter and Send instead of passing a draft through", async () => {
   await page.bringToFront();
   await context.route("https://gemini.google.com/**", route => route.fulfill({ contentType: "text/html", body: `<!doctype html><html><body>
@@ -388,3 +427,4 @@ test("provider fixture blocks recognized file and voice paths and clears a selec
   expect(transferWasBlocked).toBe(true);
   await context.unroute("https://chatgpt.com/**");
 });
+
