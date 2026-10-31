@@ -35,6 +35,12 @@ jobs:
       - name: Install dashboard dependencies
         run: npm ci --prefix apps/dashboard
 
+      - name: Audit root dependencies
+        run: npm audit --audit-level=low
+
+      - name: Audit dashboard dependencies
+        run: npm --prefix apps/dashboard audit --audit-level=low
+
       - name: Install API and test dependencies
         run: python -m pip install -e "apps/api[test]"
 
